@@ -1,10 +1,18 @@
 # Changelog
 
+## 1.1.2-alpha — Story owner and Drive authorization
+
+- Use the account name in an Instagram Story URL for its folder, even when the extractor returns a numeric user ID.
+- Parse the Google authorization result before treating an account selection as cancelled; show the returned error code when available.
+- Document the existing release certificate SHA-1 and required Google Drive OAuth configuration.
+
 ## 1.1.1-alpha — Drive account and media folders
 
 - Confirm Drive authorization with the selected account, display the connected email, and allow changing the account.
 - Save files into `TGDrive/site/username/type/filename` in Gallery and Google Drive.
 - Persist job status before refreshing the screen; show 100% only after destinations finish.
+- Fix the duplicate local variable in `History.record` that prevented Java compilation.
+- Fix the duplicate local variable in `History.record` that prevented Java compilation.
 
 ## 1.1.0-alpha — build workflow fix
 

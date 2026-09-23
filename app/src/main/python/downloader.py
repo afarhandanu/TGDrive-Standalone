@@ -75,20 +75,23 @@ def _location(url):
 
 def _resolve_username(path, root, url):
     parts = path.relative_to(root).parts
-    if len(parts) < 4 or parts[1].lower() != 'unknown':
+    if len(parts) < 4:
         return path
     site = parts[0]
     found = re.search(r'(?:Video|Photo|Story)_by_([A-Za-z0-9._-]+)', path.name, re.I)
-    username = found.group(1) if found else None
     url_parts = urllib.parse.urlparse(url).path.strip('/').split('/')
-    if not username and site == 'x' and url_parts:
+    if site == 'instagram' and len(url_parts) > 1 and url_parts[0].lower() == 'stories':
+        username = url_parts[1]  # The Story URL identifies its owner; yt-dlp may return a numeric user ID.
+    elif site == 'x' and len(url_parts) > 1 and url_parts[1].lower() == 'status':
         username = url_parts[0]
-    if not username and site == 'instagram' and len(url_parts) > 1 and url_parts[0] == 'stories':
-        username = url_parts[1]
+    elif site == 'instagram' and url_parts and url_parts[0].lower() not in ('p', 'reel', 'reels', 'tv', 'explore', 'accounts'):
+        username = url_parts[0]
+    else:
+        username = found.group(1) if found else None
     if not username:
         return path
     username = re.sub(r'[^a-zA-Z0-9._-]', '_', username).strip('._')[:80]
-    if not username:
+    if not username or username.lower() == parts[1].lower():
         return path
     target = root / site / username / Path(*parts[2:])
     target.parent.mkdir(parents=True, exist_ok=True)

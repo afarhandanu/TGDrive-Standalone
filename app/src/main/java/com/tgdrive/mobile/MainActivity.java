@@ -27,6 +27,7 @@ import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.AuthorizationResult;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.ApiException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.Collections;
@@ -206,10 +207,23 @@ public class MainActivity extends Activity {
             return;
         }
         if (request == DRIVE_AUTH) {
-            if (result != RESULT_OK || data == null) { driveFailed("Pemilihan akun Drive dibatalkan"); return; }
-            try { AuthorizationResult auth = Identity.getAuthorizationClient(this).getAuthorizationResultFromIntent(data);
-                authorized(auth.getAccessToken());
-            } catch (Exception e) { driveFailed("Drive: " + e.getMessage()); }
+            // The authorization result itself is authoritative: some Google flows do not
+            // return RESULT_OK even when an Intent with a valid token is provided.
+            if (data != null) {
+                try {
+                    AuthorizationResult auth = Identity.getAuthorizationClient(this).getAuthorizationResultFromIntent(data);
+                    if (auth.getAccessToken() != null && !auth.getAccessToken().isEmpty()) {
+                        authorized(auth.getAccessToken()); return;
+                    }
+                } catch (ApiException e) {
+                    driveFailed("Otorisasi Drive gagal (kode " + e.getStatusCode() + "). Periksa OAuth Android dan akun penguji.");
+                    return;
+                } catch (Exception e) {
+                    driveFailed("Drive: " + e.getMessage()); return;
+                }
+            }
+            driveFailed("Otorisasi Drive tidak selesai setelah memilih akun (hasil " + result +
+                "). Periksa OAuth Android, SHA-1 sertifikat rilis, dan akun penguji.");
         }
     }
     private void authorized(String token) {
