@@ -1,0 +1,106 @@
+name: Build TGDrive APK
+run-name: "TGDrive APK • #${{ github.run_number }} • ${{ github.ref_name }} • ${{ github.actor }}"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "master", "dev"]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  release-apk:
+    name: "Release APK #${{ github.run_number }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 36 SDK
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+
+      - name: Validate signing secrets
+        env:
+          KS_B64: ${{ secrets.TGDRIVE_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.TGDRIVE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for v in KS_B64 KS_PASS KEY_ALIAS KEY_PASS; do
+            if [ -z "${!v:-}" ]; then
+              echo "Missing required signing secret: $v"
+              echo "See docs/SIGNING.md. Release build intentionally stops instead of generating a random key."
+              exit 1
+            fi
+          done
+
+      - name: Restore fixed release keystore
+        env:
+          KS_B64: ${{ secrets.TGDRIVE_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$KS_B64" | base64 --decode > "$RUNNER_TEMP/tgdrive-release.jks"
+          echo 'd25e10c3d752d1fa5205428978ddfa8fc076626517b63f1092a68190e2a7944f  '"$RUNNER_TEMP/tgdrive-release.jks" | sha256sum --check --status
+          keytool -list -keystore "$RUNNER_TEMP/tgdrive-release.jks" -storepass "$KS_PASS" -alias "$KEY_ALIAS" >/dev/null
+
+      - name: Build signed release APK
+        env:
+          TGDRIVE_KEYSTORE_PATH: ${{ runner.temp }}/tgdrive-release.jks
+          TGDRIVE_KEYSTORE_PASSWORD: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD }}
+          TGDRIVE_KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS }}
+          TGDRIVE_KEY_PASSWORD: ${{ secrets.TGDRIVE_KEY_PASSWORD }}
+        run: gradle --no-daemon --stacktrace :app:assembleRelease
+
+      - name: Name artifact uniquely
+        id: artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION_NAME="$(grep '^VERSION_NAME=' version.properties | cut -d= -f2)"
+          VERSION_CODE="$(grep '^VERSION_CODE=' version.properties | cut -d= -f2)"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          BASENAME="TGDrive-v${VERSION_NAME}-vc${VERSION_CODE}-run${GITHUB_RUN_NUMBER}-${SHORT_SHA}"
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/${BASENAME}.apk"
+          sha256sum "dist/${BASENAME}.apk" > "dist/${BASENAME}.sha256"
+          echo "basename=$BASENAME" >> "$GITHUB_OUTPUT"
+          echo "### $BASENAME" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat "dist/${BASENAME}.sha256" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload uniquely named APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.basename }}
+          path: |
+            dist/${{ steps.artifact.outputs.basename }}.apk
+            dist/${{ steps.artifact.outputs.basename }}.sha256
+          if-no-files-found: error
+          retention-days: 30
