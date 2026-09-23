@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1-alpha — Drive account and media folders
+
+- Confirm Drive authorization with the selected account, display the connected email, and allow changing the account.
+- Save files into `TGDrive/site/username/type/filename` in Gallery and Google Drive.
+- Persist job status before refreshing the screen; show 100% only after destinations finish.
+
 ## 1.1.0-alpha — build workflow fix
 
 - Updated Android SDK setup to v4 and installed the required SDK packages explicitly. This avoids the discontinued `tools` package requested during setup.

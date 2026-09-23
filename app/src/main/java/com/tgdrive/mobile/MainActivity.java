@@ -1,6 +1,7 @@
 package com.tgdrive.mobile;
 
 import android.app.Activity;
+import android.accounts.Account;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,6 +36,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /** Local downloader UI. Google authorization is only requested when Drive is selected. */
 public class MainActivity extends Activity {
@@ -43,7 +46,7 @@ public class MainActivity extends Activity {
     private static final int LOCAL_FILE = 714;
     private EditText url, limit, folder;
     private CheckBox subtitles, thumbnail, metadata;
-    private TextView history, destinationLabel, qualityLabel;
+    private TextView history, destinationLabel, qualityLabel, driveStatus;
     private String destination = "gallery", quality = "best";
     private String pendingUrl;
     private String pendingImportPath;
@@ -51,7 +54,9 @@ public class MainActivity extends Activity {
     private final ArrayList<String> pendingLocalPaths = new ArrayList<>();
     private String importCategory = "all";
     private ArrayList<String> pendingUrls = new ArrayList<>();
-    private boolean browsingDrive;
+    private String driveAction = "connect", driveEmail;
+    private boolean authorizingDrive;
+    private final ExecutorService driveIo = Executors.newSingleThreadExecutor();
     private BroadcastReceiver receiver;
 
     @Override public void onCreate(Bundle state) {
@@ -67,7 +72,7 @@ public class MainActivity extends Activity {
         else registerReceiver(receiver, new IntentFilter(DownloadService.EVENTS));
     }
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); acceptShare(intent); }
-    @Override protected void onDestroy() { unregisterReceiver(receiver); super.onDestroy(); }
+    @Override protected void onDestroy() { unregisterReceiver(receiver); driveIo.shutdownNow(); super.onDestroy(); }
     private void acceptShare(Intent intent) {
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getStringExtra(Intent.EXTRA_TEXT) != null)
             url.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
@@ -124,8 +129,11 @@ public class MainActivity extends Activity {
         Button instagram = button("Masuk Instagram", Color.rgb(225, 62, 118));
         instagram.setOnClickListener(v -> openLogin("instagram")); outer.addView(instagram);
         Button x = button("Masuk X", navy); x.setOnClickListener(v -> openLogin("x")); outer.addView(x);
+        driveStatus = label("Google Drive · Belum terhubung", 14, ink, true); outer.addView(driveStatus);
+        Button connect = button("Hubungkan / ganti akun Google Drive", Color.rgb(65, 87, 220));
+        connect.setOnClickListener(v -> { driveAction = "connect"; authorizeDrive(true); }); outer.addView(connect);
         Button files = button("Kelola file Google Drive", Color.rgb(65, 87, 220));
-        files.setOnClickListener(v -> { browsingDrive = true; authorizeDrive(); }); outer.addView(files);
+        files.setOnClickListener(v -> { driveAction = "browse"; authorizeDrive(driveEmail == null); }); outer.addView(files);
         outer.addView(label("IMPORT INSTAGRAM JSON / ZIP", 13, muted, true));
         row(outer, new String[]{"Semua", "Feed", "Reels", "Stories", "Tagged"},
             new String[]{"all", "feed", "reels", "stories", "mentions"}, value -> {
@@ -165,18 +173,24 @@ public class MainActivity extends Activity {
             toast("Masukkan URL http/https yang valid"); return;
         }
         if (destination.equals("gallery")) { enqueue(null); return; }
-        browsingDrive = false;
-        authorizeDrive();
+        driveAction = "download";
+        authorizeDrive(driveEmail == null);
     }
-    private void authorizeDrive() {
-        AuthorizationRequest request = AuthorizationRequest.builder()
-            .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive"))).build();
+    private void authorizeDrive(boolean chooseAccount) {
+        if (authorizingDrive) { toast("Tunggu proses koneksi Drive selesai"); return; }
+        authorizingDrive = true;
+        driveStatus.setText("Google Drive · Menghubungkan…");
+        AuthorizationRequest.Builder builder = AuthorizationRequest.builder()
+            .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive")));
+        if (chooseAccount) builder.setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT);
+        else if (driveEmail != null) builder.setAccount(new Account(driveEmail, "com.google"));
+        AuthorizationRequest request = builder.build();
         Identity.getAuthorizationClient(this).authorize(request).addOnSuccessListener(result -> {
             if (result.hasResolution()) {
                 try { startIntentSenderForResult(result.getPendingIntent().getIntentSender(), DRIVE_AUTH, null, 0, 0, 0); }
-                catch (Exception e) { toast("Login Drive: " + e.getMessage()); }
+                catch (Exception e) { driveFailed("Login Drive: " + e.getMessage()); }
             } else authorized(result.getAccessToken());
-        }).addOnFailureListener(e -> toast("Drive: " + e.getMessage()));
+        }).addOnFailureListener(e -> driveFailed("Drive: " + e.getMessage()));
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
@@ -191,15 +205,35 @@ public class MainActivity extends Activity {
             url.setHint(selectedFiles.size() + " file dipilih · pilih tujuan lalu mulai");
             return;
         }
-        if (request == DRIVE_AUTH && result == RESULT_OK) {
+        if (request == DRIVE_AUTH) {
+            if (result != RESULT_OK || data == null) { driveFailed("Pemilihan akun Drive dibatalkan"); return; }
             try { AuthorizationResult auth = Identity.getAuthorizationClient(this).getAuthorizationResultFromIntent(data);
                 authorized(auth.getAccessToken());
-            } catch (Exception e) { toast("Drive: " + e.getMessage()); }
+            } catch (Exception e) { driveFailed("Drive: " + e.getMessage()); }
         }
     }
     private void authorized(String token) {
-        if (browsingDrive) startActivity(new Intent(this, DriveBrowserActivity.class).putExtra("token", token));
-        else enqueue(token);
+        if (token == null || token.isEmpty()) { driveFailed("Drive tidak memberikan akses. Periksa izin akun lalu coba lagi."); return; }
+        String action = driveAction;
+        driveIo.execute(() -> {
+            try {
+                String email = DriveFiles.accountLabel(token);
+                runOnUiThread(() -> {
+                    authorizingDrive = false;
+                    driveEmail = email;
+                    driveStatus.setText("Google Drive · Terhubung: " + email);
+                    toast("Drive terhubung: " + email);
+                    if ("browse".equals(action))
+                        startActivity(new Intent(this, DriveBrowserActivity.class).putExtra("token", token));
+                    else if ("download".equals(action)) enqueue(token);
+                });
+            } catch (Exception e) { runOnUiThread(() -> driveFailed("Drive: " + e.getMessage())); }
+        });
+    }
+    private void driveFailed(String message) {
+        authorizingDrive = false;
+        driveStatus.setText("Google Drive · " + (driveEmail == null ? "Belum terhubung" : "Akun terakhir: " + driveEmail));
+        toast(message);
     }
     private void copyImport(Uri selected) {
         new Thread(() -> {
@@ -220,9 +254,9 @@ public class MainActivity extends Activity {
                 }
                 runOnUiThread(() -> {
                     pendingImportPath = local.getAbsolutePath();
-                    pendingUrls.clear(); pendingLocalPaths.clear(); selectedFiles.clear(); browsingDrive = false;
+                    pendingUrls.clear(); pendingLocalPaths.clear(); selectedFiles.clear(); driveAction = "download";
                     if (destination.equals("gallery")) enqueue(null);
-                    else authorizeDrive();
+                    else authorizeDrive(driveEmail == null);
                 });
             } catch (Exception e) { runOnUiThread(() -> toast("Import: " + e.getMessage())); }
         }).start();
@@ -250,8 +284,8 @@ public class MainActivity extends Activity {
                 }
                 runOnUiThread(() -> {
                     pendingLocalPaths.clear(); pendingLocalPaths.addAll(staged);
-                    pendingImportPath = null; pendingUrls.clear(); selectedFiles.clear(); browsingDrive = false;
-                    if (destination.equals("gallery")) enqueue(null); else authorizeDrive();
+                    pendingImportPath = null; pendingUrls.clear(); selectedFiles.clear(); driveAction = "download";
+                    if (destination.equals("gallery")) enqueue(null); else authorizeDrive(driveEmail == null);
                 });
             } catch (Exception e) { runOnUiThread(() -> toast("File: " + e.getMessage())); }
         }).start();

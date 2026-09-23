@@ -68,7 +68,9 @@ public class DownloadService extends Service {
             String raw;
             if (localPath != null) {
                 File local = new File(localPath);
-                File targetFile = new File(jobDir, local.getName().replaceFirst("^selected_[0-9]+_", ""));
+                File localDir = new File(jobDir, "local/files");
+                if (!localDir.mkdirs() && !localDir.isDirectory()) throw new IllegalStateException("Gagal membuat folder file lokal");
+                File targetFile = new File(localDir, local.getName().replaceFirst("^selected_[0-9]+_", ""));
                 Files.copy(local.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 raw = new JSONArray().put(new JSONObject().put("path", targetFile.getAbsolutePath()).put("name", targetFile.getName())).toString();
             } else if (importPath != null) raw = Python.getInstance().getModule("instagram_import")
@@ -86,13 +88,17 @@ public class DownloadService extends Service {
                 File media = new File(files.getJSONObject(i).getString("path"));
                 if (!media.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
                     throw new SecurityException("Hasil unduhan keluar dari direktori kerja");
+                String relative = jobDir.toPath().relativize(media.toPath()).toString();
                 if (gallery) {
-                    MediaDestination.publish(this, media);
-                    result.append("Galeri: ").append(media.getName()).append("\n");
+                    event(id, "SAVING", "Menyimpan ke Galeri: " + media.getName(), 99);
+                    MediaDestination.publish(this, media, relative);
+                    result.append("Galeri: ").append(relative).append("\n");
                 }
                 if (drive) {
+                    String parent = DriveFiles.ensurePath(token, folder, relative);
                     event(id, "UPLOADING", "Mengunggah " + media.getName(), 0);
-                    String link = DriveUploader.upload(media, token, folder, percent -> event(id, "UPLOADING", "Drive " + percent + "%", percent));
+                    String link = DriveUploader.upload(media, token, parent,
+                        percent -> event(id, "UPLOADING", "Drive " + percent + "%", Math.min(percent, 99)));
                     result.append("Drive: ").append(link).append("\n");
                 }
             }
@@ -123,11 +129,11 @@ public class DownloadService extends Service {
         Files.write(path.toPath(), text.toString().getBytes(StandardCharsets.UTF_8));
     }
     private void event(long id, String state, String message, int progress) {
+        History.record(this, id, state, message, progress);
         Intent event = new Intent(EVENTS).setPackage(getPackageName());
         event.putExtra("id", id).putExtra("state", state).putExtra("message", message).putExtra("progress", progress);
         sendBroadcast(event);
         notifications.notify(3001, notification(state, message, progress));
-        History.record(this, id, state, message, progress);
     }
     private Notification notification(String title, String body, int progress) {
         return new Notification.Builder(this, "downloads")
@@ -148,7 +154,8 @@ public class DownloadService extends Service {
         public Callback(long id) { this.id = id; }
         public void onProgress(int percent, String speed) {
             if (canceled) throw new IllegalStateException("Dibatalkan");
-            event(id, "RUNNING", percent < 0 ? speed : percent + "% · " + speed, percent);
+            event(id, "RUNNING", percent >= 100 ? "Unduhan selesai; menyiapkan penyimpanan" :
+                percent < 0 ? speed : percent + "% · " + speed, Math.min(percent, 99));
         }
     }
 }

@@ -21,7 +21,10 @@ def import_file(source_path, directory, category, maximum, callback):
     selected = parsed.category_items(category)[:max(1, min(int(maximum), 500))]
     output = []
     for i, item in enumerate(selected):
-        target_dir = root / 'media' / _safe(item.username) / _safe(item.primary_category)
+        kind = item.primary_category.lower()
+        section = 'reels' if kind == 'reels' else 'stories' if kind == 'stories' else \
+            'tagged' if kind in ('mentions', 'tagged') else 'posts'
+        target_dir = root / 'instagram' / _safe(item.username) / section
         target_dir.mkdir(parents=True, exist_ok=True)
         for asset in item.assets:
             kind = parser._media_source_kind(asset.url)

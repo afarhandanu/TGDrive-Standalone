@@ -13,8 +13,15 @@ import java.io.OutputStream;
 public final class MediaDestination {
     private MediaDestination() {}
 
-    public static Uri publish(Context context, File source) throws Exception {
+    public static Uri publish(Context context, File source, String relativeFile) throws Exception {
         String name = source.getName();
+        StringBuilder subfolders = new StringBuilder();
+        String[] parts = relativeFile.replace('\\', '/').split("/");
+        for (int i = 0; i < parts.length - 1; i++) {
+            String safe = parts[i].replaceAll("[^a-zA-Z0-9._-]", "_");
+            if (!safe.isEmpty() && !safe.equals(".") && !safe.equals(".."))
+                subfolders.append('/').append(safe);
+        }
         String ext = name.contains(".") ? name.substring(name.lastIndexOf('.') + 1).toLowerCase() : "";
         String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
         if (type == null) type = "application/octet-stream";
@@ -36,7 +43,7 @@ public final class MediaDestination {
         ContentValues values = new ContentValues();
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
         values.put(MediaStore.MediaColumns.MIME_TYPE, type);
-        values.put(MediaStore.MediaColumns.RELATIVE_PATH, folder);
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, folder + subfolders + "/");
         values.put(MediaStore.MediaColumns.IS_PENDING, 1);
         Uri result = context.getContentResolver().insert(collection, values);
         if (result == null) throw new IllegalStateException("Gagal membuat file galeri");

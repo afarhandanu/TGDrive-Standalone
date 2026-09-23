@@ -1,9 +1,0 @@
-<resources>
-    <style name="Theme.TGDrive" parent="android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:fontFamily">sans</item>
-        <item name="android:colorAccent">#4157DC</item>
-        <item name="android:statusBarColor">#101936</item>
-        <item name="android:navigationBarColor">#101936</item>
-        <item name="android:windowLightStatusBar">false</item>
-    </style>
-</resources>
