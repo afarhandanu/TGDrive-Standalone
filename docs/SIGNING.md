@@ -9,6 +9,8 @@ Create or keep **one** release keystore forever, then add these GitHub repositor
 - `TGDRIVE_KEY_ALIAS`
 - `TGDRIVE_KEY_PASSWORD`
 
+Legacy secret names (`KS_B64`, `KS_PASS`, `KEY_ALIAS`, `KEY_PASS`) are also accepted by the workflow for backward compatibility, but the `TGDRIVE_*` names are preferred.
+
 The supplied workflow restores that same key on every run. If a secret is missing, the release build stops before Gradle instead of falling back to a random debug signature.
 
 Use the **existing** `TGDrive-signing-key.jks` and its original credentials. The workflow verifies the keystore SHA-256 before signing, so another key cannot silently replace it. Do not generate a new release key for this package.
