@@ -44,10 +44,10 @@ jobs:
 
       - name: Validate signing secrets
         env:
-          KS_B64: ${{ secrets.TGDRIVE_KEYSTORE_B64 }}
-          KS_PASS: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS }}
-          KEY_PASS: ${{ secrets.TGDRIVE_KEY_PASSWORD }}
+          KS_B64: ${{ secrets.TGDRIVE_KEYSTORE_B64 || secrets.KS_B64 }}
+          KS_PASS: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD || secrets.KS_PASS }}
+          KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS || secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.TGDRIVE_KEY_PASSWORD || secrets.KEY_PASS }}
         run: |
           set -euo pipefail
           for v in KS_B64 KS_PASS KEY_ALIAS KEY_PASS; do
@@ -60,9 +60,9 @@ jobs:
 
       - name: Restore fixed release keystore
         env:
-          KS_B64: ${{ secrets.TGDRIVE_KEYSTORE_B64 }}
-          KS_PASS: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS }}
+          KS_B64: ${{ secrets.TGDRIVE_KEYSTORE_B64 || secrets.KS_B64 }}
+          KS_PASS: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD || secrets.KS_PASS }}
+          KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS || secrets.KEY_ALIAS }}
         run: |
           set -euo pipefail
           printf '%s' "$KS_B64" | base64 --decode > "$RUNNER_TEMP/tgdrive-release.jks"
@@ -72,9 +72,9 @@ jobs:
       - name: Build signed release APK
         env:
           TGDRIVE_KEYSTORE_PATH: ${{ runner.temp }}/tgdrive-release.jks
-          TGDRIVE_KEYSTORE_PASSWORD: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD }}
-          TGDRIVE_KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS }}
-          TGDRIVE_KEY_PASSWORD: ${{ secrets.TGDRIVE_KEY_PASSWORD }}
+          TGDRIVE_KEYSTORE_PASSWORD: ${{ secrets.TGDRIVE_KEYSTORE_PASSWORD || secrets.KS_PASS }}
+          TGDRIVE_KEY_ALIAS: ${{ secrets.TGDRIVE_KEY_ALIAS || secrets.KEY_ALIAS }}
+          TGDRIVE_KEY_PASSWORD: ${{ secrets.TGDRIVE_KEY_PASSWORD || secrets.KEY_PASS }}
         run: gradle --no-daemon --stacktrace :app:assembleRelease
 
       - name: Name artifact uniquely
