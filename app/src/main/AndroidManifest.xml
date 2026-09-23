@@ -24,9 +24,14 @@
                 <action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/><data android:scheme="https"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/><data android:scheme="magnet"/>
+            </intent-filter>
         </activity>
         <activity android:name=".LoginActivity" android:exported="false"/>
         <activity android:name=".DriveBrowserActivity" android:exported="false"/>
+        <activity android:name=".AdminActivity" android:exported="false"/>
         <service android:name=".DownloadService" android:exported="false" android:foregroundServiceType="dataSync"/>
     </application>
 </manifest>

@@ -12,7 +12,8 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
     root = Path(directory)
     host = (urlparse(url).hostname or '').lower().removeprefix('www.')
     pieces = [p for p in urlparse(url).path.split('/') if p]
-    limit = max(1, min(int(maximum), 500))
+    limit = int(maximum)
+    if limit < 0: raise ValueError('Maksimum item tidak boleh negatif')
     if host.endswith('instagram.com'):
         platform = 'instagram'
         category = 'stories' if 'stories' in pieces else 'reels' if 'reel' in pieces else 'posts'
@@ -32,7 +33,7 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
     config.clear()
     try:
         config.set(('extractor',), 'base-directory', str(root))
-        config.set(('extractor',), 'post-range', f'1-{limit}')
+        if limit: config.set(('extractor',), 'post-range', f'1-{limit}')
         config.set(('extractor',), 'retries', 2)
         config.set(('extractor',), 'sleep-request', '2.0-4.0')
         config.set(('extractor',), 'cookies-update', False)
@@ -48,6 +49,9 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
         config.set(('extractor', platform), 'filename', filename)
         if platform == 'instagram':
             config.set(('extractor', platform), 'api', 'rest' if cookies else 'graphql')
+            if content == 'photos':
+                config.set(('extractor', platform), 'file-filter',
+                           "extension.lower() in ('jpg','jpeg','png','webp','gif','avif','heic')")
         elif platform == 'twitter':
             config.set(('extractor', platform), 'include', 'media')
             config.set(('extractor', platform), 'videos', 'ytdl')

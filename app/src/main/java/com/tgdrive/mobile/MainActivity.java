@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -29,6 +30,7 @@ import com.google.android.gms.auth.api.identity.AuthorizationResult;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.ApiException;
+import com.chaquo.python.Python;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.Collections;
@@ -50,6 +52,8 @@ public class MainActivity extends Activity {
     private static final int EXPORT_BACKUP = 715;
     private static final int IMPORT_BACKUP = 716;
     private static final int IMPORT_COOKIES = 717;
+    private static final int TORRENT_FILE = 718;
+    private static final int MUX_FILES = 719;
     private EditText url, limit, folder, dateFrom, dateTo;
     private CheckBox subtitles, thumbnail, metadata, skipCompleted, anonymous, skipDrive, albumMode, verifyDrive;
     private TextView history, destinationLabel, qualityLabel, driveStatus, siteStatus;
@@ -57,6 +61,8 @@ public class MainActivity extends Activity {
     private String destination = "gallery", quality = "best";
     private String pendingUrl;
     private String pendingImportPath;
+    private String pendingTorrentPath;
+    private boolean muxSelection;
     private final ArrayList<Uri> selectedFiles = new ArrayList<>();
     private final ArrayList<String> pendingLocalPaths = new ArrayList<>();
     private String importCategory = "all", importOutput = "folder", profileContent = "all";
@@ -66,6 +72,7 @@ public class MainActivity extends Activity {
     private boolean authorizingDrive;
     private final ExecutorService driveIo = Executors.newSingleThreadExecutor();
     private BroadcastReceiver receiver;
+    private boolean restoringSettings;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -75,6 +82,7 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(Color.rgb(16, 25, 54));
         getWindow().setNavigationBarColor(Color.rgb(16, 25, 54));
         render();
+        restoreSettings();
         acceptShare(getIntent());
         if (driveEmail != null) restoreDriveSession();
         receiver = new BroadcastReceiver() {
@@ -89,17 +97,21 @@ public class MainActivity extends Activity {
         if (siteStatus != null) updateSiteStatus();
         if (savedSites != null) renderSavedSites();
     }
+    @Override protected void onPause() { saveSettings(); super.onPause(); }
     @Override protected void onDestroy() { unregisterReceiver(receiver); driveIo.shutdownNow(); super.onDestroy(); }
     private void acceptShare(Intent intent) {
-        if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getStringExtra(Intent.EXTRA_TEXT) != null)
+        if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
+            selectedFiles.clear(); muxSelection = false;
             url.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
-        else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null)
+        } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
+            selectedFiles.clear(); muxSelection = false;
             url.setText(intent.getDataString());
+        }
         else if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
-            selectedFiles.clear(); selectedFiles.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
+            selectedFiles.clear(); muxSelection = false; selectedFiles.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
             url.setHint("1 file dibagikan · pilih tujuan lalu mulai");
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())) {
-            selectedFiles.clear();
+            selectedFiles.clear(); muxSelection = false;
             var streams = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (streams != null) for (Object stream : streams) if (stream instanceof Uri) selectedFiles.add((Uri) stream);
             url.setHint(selectedFiles.size() + " file dibagikan · pilih tujuan lalu mulai");
@@ -140,7 +152,7 @@ public class MainActivity extends Activity {
                 quality = value; qualityLabel.setText("Kualitas · " + value);
             });
         card.addView(label("Maksimum item (profil / playlist)", 13, muted, false));
-        limit = new EditText(this); limit.setInputType(2); limit.setText("1"); card.addView(limit);
+        limit = new EditText(this); limit.setInputType(2); limit.setHint("Kosong = tanpa batas"); limit.setText("1"); card.addView(limit);
         subtitles = new CheckBox(this); subtitles.setText("Sertakan subtitle jika ada"); card.addView(subtitles);
         thumbnail = new CheckBox(this); thumbnail.setText("Sertakan thumbnail"); card.addView(thumbnail);
         metadata = new CheckBox(this); metadata.setText("Sertakan metadata JSON"); card.addView(metadata);
@@ -150,6 +162,8 @@ public class MainActivity extends Activity {
         verifyDrive = new CheckBox(this); verifyDrive.setText("Drive: cocokkan checksum MD5 setelah unggah"); card.addView(verifyDrive);
         albumMode = new CheckBox(this);
         albumMode.setText("Mode profil / album (Instagram, X, Facebook; termasuk carousel)"); card.addView(albumMode);
+        Button pickStories = button("Pilih Story Instagram", Color.rgb(65, 87, 220));
+        pickStories.setOnClickListener(v -> pickStories()); card.addView(pickStories);
         card.addView(label("Profil Facebook · jenis media", 13, muted, false));
         row(card, new String[]{"Semua", "Foto", "Video"},
             new String[]{"all", "photos", "videos"}, value -> { profileContent = value; toast("Profil: " + value); });
@@ -237,6 +251,15 @@ public class MainActivity extends Activity {
         pickLocal.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), LOCAL_FILE));
         outer.addView(pickLocal);
+        Button pickTorrent = button("Pilih file .torrent", Color.rgb(65, 87, 220));
+        pickTorrent.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
+            .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), TORRENT_FILE));
+        outer.addView(pickTorrent);
+        Button muxFiles = button("Gabungkan video + audio (FFmpeg)", navy);
+        muxFiles.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
+            .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE)
+            .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), MUX_FILES));
+        outer.addView(muxFiles);
 
         TextView recent = label("AKTIVITAS", 13, muted, true);
         LinearLayout.LayoutParams recentP = new LinearLayout.LayoutParams(-1, -2); recentP.topMargin = dp(24);
@@ -266,16 +289,23 @@ public class MainActivity extends Activity {
                 .addCategory(Intent.CATEGORY_OPENABLE).setType("application/json"), IMPORT_BACKUP);
         }); outer.addView(restore);
         outer.addView(label("Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini.", 12, muted, false));
+        Button admin = button("Administrasi perangkat", navy);
+        admin.setOnClickListener(v -> startActivity(new Intent(this, AdminActivity.class)));
+        outer.addView(admin);
         showHistory();
     }
     private void start() {
         if (!selectedFiles.isEmpty()) { copyLocal(); return; }
         pendingImportPath = null;
+        pendingTorrentPath = null;
         pendingLocalPaths.clear();
         pendingUrl = url.getText().toString().trim();
         pendingUrls.clear();
         Matcher links = Pattern.compile("https?://[^\\s<>]+", Pattern.CASE_INSENSITIVE).matcher(pendingUrl);
         while (links.find() && pendingUrls.size() < 50) pendingUrls.add(links.group().replaceAll("[.,;]+$", ""));
+        if (pendingUrl.startsWith("magnet:?xt=urn:btih:") && !pendingUrl.contains("\n")) {
+            pendingUrls.clear(); pendingUrls.add(pendingUrl);
+        }
         if (pendingUrls.isEmpty()) {
             toast("Masukkan URL http/https yang valid"); return;
         }
@@ -283,6 +313,88 @@ public class MainActivity extends Activity {
         if (destination.equals("gallery")) { enqueue(null); return; }
         driveAction = "download";
         authorizeDrive(driveEmail == null);
+    }
+    private void saveSettings() {
+        if (restoringSettings || limit == null || dateFrom == null) return;
+        try {
+            JSONObject data = new JSONObject()
+                .put("destination", destination).put("quality", quality)
+                .put("limit", limit.getText().toString()).put("folder", folder.getText().toString())
+                .put("subtitles", subtitles.isChecked()).put("thumbnail", thumbnail.isChecked())
+                .put("metadata", metadata.isChecked()).put("skip_completed", skipCompleted.isChecked())
+                .put("anonymous", anonymous.isChecked()).put("skip_drive", skipDrive.isChecked())
+                .put("verify_drive", verifyDrive.isChecked()).put("album_mode", albumMode.isChecked())
+                .put("profile_content", profileContent).put("import_category", importCategory)
+                .put("import_output", importOutput)
+                .put("date_from", dateFrom.getText().toString()).put("date_to", dateTo.getText().toString());
+            getSharedPreferences("download_settings", MODE_PRIVATE).edit().putString("current", data.toString()).apply();
+        } catch (Exception ignored) { }
+    }
+    private void restoreSettings() {
+        restoringSettings = true;
+        try {
+            String saved = getSharedPreferences("download_settings", MODE_PRIVATE).getString("current", null);
+            if (saved == null) return;
+            JSONObject data = new JSONObject(saved);
+            destination = data.optString("destination", "gallery");
+            if (!destination.equals("gallery") && !destination.equals("drive") && !destination.equals("both")) destination = "gallery";
+            quality = data.optString("quality", "best");
+            limit.setText(data.optString("limit", "1")); folder.setText(data.optString("folder", ""));
+            subtitles.setChecked(data.optBoolean("subtitles")); thumbnail.setChecked(data.optBoolean("thumbnail"));
+            metadata.setChecked(data.optBoolean("metadata")); skipCompleted.setChecked(data.optBoolean("skip_completed"));
+            anonymous.setChecked(data.optBoolean("anonymous")); skipDrive.setChecked(data.optBoolean("skip_drive"));
+            verifyDrive.setChecked(data.optBoolean("verify_drive")); albumMode.setChecked(data.optBoolean("album_mode"));
+            profileContent = data.optString("profile_content", "all");
+            importCategory = data.optString("import_category", "all"); importOutput = data.optString("import_output", "folder");
+            dateFrom.setText(data.optString("date_from", "")); dateTo.setText(data.optString("date_to", ""));
+            destinationLabel.setText("Tujuan · " + (destination.equals("both") ? "Galeri + Drive" : destination.equals("drive") ? "Drive" : "Galeri"));
+            qualityLabel.setText("Kualitas · " + (quality.equals("best") ? "Terbaik" : quality));
+        } catch (Exception ignored) { toast("Pengaturan tersimpan tidak bisa dibaca"); }
+        finally { restoringSettings = false; }
+    }
+    private void pickStories() {
+        String address = url.getText().toString().trim();
+        Matcher story = Pattern.compile("^https://(?:www\\.)?instagram\\.com/stories/([A-Za-z0-9._]+)/?(?:\\?.*)?$", Pattern.CASE_INSENSITIVE).matcher(address);
+        if (!story.matches()) { toast("Isi tautan profil Story: instagram.com/stories/username/"); return; }
+        String username = story.group(1);
+        String cookies = WebSessions.cookies(this, "www.instagram.com");
+        if (cookies == null || !cookies.contains("sessionid=")) cookies = WebSessions.cookies(this, "instagram.com");
+        if (cookies == null || !cookies.contains("sessionid=")) { toast("Masuk Instagram dahulu untuk melihat Story aktif"); return; }
+        final String session = cookies;
+        toast("Memuat daftar Story…");
+        new Thread(() -> {
+            try {
+                JSONArray items = new JSONArray(Python.getInstance().getModule("story_picker")
+                    .callAttr("list_stories", username, session).toString());
+                runOnUiThread(() -> showStoryChoices(items));
+            } catch (Exception e) { runOnUiThread(() -> toast("Story: " + e.getMessage())); }
+        }).start();
+    }
+    private void showStoryChoices(JSONArray items) {
+        int n = items.length();
+        if (n == 0) { toast("Tidak ada Story aktif yang dapat dibaca"); return; }
+        String[] labels = new String[n]; boolean[] selected = new boolean[n];
+        for (int i = 0; i < n; i++) {
+            JSONObject item = items.optJSONObject(i);
+            labels[i] = item == null ? "Story " + (i + 1) :
+                (item.optBoolean("video") ? "Video" : "Foto") + " · " + item.optString("date") + " · " + item.optString("id");
+        }
+        new AlertDialog.Builder(this).setTitle("Pilih Story (" + n + ")")
+            .setMultiChoiceItems(labels, selected, (dialog, index, checked) -> selected[index] = checked)
+            .setNeutralButton("Semua", (dialog, which) -> downloadStories(items, null))
+            .setNegativeButton("Batal", null)
+            .setPositiveButton("Unduh dipilih", (dialog, which) -> downloadStories(items, selected)).show();
+    }
+    private void downloadStories(JSONArray items, boolean[] selected) {
+        pendingUrls.clear(); pendingImportPath = null; pendingLocalPaths.clear();
+        for (int i = 0; i < items.length(); i++) {
+            if (selected != null && !selected[i]) continue;
+            JSONObject item = items.optJSONObject(i);
+            if (item != null) pendingUrls.add(item.optString("url"));
+        }
+        if (pendingUrls.isEmpty()) { toast("Pilih setidaknya satu Story"); return; }
+        if (destination.equals("gallery")) enqueue(null);
+        else { driveAction = "download"; authorizeDrive(driveEmail == null); }
     }
     private void authorizeDrive(boolean chooseAccount) {
         if (authorizingDrive) { toast("Tunggu proses koneksi Drive selesai"); return; }
@@ -317,15 +429,51 @@ public class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
+        if (request == TORRENT_FILE && result == RESULT_OK && data != null && data.getData() != null) {
+            Uri selected = data.getData();
+            new Thread(() -> {
+                try {
+                    File local = new File(getCacheDir(), "chosen-" + System.nanoTime() + ".torrent");
+                    try (InputStream input = getContentResolver().openInputStream(selected);
+                         FileOutputStream output = new FileOutputStream(local)) {
+                        if (input == null) throw new IllegalArgumentException("Berkas torrent tidak dapat dibaca");
+                        byte[] buffer = new byte[32768]; int bytes, total = 0;
+                        while ((bytes = input.read(buffer)) != -1) {
+                            total += bytes;
+                            if (total > 8 * 1024 * 1024) throw new IllegalArgumentException("Berkas torrent lebih dari 8 MB");
+                            output.write(buffer, 0, bytes);
+                        }
+                    }
+                    runOnUiThread(() -> {
+                        selectedFiles.clear(); pendingUrls.clear(); pendingLocalPaths.clear(); pendingImportPath = null;
+                        pendingTorrentPath = local.getAbsolutePath();
+                        driveAction = "download";
+                        if (destination.equals("gallery")) enqueue(null); else authorizeDrive(driveEmail == null);
+                    });
+                } catch (Exception e) { runOnUiThread(() -> toast("Torrent: " + e.getMessage())); }
+            }).start();
+            return;
+        }
         if (request == IMPORT_FILE && result == RESULT_OK && data != null && data.getData() != null) {
             copyImport(data.getData()); return;
         }
         if (request == LOCAL_FILE && result == RESULT_OK && data != null) {
+            muxSelection = false;
             selectedFiles.clear();
             if (data.getClipData() != null) for (int i = 0; i < data.getClipData().getItemCount(); i++)
                 selectedFiles.add(data.getClipData().getItemAt(i).getUri());
             else if (data.getData() != null) selectedFiles.add(data.getData());
             url.setHint(selectedFiles.size() + " file dipilih · pilih tujuan lalu mulai");
+            return;
+        }
+        if (request == MUX_FILES && result == RESULT_OK && data != null) {
+            selectedFiles.clear(); muxSelection = true;
+            if (data.getClipData() != null) for (int i = 0; i < data.getClipData().getItemCount(); i++)
+                selectedFiles.add(data.getClipData().getItemAt(i).getUri());
+            else if (data.getData() != null) selectedFiles.add(data.getData());
+            if (selectedFiles.size() != 2) { selectedFiles.clear(); muxSelection = false;
+                toast("Pilih tepat dua file: satu video dan satu audio"); return; }
+            url.setHint("2 file untuk digabung · pilih tujuan lalu mulai");
             return;
         }
         if ((request == EXPORT_BACKUP || request == IMPORT_BACKUP) && result == RESULT_OK && data != null && data.getData() != null) {
@@ -465,6 +613,20 @@ public class MainActivity extends Activity {
                 }
                 runOnUiThread(() -> {
                     pendingLocalPaths.clear(); pendingLocalPaths.addAll(staged);
+                    if (muxSelection) {
+                        staged.sort((first, second) -> {
+                            boolean firstVideo = first.toLowerCase(java.util.Locale.ROOT).endsWith(".mp4");
+                            boolean secondVideo = second.toLowerCase(java.util.Locale.ROOT).endsWith(".mp4");
+                            return Boolean.compare(secondVideo, firstVideo);
+                        });
+                        if (!staged.get(0).toLowerCase(java.util.Locale.ROOT).endsWith(".mp4") ||
+                            !staged.get(1).toLowerCase(java.util.Locale.ROOT).matches(".*\\.(m4a|aac|mp3|wav|ogg|opus)$")) {
+                            for (String path : staged) new File(path).delete();
+                            pendingLocalPaths.clear(); selectedFiles.clear(); muxSelection = false;
+                            toast("Pilih satu video MP4 dan satu audio (M4A/MP3/WAV)"); return;
+                        }
+                        pendingLocalPaths.clear(); pendingLocalPaths.addAll(staged);
+                    }
                     pendingImportPath = null; pendingUrls.clear(); selectedFiles.clear(); driveAction = "download";
                     if (destination.equals("gallery")) enqueue(null); else authorizeDrive(driveEmail == null);
                 });
@@ -473,13 +635,16 @@ public class MainActivity extends Activity {
     }
     private void enqueue(String token) {
         int count = 1;
-        try { count = Math.max(1, Math.min(500, Integer.parseInt(limit.getText().toString()))); }
-        catch (NumberFormatException ignored) {}
+        String countText = limit.getText().toString().trim();
+        if (countText.isEmpty()) count = 0;
+        else try { count = Integer.parseInt(countText); if (count < 1) throw new NumberFormatException(); }
+        catch (NumberFormatException bad) { toast("Maksimum item harus angka positif atau kosong untuk tanpa batas"); return; }
+        saveSettings();
         try {
-            int jobs = pendingLocalPaths.isEmpty() ? (pendingImportPath == null ? pendingUrls.size() : 1) : pendingLocalPaths.size();
+            int jobs = pendingLocalPaths.isEmpty() ? (pendingImportPath == null && pendingTorrentPath == null ? pendingUrls.size() : 1) : muxSelection ? 1 : pendingLocalPaths.size();
             int submitted = 0;
             for (int i = 0; i < jobs; i++) {
-                String link = pendingLocalPaths.isEmpty() && pendingImportPath == null ? pendingUrls.get(i) : "";
+                String link = pendingLocalPaths.isEmpty() && pendingImportPath == null && pendingTorrentPath == null ? pendingUrls.get(i) : "";
                 if (!link.isEmpty() && skipCompleted.isChecked() && History.alreadyCompleted(this, link)) continue;
                 Intent job = new Intent(this, DownloadService.class).putExtra("url", link)
                     .putExtra("target", destination).putExtra("quality", quality).putExtra("count", count)
@@ -492,16 +657,20 @@ public class MainActivity extends Activity {
                     .putExtra("profile_content", profileContent)
                     .putExtra("folder_id", folder.getText().toString().trim()).putExtra("drive_token", token)
                     .putExtra("import_path", pendingImportPath).putExtra("category", importCategory)
+                    .putExtra("torrent_path", pendingTorrentPath)
                     .putExtra("date_from", dateFrom.getText().toString().trim())
                     .putExtra("date_to", dateTo.getText().toString().trim())
                     .putExtra("import_output", importOutput)
                     .putExtra("local_path", pendingLocalPaths.isEmpty() ? null : pendingLocalPaths.get(i));
+                if (muxSelection) job.putExtra("mux_audio_path", pendingLocalPaths.get(1));
                 startForegroundService(job);
                 submitted++;
             }
             toast(submitted + " tugas masuk antrean" + (submitted < jobs ? "; " + (jobs - submitted) + " sudah pernah selesai" : ""));
             pendingImportPath = null;
+            pendingTorrentPath = null;
             pendingLocalPaths.clear();
+            muxSelection = false;
         }
         catch (Exception e) { toast("Gagal memulai unduhan: " + e.getMessage()); }
     }
@@ -540,7 +709,8 @@ public class MainActivity extends Activity {
         url.setText(previous.optString("url"));
         destination = previous.optString("target", "gallery");
         quality = previous.optString("quality", "best");
-        limit.setText(String.valueOf(previous.optInt("count", 1)));
+        int oldCount = previous.optInt("count", 1);
+        limit.setText(oldCount == 0 ? "" : String.valueOf(oldCount));
         folder.setText(previous.optString("folder"));
         subtitles.setChecked(previous.optBoolean("subtitles"));
         thumbnail.setChecked(previous.optBoolean("thumbnail"));

@@ -55,7 +55,7 @@ public final class History {
             JSONObject job = jobs.optJSONObject(i);
             if (job != null && ("FAILED".equals(job.optString("state")) || "CANCELLED".equals(job.optString("state"))
                     || "INTERRUPTED".equals(job.optString("state")))
-                    && job.optString("url").startsWith("http")) return job;
+                    && (job.optString("url").startsWith("http") || job.optString("url").startsWith("magnet:?"))) return job;
         }
         return null;
     }

@@ -31,7 +31,7 @@ def import_file(source_path, directory, category, maximum, callback, date_from='
             if posted is None or (start and posted < start) or (end and posted > end):
                 continue
         selected.append(item)
-        if len(selected) >= max(1, min(int(maximum), 500)):
+        if int(maximum) > 0 and len(selected) >= int(maximum):
             break
     output = []
     for i, item in enumerate(selected):
@@ -61,7 +61,27 @@ def import_file(source_path, directory, category, maximum, callback, date_from='
                     shutil.copyfileobj(response, target, 262144)
             else:
                 raise ValueError('Jenis media tidak dikenal')
-            output.append({'path': str(output_file), 'name': output_file.name})
+            entry = {'path': str(output_file), 'name': output_file.name}
+            if asset.kind == 'video' and asset.audio_url:
+                audio_file = target_dir / f'{_safe(item.shortcode)}_{asset.index}.audio.m4a'
+                audio_kind = parser._media_source_kind(asset.audio_url)
+                if audio_kind == 'remote':
+                    if not asset.audio_url.startswith('https://'):
+                        raise ValueError('URL audio harus HTTPS')
+                    with urllib.request.urlopen(asset.audio_url, timeout=45) as response, audio_file.open('wb') as target:
+                        shutil.copyfileobj(response, target, 262144)
+                elif audio_kind == 'embedded':
+                    audio_parts = parser._data_uri_parts(asset.audio_url)
+                    if not audio_parts: raise ValueError('Audio embedded tidak valid')
+                    audio_file.write_bytes(base64.b64decode(audio_parts[1], validate=True))
+                elif audio_kind == 'local':
+                    relative_audio = parser._normalize_local_media_ref(asset.audio_url)
+                    source_audio = (source_json.parent / relative_audio).resolve()
+                    if not source_audio.is_relative_to(source_json.parent.resolve()):
+                        raise ValueError('Path audio keluar dari folder import')
+                    shutil.copyfile(source_audio, audio_file)
+                callback.onMux(str(output_file), str(audio_file))
+            output.append(entry)
         callback.onProgress(int((i + 1) * 100 / max(len(selected), 1)), f'{i + 1}/{len(selected)}')
     if not output: raise ValueError('Tidak ada media untuk kategori ini')
     if output_mode == 'zip':

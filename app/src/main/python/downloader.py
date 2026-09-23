@@ -28,7 +28,7 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
                        category / '%(title).160s [%(id)s].%(ext)s'),
         'format': best,
         'noplaylist': False,
-        'playlistend': max(1, min(int(max_items), 500)),
+        'playlistend': int(max_items) if int(max_items) > 0 else None,
         'ignoreerrors': False,
         'restrictfilenames': True,
         'windowsfilenames': True,
@@ -46,16 +46,37 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     }
     if cookies and os.path.isfile(cookies):
         options['cookiefile'] = cookies
+    video_error = None
     try:
         with yt_dlp.YoutubeDL(options) as dl:
             dl.download([url])
-    except yt_dlp.utils.UnsupportedError:
-        _download_direct(url, root / site / 'unknown' / category, callback)
+    except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError) as exc:
+        video_error = exc
+        if site != 'instagram':
+            if isinstance(exc, yt_dlp.utils.UnsupportedError):
+                _download_direct(url, root / site / 'unknown' / category, callback)
+            else:
+                raise
+    # A post can be a photo, video, or mixed carousel. Keep the existing video
+    # extractor, then fetch images with gallery-dl without replacing video files.
+    parsed_path = urllib.parse.urlparse(url).path.lower()
+    if site == 'instagram' and (video_error or parsed_path.startswith('/p/')):
+        import gallery_download
+        existing = {str(p) for p in root.rglob('*') if p.is_file()}
+        try:
+            gallery_download.download(url, str(root), max_items, cookies, callback, content='photos',
+                                      quality=quality, subtitles=subtitles, thumbnail=thumbnail, metadata=metadata)
+            if video_error and not any(p.suffix.lower() in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.heic')
+                                       for p in root.rglob('*') if p.is_file()):
+                raise RuntimeError('Ekstraktor Instagram tidak menemukan file gambar')
+        except Exception as exc:
+            if video_error or not existing:
+                raise RuntimeError(f'Foto Instagram gagal: {exc}') from exc
     downloaded = [p for p in root.rglob('*') if p.is_file() and p.name != 'cookies.txt'
                   and not p.name.endswith(('.part', '.ytdl'))]
     paths = [_resolve_username(p, root, url) for p in downloaded]
     if not paths:
-        raise RuntimeError('Ekstraktor tidak menghasilkan file. Periksa link atau sesi login.')
+        raise RuntimeError('Ekstraktor tidak menghasilkan foto atau video. Periksa link atau sesi login.')
     return json.dumps([{'path': str(p), 'name': p.name} for p in paths], ensure_ascii=False)
 
 

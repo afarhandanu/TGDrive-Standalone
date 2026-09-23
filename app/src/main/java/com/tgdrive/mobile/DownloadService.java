@@ -48,7 +48,9 @@ public class DownloadService extends Service {
         String url = intent.getStringExtra("url");
         String importPath = intent.getStringExtra("import_path");
         String localPath = intent.getStringExtra("local_path");
-        if ((url == null || url.trim().isEmpty()) && importPath == null && localPath == null) return START_NOT_STICKY;
+        String muxAudioPath = intent.getStringExtra("mux_audio_path");
+        String torrentPath = intent.getStringExtra("torrent_path");
+        if ((url == null || url.trim().isEmpty()) && importPath == null && localPath == null && torrentPath == null) return START_NOT_STICKY;
         String target = intent.getStringExtra("target");
         String token = intent.getStringExtra("drive_token");
         String folder = intent.getStringExtra("folder_id");
@@ -67,7 +69,7 @@ public class DownloadService extends Service {
         String dateFrom = intent.getStringExtra("date_from");
         String dateTo = intent.getStringExtra("date_to");
         String importOutput = intent.getStringExtra("import_output");
-        History.enqueue(this, id, importPath != null ? "Instagram JSON/ZIP import" : localPath != null ? "Local file" : url,
+        History.enqueue(this, id, importPath != null ? "Instagram JSON/ZIP import" : localPath != null ? "Local file" : torrentPath != null ? "Torrent file" : url,
             target, quality, count, folder, subtitles, thumbnail, metadata, anonymous, skipDrive,
             albumMode, profileContent == null ? "all" : profileContent, dateFrom, dateTo, verifyDrive);
         startForeground(3001, notification("TGDrive", "Menyiapkan antrean…", 0));
@@ -75,7 +77,7 @@ public class DownloadService extends Service {
         worker.submit(() -> {
             try {
                 synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
-                runJob(id, url, importPath, localPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
+                runJob(id, url, importPath, localPath, muxAudioPath, torrentPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
                     dateFrom == null ? "" : dateFrom, dateTo == null ? "" : dateTo, importOutput == null ? "folder" : importOutput,
                     anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive);
             } catch (InterruptedException e) { event(id, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0); }
@@ -83,7 +85,7 @@ public class DownloadService extends Service {
         });
         return START_NOT_STICKY;
     }
-    private void runJob(long id, String url, String importPath, String localPath, String category, String target, String token, String folder, String quality, int count,
+    private void runJob(long id, String url, String importPath, String localPath, String muxAudioPath, String torrentPath, String category, String target, String token, String folder, String quality, int count,
                         boolean subtitles, boolean thumbnail, boolean metadata, String dateFrom, String dateTo,
                         String importOutput, boolean anonymous, boolean skipDrive, boolean albumMode,
                         String profileContent, boolean verifyDrive) {
@@ -97,12 +99,21 @@ public class DownloadService extends Service {
             event(id, "RUNNING", "Mengambil media…", 0);
             Callback callback = new Callback(id);
             String raw;
-            if (localPath != null) {
+            if (torrentPath != null || (url != null && (url.startsWith("magnet:?") || url.toLowerCase(java.util.Locale.ROOT).matches("^https://[^?#]+\\.torrent(?:\\?.*)?$")))) {
+                raw = TorrentEngine.download(url, torrentPath, jobDir, callback, () -> canceled).toString();
+            } else if (localPath != null) {
                 File local = new File(localPath);
                 File localDir = new File(jobDir, "local/files");
                 if (!localDir.mkdirs() && !localDir.isDirectory()) throw new IllegalStateException("Gagal membuat folder file lokal");
                 File targetFile = new File(localDir, local.getName().replaceFirst("^selected_[0-9]+_", ""));
                 Files.copy(local.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                if (muxAudioPath != null) {
+                    File sourceAudio = new File(muxAudioPath);
+                    File audio = new File(jobDir, "mux_audio_" + id + ".m4a");
+                    Files.copy(sourceAudio.toPath(), audio.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    event(id, "RUNNING", "Menggabungkan video + audio dengan FFmpeg", 98);
+                    MediaMux.merge(targetFile, audio);
+                }
                 raw = new JSONArray().put(new JSONObject().put("path", targetFile.getAbsolutePath()).put("name", targetFile.getName())).toString();
             } else if (importPath != null) raw = Python.getInstance().getModule("instagram_import")
                 .callAttr("import_file", importPath, jobDir.getAbsolutePath(), category == null ? "all" : category, count, callback,
@@ -124,6 +135,14 @@ public class DownloadService extends Service {
                 File media = new File(files.getJSONObject(i).getString("path"));
                 if (!media.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
                     throw new SecurityException("Hasil unduhan keluar dari direktori kerja");
+                String audioPath = files.getJSONObject(i).optString("audio_path", "");
+                if (!audioPath.isEmpty()) {
+                    File audio = new File(audioPath);
+                    if (!audio.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
+                        throw new SecurityException("Audio keluar dari direktori kerja");
+                    event(id, "RUNNING", "Menggabungkan audio + video dengan FFmpeg", 98);
+                    MediaMux.merge(media, audio);
+                }
                 String relative = jobDir.toPath().relativize(media.toPath()).toString();
                 if (gallery) {
                     event(id, "SAVING", "Menyimpan ke Galeri: " + media.getName(), 99);
@@ -150,7 +169,9 @@ public class DownloadService extends Service {
         } finally {
             cookieFile.delete();
             if (localPath != null) new File(localPath).delete();
+            if (muxAudioPath != null) new File(muxAudioPath).delete();
             if (importPath != null) new File(importPath).delete();
+            if (torrentPath != null) new File(torrentPath).delete();
         }
     }
     private void writeCookies(String url, File path) throws Exception {
@@ -207,6 +228,15 @@ public class DownloadService extends Service {
     public class Callback {
         private final long id;
         public Callback(long id) { this.id = id; }
+        public void onMux(String videoPath, String audioPath) throws Exception {
+            File root = new File(getCacheDir(), "job-" + id).getCanonicalFile();
+            File video = new File(videoPath).getCanonicalFile(), audio = new File(audioPath).getCanonicalFile();
+            if (!video.toPath().startsWith(root.toPath()) || !audio.toPath().startsWith(root.toPath()))
+                throw new SecurityException("Media mux keluar dari direktori kerja");
+            if (canceled) throw new InterruptedException("Dibatalkan");
+            event(id, "RUNNING", "Menggabungkan audio + video dengan FFmpeg", 98);
+            MediaMux.merge(video, audio);
+        }
         public void onProgress(int percent, String speed) {
             if (canceled) throw new IllegalStateException("Dibatalkan");
             event(id, "RUNNING", percent >= 100 ? "Unduhan selesai; menyiapkan penyimpanan" :

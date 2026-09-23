@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0-alpha (versionCode 8)
+
+- Menyimpan pilihan tujuan, kualitas, batas item, folder Drive, mode profil, rentang tanggal, dan opsi unduhan di perangkat. Tautan yang dibagikan ke aplikasi menggunakan pilihan terakhir.
+- Kolom maksimum item boleh kosong untuk mengambil semua item; angka positif tetap membatasi playlist, profil, dan import.
+- Post Instagram yang tidak mempunyai format video memakai gallery-dl untuk foto; jalur yt-dlp yang sudah berhasil untuk Reel/video tetap digunakan. Post campuran juga mencoba foto dengan gallery-dl.
+- Pemilih Story Instagram menampilkan Story aktif dari sesi yang sudah masuk, bisa memilih beberapa atau semua, lalu memasukkannya ke antrean dan tujuan Galeri/Drive yang sama.
+- Magnet, URL HTTPS .torrent, dan berkas .torrent dari ponsel diunduh di perangkat dengan libtorrent4j; struktur file torrent dipertahankan saat disimpan.
+- FFmpeg menggabungkan video dengan audio terpisah pada import Instagram, serta memberi pilihan gabung satu MP4 dan satu berkas audio dari ponsel.
+- Halaman administrasi perangkat menampilkan status antrean, akun dan ringkasan riwayat serta menyediakan jeda, pembatalan, pembersihan cache job dan riwayat dengan konfirmasi.
+- Native FFmpeg dari paket yang dipilih tersedia untuk perangkat arm64; fungsi penggabungan pada emulator x86_64 perlu build pustaka yang sesuai. Torrent, Galeri, Drive, dan ekstraktor yang tidak memerlukan FFmpeg tetap mengikuti jalur sebelumnya.
+- APK belum dibangun atau diuji pada perangkat untuk versi ini; jalankan workflow build dan uji foto/Story, torrent serta mux pada arm64.
+
 ## 1.2.0-alpha — Bot feature expansion (source)
 
 - Add 2160p/1440p/480p/video-only formats and a separate, opt-in gallery-dl path for Instagram albums/profiles, Facebook profiles and X media timelines. Offer Facebook photo/video selection and date limits on profile batches. The normal yt-dlp path remains the default.
