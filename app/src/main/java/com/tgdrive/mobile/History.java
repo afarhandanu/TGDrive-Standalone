@@ -35,8 +35,8 @@ public final class History {
             }
             next.put(item);
             for (int i = 0; i < Math.min(prior.length(), 99); i++) {
-                JSONObject item = prior.getJSONObject(i);
-                if (item.optLong("id") != id) next.put(item);
+                JSONObject previousItem = prior.getJSONObject(i);
+                if (previousItem.optLong("id") != id) next.put(previousItem);
             }
             prefs.edit().putString("history", next.toString()).apply();
         } catch (Exception ignored) { }
