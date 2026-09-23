@@ -16,6 +16,10 @@ public final class DriveUploader {
     public interface Progress { void update(int percent); }
 
     public static String upload(File file, String token, String folderId, Progress progress) throws Exception {
+        return upload(file, token, folderId, progress, false);
+    }
+    public static String upload(File file, String token, String folderId, Progress progress,
+                                boolean verifyMd5) throws Exception {
         if (token == null || token.isEmpty()) throw new IllegalStateException("Hubungkan Google Drive dahulu");
         String name = file.getName();
         String ext = name.contains(".") ? name.substring(name.lastIndexOf('.') + 1).toLowerCase() : "";
@@ -58,6 +62,19 @@ public final class DriveUploader {
                         status = chunk.getResponseCode();
                         if (status == 200 || status == 201) {
                             JSONObject result = new JSONObject(new String(readAll(chunk.getInputStream()), StandardCharsets.UTF_8));
+                            if (verifyMd5) {
+                                String remote = DriveFiles.md5Checksum(token, result.getString("id"));
+                                java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+                                try (FileInputStream check = new FileInputStream(file)) {
+                                    byte[] block = new byte[262144]; int read;
+                                    while ((read = check.read(block)) != -1) digest.update(block, 0, read);
+                                }
+                                byte[] actual = digest.digest();
+                                StringBuilder local = new StringBuilder();
+                                for (byte b : actual) local.append(String.format(java.util.Locale.ROOT, "%02x", b & 255));
+                                if (remote.isEmpty() || !remote.equalsIgnoreCase(local.toString()))
+                                    throw new IllegalStateException("Checksum MD5 Drive berbeda atau belum tersedia untuk " + file.getName());
+                            }
                             progress.update(100);
                             return result.optString("webViewLink", "https://drive.google.com/file/d/" + result.getString("id") + "/view");
                         }

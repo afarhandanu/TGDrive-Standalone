@@ -15,10 +15,14 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     root.mkdir(parents=True, exist_ok=True)
     site, category = _location(url)
     # yt-dlp may create sidecar files for captions, thumbnails and metadata.
-    best = 'best[ext=mp4]/best' if quality == 'best' else (
-        'bestaudio[ext=m4a]/bestaudio/best' if quality == 'audio' else
-        f'best[height<={int(quality)}][ext=mp4]/best[height<={int(quality)}]/best'
-    )
+    if quality == 'best':
+        best = 'best[ext=mp4]/best'
+    elif quality == 'audio':
+        best = 'bestaudio[ext=m4a]/bestaudio/best'
+    elif quality == 'video':
+        best = 'bestvideo[ext=mp4]/bestvideo'
+    else:
+        best = f'best[height<={int(quality)}][ext=mp4]/best[height<={int(quality)}]/best'
     options = {
         'outtmpl': str(root / site / '%(uploader_id,uploader|unknown).80s' /
                        category / '%(title).160s [%(id)s].%(ext)s'),

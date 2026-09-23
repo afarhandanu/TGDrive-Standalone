@@ -1,6 +1,7 @@
 package com.tgdrive.mobile;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.accounts.Account;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -37,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDate;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -45,27 +47,36 @@ public class MainActivity extends Activity {
     private static final int DRIVE_AUTH = 712;
     private static final int IMPORT_FILE = 713;
     private static final int LOCAL_FILE = 714;
-    private EditText url, limit, folder;
-    private CheckBox subtitles, thumbnail, metadata;
-    private TextView history, destinationLabel, qualityLabel, driveStatus;
+    private static final int EXPORT_BACKUP = 715;
+    private static final int IMPORT_BACKUP = 716;
+    private static final int IMPORT_COOKIES = 717;
+    private EditText url, limit, folder, dateFrom, dateTo;
+    private CheckBox subtitles, thumbnail, metadata, skipCompleted, anonymous, skipDrive, albumMode, verifyDrive;
+    private TextView history, destinationLabel, qualityLabel, driveStatus, siteStatus;
+    private LinearLayout savedSites;
     private String destination = "gallery", quality = "best";
     private String pendingUrl;
     private String pendingImportPath;
     private final ArrayList<Uri> selectedFiles = new ArrayList<>();
     private final ArrayList<String> pendingLocalPaths = new ArrayList<>();
-    private String importCategory = "all";
+    private String importCategory = "all", importOutput = "folder", profileContent = "all";
     private ArrayList<String> pendingUrls = new ArrayList<>();
     private String driveAction = "connect", driveEmail;
+    private String cookieHost;
     private boolean authorizingDrive;
     private final ExecutorService driveIo = Executors.newSingleThreadExecutor();
     private BroadcastReceiver receiver;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        WebSessions.restore(this);
+        if (!DownloadService.hasPendingJobs()) History.markInterrupted(this);
+        driveEmail = getSharedPreferences("drive_account", MODE_PRIVATE).getString("email", null);
         getWindow().setStatusBarColor(Color.rgb(16, 25, 54));
         getWindow().setNavigationBarColor(Color.rgb(16, 25, 54));
         render();
         acceptShare(getIntent());
+        if (driveEmail != null) restoreDriveSession();
         receiver = new BroadcastReceiver() {
             @Override public void onReceive(Context context, Intent intent) { showHistory(); }
         };
@@ -73,6 +84,11 @@ public class MainActivity extends Activity {
         else registerReceiver(receiver, new IntentFilter(DownloadService.EVENTS));
     }
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); acceptShare(intent); }
+    @Override protected void onResume() {
+        super.onResume();
+        if (siteStatus != null) updateSiteStatus();
+        if (savedSites != null) renderSavedSites();
+    }
     @Override protected void onDestroy() { unregisterReceiver(receiver); driveIo.shutdownNow(); super.onDestroy(); }
     private void acceptShare(Intent intent) {
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getStringExtra(Intent.EXTRA_TEXT) != null)
@@ -119,18 +135,76 @@ public class MainActivity extends Activity {
         row(card, new String[]{"Terbaik", "1080p", "720p", "Audio"}, new String[]{"best", "1080", "720", "audio"}, value -> {
             quality = value; qualityLabel.setText("Kualitas · " + value);
         });
+        row(card, new String[]{"2160p", "1440p", "480p", "Video saja"},
+            new String[]{"2160", "1440", "480", "video"}, value -> {
+                quality = value; qualityLabel.setText("Kualitas · " + value);
+            });
         card.addView(label("Maksimum item (profil / playlist)", 13, muted, false));
         limit = new EditText(this); limit.setInputType(2); limit.setText("1"); card.addView(limit);
         subtitles = new CheckBox(this); subtitles.setText("Sertakan subtitle jika ada"); card.addView(subtitles);
         thumbnail = new CheckBox(this); thumbnail.setText("Sertakan thumbnail"); card.addView(thumbnail);
         metadata = new CheckBox(this); metadata.setText("Sertakan metadata JSON"); card.addView(metadata);
+        skipCompleted = new CheckBox(this); skipCompleted.setText("Lewati link yang sudah berhasil diunduh"); card.addView(skipCompleted);
+        anonymous = new CheckBox(this); anonymous.setText("Tanpa akun untuk link publik (abaikan sesi login)"); card.addView(anonymous);
+        skipDrive = new CheckBox(this); skipDrive.setText("Drive: lewati file dengan nama yang sama"); card.addView(skipDrive);
+        verifyDrive = new CheckBox(this); verifyDrive.setText("Drive: cocokkan checksum MD5 setelah unggah"); card.addView(verifyDrive);
+        albumMode = new CheckBox(this);
+        albumMode.setText("Mode profil / album (Instagram, X, Facebook; termasuk carousel)"); card.addView(albumMode);
+        card.addView(label("Profil Facebook · jenis media", 13, muted, false));
+        row(card, new String[]{"Semua", "Foto", "Video"},
+            new String[]{"all", "photos", "videos"}, value -> { profileContent = value; toast("Profil: " + value); });
         card.addView(label("ID folder Drive (opsional)", 13, muted, false));
         folder = new EditText(this); folder.setHint("Kosong = My Drive"); card.addView(folder);
         Button go = button("Mulai download  ↗", navy); go.setOnClickListener(v -> start()); card.addView(go);
         Button instagram = button("Masuk Instagram", Color.rgb(225, 62, 118));
         instagram.setOnClickListener(v -> openLogin("instagram")); outer.addView(instagram);
-        Button x = button("Masuk X", navy); x.setOnClickListener(v -> openLogin("x")); outer.addView(x);
-        driveStatus = label("Google Drive · Belum terhubung", 14, ink, true); outer.addView(driveStatus);
+        Button x = button("Buka X / login", navy); x.setOnClickListener(v -> openLogin("x")); outer.addView(x);
+        siteStatus = label("Sesi situs", 13, muted, false); outer.addView(siteStatus);
+        Button other = button("Masuk situs lain (URL HTTPS)", navy);
+        other.setOnClickListener(v -> {
+            EditText input = new EditText(this);
+            input.setSingleLine(true);
+            input.setHint("https://contoh.com/login");
+            input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI);
+            String current = url.getText().toString().trim();
+            if (WebSessions.host(current) != null) input.setText(current);
+            new AlertDialog.Builder(this).setTitle("Alamat halaman login situs")
+                .setView(input)
+                .setNegativeButton("Batal", null)
+                .setPositiveButton("Buka", (dialog, which) -> {
+                    String loginUrl = input.getText().toString().trim();
+                    if (WebSessions.host(loginUrl) == null) { toast("Masukkan URL HTTPS situs yang valid"); return; }
+                    try { SavedSites.remember(this, loginUrl); }
+                    catch (IllegalArgumentException e) { toast(e.getMessage()); return; }
+                    renderSavedSites();
+                    startActivity(new Intent(this, LoginActivity.class)
+                        .putExtra("site", "custom").putExtra("login_url", loginUrl));
+                }).show();
+        }); outer.addView(other);
+        Button cookies = button("Impor cookies.txt untuk situs", navy);
+        cookies.setOnClickListener(v -> {
+            EditText input = new EditText(this);
+            input.setSingleLine(true); input.setHint("https://contoh.com/");
+            String current = url.getText().toString().trim();
+            if (WebSessions.host(current) != null) input.setText(current);
+            new AlertDialog.Builder(this).setTitle("Situs pemilik cookies")
+                .setView(input).setNegativeButton("Batal", null)
+                .setPositiveButton("Pilih cookies.txt", (d, w) -> {
+                    String address = input.getText().toString().trim();
+                    cookieHost = WebSessions.host(address);
+                    if (cookieHost == null) { toast("Gunakan alamat HTTPS situs"); return; }
+                    try { SavedSites.remember(this, address); renderSavedSites(); }
+                    catch (IllegalArgumentException e) { toast(e.getMessage()); return; }
+                    startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                        .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), IMPORT_COOKIES);
+                }).show();
+        }); outer.addView(cookies);
+        savedSites = new LinearLayout(this);
+        savedSites.setOrientation(LinearLayout.VERTICAL);
+        outer.addView(savedSites);
+        renderSavedSites();
+        driveStatus = label("Google Drive · " + (driveEmail == null ? "Belum terhubung" :
+            "Memeriksa akun " + driveEmail + "…"), 14, ink, true); outer.addView(driveStatus);
         Button connect = button("Hubungkan / ganti akun Google Drive", Color.rgb(65, 87, 220));
         connect.setOnClickListener(v -> { driveAction = "connect"; authorizeDrive(true); }); outer.addView(connect);
         Button files = button("Kelola file Google Drive", Color.rgb(65, 87, 220));
@@ -140,6 +214,19 @@ public class MainActivity extends Activity {
             new String[]{"all", "feed", "reels", "stories", "mentions"}, value -> {
                 importCategory = value; toast("Kategori import: " + value);
             });
+        outer.addView(label("Rentang tanggal import / profil (opsional, YYYY-MM-DD)", 13, muted, false));
+        dateFrom = new EditText(this); dateFrom.setHint("Dari tanggal"); dateFrom.setSingleLine(true);
+        dateFrom.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
+        outer.addView(dateFrom);
+        dateTo = new EditText(this); dateTo.setHint("Sampai tanggal"); dateTo.setSingleLine(true);
+        dateTo.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
+        outer.addView(dateTo);
+        TextView importOutputLabel = label("Hasil import · Folder", 13, ink, true);
+        outer.addView(importOutputLabel);
+        row(outer, new String[]{"Folder", "Satu ZIP"}, new String[]{"folder", "zip"}, value -> {
+            importOutput = value;
+            importOutputLabel.setText("Hasil import · " + (value.equals("zip") ? "Satu ZIP" : "Folder"));
+        });
         Button importButton = button("Pilih file JSON / ZIP", Color.rgb(65, 87, 220));
         importButton.setOnClickListener(v -> {
             Intent choose = new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*")
@@ -160,6 +247,25 @@ public class MainActivity extends Activity {
         outer.addView(cancel);
         Button retry = button("Ulangi job gagal / batal", Color.rgb(65, 87, 220));
         retry.setOnClickListener(v -> retryLast()); outer.addView(retry);
+        Button pause = button("Jeda / lanjutkan antrean", Color.rgb(65, 87, 220));
+        pause.setOnClickListener(v -> {
+            boolean next = !DownloadService.isPaused();
+            startService(new Intent(this, DownloadService.class).setAction(next ? "PAUSE" : "RESUME"));
+            toast(next ? "Tugas berikutnya dijeda; tugas aktif tetap berjalan" : "Antrean dilanjutkan");
+        }); outer.addView(pause);
+        outer.addView(label("CADANGAN", 13, muted, true));
+        Button backup = button("Ekspor riwayat dan daftar situs", navy);
+        backup.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT)
+            .addCategory(Intent.CATEGORY_OPENABLE).setType("application/json")
+            .putExtra(Intent.EXTRA_TITLE, "TGDrive-backup.json"), EXPORT_BACKUP));
+        outer.addView(backup);
+        Button restore = button("Pulihkan riwayat dan daftar situs", navy);
+        restore.setOnClickListener(v -> {
+            if (DownloadService.hasPendingJobs()) { toast("Tunggu antrean selesai sebelum memulihkan cadangan"); return; }
+            startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE).setType("application/json"), IMPORT_BACKUP);
+        }); outer.addView(restore);
+        outer.addView(label("Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini.", 12, muted, false));
         showHistory();
     }
     private void start() {
@@ -173,6 +279,7 @@ public class MainActivity extends Activity {
         if (pendingUrls.isEmpty()) {
             toast("Masukkan URL http/https yang valid"); return;
         }
+        if (albumMode.isChecked() && !validDates()) return;
         if (destination.equals("gallery")) { enqueue(null); return; }
         driveAction = "download";
         authorizeDrive(driveEmail == null);
@@ -193,6 +300,21 @@ public class MainActivity extends Activity {
             } else authorized(result.getAccessToken());
         }).addOnFailureListener(e -> driveFailed("Drive: " + e.getMessage()));
     }
+    private void restoreDriveSession() {
+        authorizingDrive = true;
+        AuthorizationRequest request = AuthorizationRequest.builder()
+            .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive")))
+            .setAccount(new Account(driveEmail, "com.google")).build();
+        Identity.getAuthorizationClient(this).authorize(request).addOnSuccessListener(result -> {
+            if (result.hasResolution() || result.getAccessToken() == null) {
+                authorizingDrive = false;
+                driveStatus.setText("Google Drive · " + driveEmail + " · ketuk Hubungkan untuk memberi izin lagi");
+            } else authorized(result.getAccessToken());
+        }).addOnFailureListener(e -> {
+            authorizingDrive = false;
+            driveStatus.setText("Google Drive · " + driveEmail + " · ketuk Hubungkan untuk menyambung ulang");
+        });
+    }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
         if (request == IMPORT_FILE && result == RESULT_OK && data != null && data.getData() != null) {
@@ -204,6 +326,39 @@ public class MainActivity extends Activity {
                 selectedFiles.add(data.getClipData().getItemAt(i).getUri());
             else if (data.getData() != null) selectedFiles.add(data.getData());
             url.setHint(selectedFiles.size() + " file dipilih · pilih tujuan lalu mulai");
+            return;
+        }
+        if ((request == EXPORT_BACKUP || request == IMPORT_BACKUP) && result == RESULT_OK && data != null && data.getData() != null) {
+            Uri selected = data.getData();
+            if (request == EXPORT_BACKUP) new Thread(() -> {
+                try (java.io.OutputStream output = getContentResolver().openOutputStream(selected, "w")) {
+                    if (output == null) throw new IllegalStateException("Tidak bisa menulis file cadangan");
+                    output.write(AppBackup.exportData(this));
+                    runOnUiThread(() -> toast("Cadangan tersimpan"));
+                } catch (Exception e) { runOnUiThread(() -> toast("Ekspor: " + e.getMessage())); }
+            }).start();
+            else new AlertDialog.Builder(this).setMessage("Ganti riwayat unduhan dengan isi cadangan ini?")
+                .setNegativeButton("Batal", null).setPositiveButton("Pulihkan", (d, w) -> new Thread(() -> {
+                    try (InputStream input = getContentResolver().openInputStream(selected)) {
+                        if (input == null) throw new IllegalStateException("Tidak bisa membaca cadangan");
+                        AppBackup.restoreData(this, input);
+                        runOnUiThread(() -> { showHistory(); renderSavedSites(); toast("Cadangan dipulihkan"); });
+                    } catch (Exception e) { runOnUiThread(() -> toast("Pulihkan: " + e.getMessage())); }
+                }).start()).show();
+            return;
+        }
+        if (request == IMPORT_COOKIES && result == RESULT_OK && data != null && data.getData() != null && cookieHost != null) {
+            String host = cookieHost;
+            new Thread(() -> {
+                try (InputStream input = getContentResolver().openInputStream(data.getData())) {
+                    if (input == null) throw new IllegalStateException("File cookies tidak dapat dibaca");
+                    ArrayList<String> parsed = CookieImporter.parse(input, host);
+                    runOnUiThread(() -> CookieImporter.install(this, host, parsed, () -> {
+                        updateSiteStatus(); toast(parsed.size() + " cookie tersimpan untuk " + host);
+                    }));
+                } catch (Exception e) { runOnUiThread(() -> toast("Cookies: " + e.getMessage())); }
+            }).start();
+            cookieHost = null;
             return;
         }
         if (request == DRIVE_AUTH) {
@@ -235,6 +390,7 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     authorizingDrive = false;
                     driveEmail = email;
+                    getSharedPreferences("drive_account", MODE_PRIVATE).edit().putString("email", email).apply();
                     driveStatus.setText("Google Drive · Terhubung: " + email);
                     toast("Drive terhubung: " + email);
                     if ("browse".equals(action))
@@ -249,7 +405,18 @@ public class MainActivity extends Activity {
         driveStatus.setText("Google Drive · " + (driveEmail == null ? "Belum terhubung" : "Akun terakhir: " + driveEmail));
         toast(message);
     }
+    private boolean validDates() {
+        String from = dateFrom.getText().toString().trim(), to = dateTo.getText().toString().trim();
+        try {
+            if (!from.isEmpty()) LocalDate.parse(from);
+            if (!to.isEmpty()) LocalDate.parse(to);
+            if (!from.isEmpty() && !to.isEmpty() && LocalDate.parse(from).isAfter(LocalDate.parse(to)))
+                throw new IllegalArgumentException("Tanggal awal melewati tanggal akhir");
+            return true;
+        } catch (Exception e) { toast("Periksa tanggal (YYYY-MM-DD): " + e.getMessage()); return false; }
+    }
     private void copyImport(Uri selected) {
+        if (!validDates()) return;
         new Thread(() -> {
             try {
                 String name = "";
@@ -310,24 +477,63 @@ public class MainActivity extends Activity {
         catch (NumberFormatException ignored) {}
         try {
             int jobs = pendingLocalPaths.isEmpty() ? (pendingImportPath == null ? pendingUrls.size() : 1) : pendingLocalPaths.size();
+            int submitted = 0;
             for (int i = 0; i < jobs; i++) {
                 String link = pendingLocalPaths.isEmpty() && pendingImportPath == null ? pendingUrls.get(i) : "";
+                if (!link.isEmpty() && skipCompleted.isChecked() && History.alreadyCompleted(this, link)) continue;
                 Intent job = new Intent(this, DownloadService.class).putExtra("url", link)
                     .putExtra("target", destination).putExtra("quality", quality).putExtra("count", count)
                     .putExtra("subtitles", subtitles.isChecked()).putExtra("thumbnail", thumbnail.isChecked())
                     .putExtra("metadata", metadata.isChecked())
+                    .putExtra("anonymous", anonymous.isChecked())
+                    .putExtra("skip_drive", skipDrive.isChecked())
+                    .putExtra("verify_drive", verifyDrive.isChecked())
+                    .putExtra("album_mode", albumMode.isChecked())
+                    .putExtra("profile_content", profileContent)
                     .putExtra("folder_id", folder.getText().toString().trim()).putExtra("drive_token", token)
                     .putExtra("import_path", pendingImportPath).putExtra("category", importCategory)
+                    .putExtra("date_from", dateFrom.getText().toString().trim())
+                    .putExtra("date_to", dateTo.getText().toString().trim())
+                    .putExtra("import_output", importOutput)
                     .putExtra("local_path", pendingLocalPaths.isEmpty() ? null : pendingLocalPaths.get(i));
                 startForegroundService(job);
+                submitted++;
             }
-            toast(jobs + " tugas masuk antrean");
+            toast(submitted + " tugas masuk antrean" + (submitted < jobs ? "; " + (jobs - submitted) + " sudah pernah selesai" : ""));
             pendingImportPath = null;
             pendingLocalPaths.clear();
         }
         catch (Exception e) { toast("Gagal memulai unduhan: " + e.getMessage()); }
     }
     private void openLogin(String site) { startActivity(new Intent(this, LoginActivity.class).putExtra("site", site)); }
+    private void renderSavedSites() {
+        savedSites.removeAllViews();
+        JSONArray sites = SavedSites.list(this);
+        for (int i = 0; i < sites.length(); i++) {
+            JSONObject site = sites.optJSONObject(i);
+            if (site == null) continue;
+            String host = site.optString("host"), loginUrl = site.optString("url");
+            if (!host.equals(WebSessions.host(loginUrl))) continue;
+            Button open = button("Buka situs · " + host, Color.rgb(65, 87, 220));
+            open.setOnClickListener(v -> startActivity(new Intent(this, LoginActivity.class)
+                .putExtra("site", "custom").putExtra("login_url", loginUrl)));
+            open.setOnLongClickListener(v -> {
+                new AlertDialog.Builder(this).setMessage("Hapus tombol " + host + " dari daftar?")
+                    .setNegativeButton("Batal", null)
+                    .setPositiveButton("Hapus", (dialog, which) -> {
+                        SavedSites.forget(this, host); renderSavedSites();
+                    }).show();
+                return true;
+            });
+            savedSites.addView(open);
+        }
+    }
+    private void updateSiteStatus() {
+        String ig = WebSessions.cookies(this, "instagram.com");
+        if (ig == null || !ig.contains("sessionid=")) ig = WebSessions.cookies(this, "www.instagram.com");
+        siteStatus.setText("Sesi tersimpan · Instagram: " + (ig != null && ig.contains("sessionid=") ? "ada" : "belum") +
+            " · X: " + (WebSessions.hasXSession(this) ? "ada" : "belum"));
+    }
     private void retryLast() {
         JSONObject previous = History.lastRetryable(this);
         if (previous == null) { toast("Tidak ada job yang bisa diulang"); return; }
@@ -339,6 +545,13 @@ public class MainActivity extends Activity {
         subtitles.setChecked(previous.optBoolean("subtitles"));
         thumbnail.setChecked(previous.optBoolean("thumbnail"));
         metadata.setChecked(previous.optBoolean("metadata"));
+        anonymous.setChecked(previous.optBoolean("anonymous"));
+        skipDrive.setChecked(previous.optBoolean("skip_drive"));
+        verifyDrive.setChecked(previous.optBoolean("verify_drive"));
+        albumMode.setChecked(previous.optBoolean("album_mode"));
+        profileContent = previous.optString("profile_content", "all");
+        dateFrom.setText(previous.optString("date_from"));
+        dateTo.setText(previous.optString("date_to"));
         destinationLabel.setText("Tujuan · " + destination);
         qualityLabel.setText("Kualitas · " + quality);
         start();

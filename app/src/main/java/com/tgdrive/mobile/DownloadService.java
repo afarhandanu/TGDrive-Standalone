@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.webkit.CookieManager;
 import com.chaquo.python.Python;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,13 +14,20 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DownloadService extends Service {
     public static final String EVENTS = "com.tgdrive.mobile.JOB_EVENT";
     private static final AtomicLong NEXT_ID = new AtomicLong();
+    private static final AtomicInteger PENDING = new AtomicInteger();
+    private static final Object PAUSE_LOCK = new Object();
+    private static volatile boolean paused;
+    public static boolean hasPendingJobs() { return PENDING.get() > 0; }
+    public static boolean isPaused() { return paused; }
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private volatile boolean canceled;
     private NotificationManager notifications;
@@ -34,6 +40,11 @@ public class DownloadService extends Service {
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) return START_NOT_STICKY;
         if ("CANCEL".equals(intent.getAction())) { canceled = true; return START_NOT_STICKY; }
+        if ("PAUSE".equals(intent.getAction())) { paused = true; return START_NOT_STICKY; }
+        if ("RESUME".equals(intent.getAction())) {
+            synchronized (PAUSE_LOCK) { paused = false; PAUSE_LOCK.notifyAll(); }
+            return START_NOT_STICKY;
+        }
         String url = intent.getStringExtra("url");
         String importPath = intent.getStringExtra("import_path");
         String localPath = intent.getStringExtra("local_path");
@@ -47,15 +58,35 @@ public class DownloadService extends Service {
         boolean subtitles = intent.getBooleanExtra("subtitles", false);
         boolean thumbnail = intent.getBooleanExtra("thumbnail", false);
         boolean metadata = intent.getBooleanExtra("metadata", false);
+        boolean anonymous = intent.getBooleanExtra("anonymous", false);
+        boolean skipDrive = intent.getBooleanExtra("skip_drive", false);
+        boolean verifyDrive = intent.getBooleanExtra("verify_drive", false);
+        boolean albumMode = intent.getBooleanExtra("album_mode", false);
+        String profileContent = intent.getStringExtra("profile_content");
         String category = intent.getStringExtra("category");
+        String dateFrom = intent.getStringExtra("date_from");
+        String dateTo = intent.getStringExtra("date_to");
+        String importOutput = intent.getStringExtra("import_output");
         History.enqueue(this, id, importPath != null ? "Instagram JSON/ZIP import" : localPath != null ? "Local file" : url,
-            target, quality, count, folder, subtitles, thumbnail, metadata);
+            target, quality, count, folder, subtitles, thumbnail, metadata, anonymous, skipDrive,
+            albumMode, profileContent == null ? "all" : profileContent, dateFrom, dateTo, verifyDrive);
         startForeground(3001, notification("TGDrive", "Menyiapkan antrean…", 0));
-        worker.submit(() -> { runJob(id, url, importPath, localPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata); stopSelf(startId); });
+        PENDING.incrementAndGet();
+        worker.submit(() -> {
+            try {
+                synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
+                runJob(id, url, importPath, localPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
+                    dateFrom == null ? "" : dateFrom, dateTo == null ? "" : dateTo, importOutput == null ? "folder" : importOutput,
+                    anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive);
+            } catch (InterruptedException e) { event(id, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0); }
+            finally { PENDING.decrementAndGet(); stopSelf(startId); }
+        });
         return START_NOT_STICKY;
     }
     private void runJob(long id, String url, String importPath, String localPath, String category, String target, String token, String folder, String quality, int count,
-                        boolean subtitles, boolean thumbnail, boolean metadata) {
+                        boolean subtitles, boolean thumbnail, boolean metadata, String dateFrom, String dateTo,
+                        String importOutput, boolean anonymous, boolean skipDrive, boolean albumMode,
+                        String profileContent, boolean verifyDrive) {
         canceled = false;
         File jobDir = new File(getCacheDir(), "job-" + id);
         jobDir.mkdirs();
@@ -74,10 +105,15 @@ public class DownloadService extends Service {
                 Files.copy(local.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 raw = new JSONArray().put(new JSONObject().put("path", targetFile.getAbsolutePath()).put("name", targetFile.getName())).toString();
             } else if (importPath != null) raw = Python.getInstance().getModule("instagram_import")
-                .callAttr("import_file", importPath, jobDir.getAbsolutePath(), category == null ? "all" : category, count, callback).toString();
+                .callAttr("import_file", importPath, jobDir.getAbsolutePath(), category == null ? "all" : category, count, callback,
+                    dateFrom, dateTo, importOutput).toString();
             else {
-                writeCookies(url, cookieFile);
-                raw = Python.getInstance().getModule("downloader")
+                if (!anonymous) writeCookies(url, cookieFile);
+                if (albumMode) raw = Python.getInstance().getModule("gallery_download")
+                    .callAttr("download", url, jobDir.getAbsolutePath(), count,
+                        cookieFile.exists() ? cookieFile.getAbsolutePath() : "", callback,
+                        dateFrom, dateTo, profileContent, quality, subtitles, thumbnail, metadata).toString();
+                else raw = Python.getInstance().getModule("downloader")
                     .callAttr("download", url, jobDir.getAbsolutePath(), quality, count, subtitles, thumbnail, metadata,
                         cookieFile.exists() ? cookieFile.getAbsolutePath() : "", callback).toString();
             }
@@ -96,9 +132,13 @@ public class DownloadService extends Service {
                 }
                 if (drive) {
                     String parent = DriveFiles.ensurePath(token, folder, relative);
+                    if (skipDrive && DriveFiles.hasFile(token, parent, media.getName())) {
+                        result.append("Drive sudah ada: ").append(relative).append("\n");
+                        continue;
+                    }
                     event(id, "UPLOADING", "Mengunggah " + media.getName(), 0);
                     String link = DriveUploader.upload(media, token, parent,
-                        percent -> event(id, "UPLOADING", "Drive " + percent + "%", Math.min(percent, 99)));
+                        percent -> event(id, "UPLOADING", "Drive " + percent + "%", Math.min(percent, 99)), verifyDrive);
                     result.append("Drive: ").append(link).append("\n");
                 }
             }
@@ -114,19 +154,34 @@ public class DownloadService extends Service {
         }
     }
     private void writeCookies(String url, File path) throws Exception {
-        String host = android.net.Uri.parse(url).getHost();
+        String host = WebSessions.host(url);
         if (host == null) return;
-        String base = host.endsWith("instagram.com") ? "instagram.com" :
-                      host.endsWith("x.com") || host.endsWith("twitter.com") ? "x.com" : host;
-        String cookies = CookieManager.getInstance().getCookie("https://" + base);
-        if (cookies == null || cookies.trim().isEmpty()) return;
-        StringBuilder text = new StringBuilder("# Netscape HTTP Cookie File\n");
-        for (String part : cookies.split(";")) {
-            String[] pair = part.trim().split("=", 2);
-            if (pair.length == 2) text.append(".").append(base).append("\tTRUE\t/\tTRUE\t2147483647\t")
-                .append(pair[0]).append("\t").append(pair[1]).append("\n");
+        LinkedHashSet<String> domains = new LinkedHashSet<>();
+        domains.add(host);
+        if (host.startsWith("www.")) domains.add(host.substring(4));
+        else domains.add("www." + host);
+        if (host.equals("x.com") || host.endsWith(".x.com") ||
+            host.equals("twitter.com") || host.endsWith(".twitter.com")) {
+            domains.add("x.com"); domains.add("www.x.com");
+            domains.add("twitter.com"); domains.add("www.twitter.com");
+        } else if (host.equals("instagram.com") || host.endsWith(".instagram.com")) {
+            domains.add("instagram.com"); domains.add("www.instagram.com");
         }
-        Files.write(path.toPath(), text.toString().getBytes(StandardCharsets.UTF_8));
+        StringBuilder text = new StringBuilder("# Netscape HTTP Cookie File\n");
+        for (String domain : domains) {
+            String cookies = WebSessions.cookies(this, domain);
+            if (cookies == null) continue;
+            for (String part : cookies.split(";")) {
+                String[] pair = part.trim().split("=", 2);
+                if (pair.length == 2 && pair[0].matches("[!#$%&'*+.^_`|~0-9a-zA-Z-]+") &&
+                    pair[1].indexOf('\n') < 0 && pair[1].indexOf('\r') < 0 && pair[1].indexOf('\t') < 0)
+                    text.append(".").append(domain).append("\tTRUE\t/\tTRUE\t")
+                        .append((System.currentTimeMillis() / 1000) + 86400).append("\t")
+                        .append(pair[0]).append("\t").append(pair[1]).append("\n");
+            }
+        }
+        if (text.indexOf("\t") >= 0)
+            Files.write(path.toPath(), text.toString().getBytes(StandardCharsets.UTF_8));
     }
     private void event(long id, String state, String message, int progress) {
         History.record(this, id, state, message, progress);
