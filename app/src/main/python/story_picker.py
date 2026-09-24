@@ -38,11 +38,26 @@ def list_stories(username, cookie_header):
                 continue
             seen.add(media_id)
             extension = str(meta.get('extension') or nested.get('extension') or '').lower()
+            video = bool(meta.get('video_url') or nested.get('video_url')
+                         or extension in ('mp4', 'm4v', 'webm', 'mov'))
+            preview = (meta.get('thumbnail_url') or meta.get('display_url')
+                       or nested.get('thumbnail_url') or nested.get('display_url'))
+            post = meta.get('post') if isinstance(meta.get('post'), dict) else {}
+            images = (nested.get('image_versions2') or meta.get('image_versions2')
+                      or post.get('image_versions2') or {})
+            if not preview and isinstance(images, dict):
+                candidates = images.get('candidates') or []
+                if candidates and isinstance(candidates[0], dict):
+                    preview = candidates[0].get('url')
+            if not preview and not video and isinstance(row[1], str):
+                preview = row[1]
+            video_preview = row[1] if video and isinstance(row[1], str) else ''
             result.append({'id': media_id,
                            'url': f'https://www.instagram.com/stories/{username}/{media_id}/',
                            'date': str(meta.get('date') or meta.get('post_date') or ''),
-                           'video': bool(meta.get('video_url') or nested.get('video_url')
-                                         or extension in ('mp4', 'm4v', 'webm', 'mov'))})
+                           'video': video,
+                           'preview': preview if isinstance(preview, str) and preview.startswith('https://') else '',
+                           'video_preview': video_preview if video_preview.startswith('https://') else ''})
         return json.dumps(result, ensure_ascii=False)
     finally:
         config.clear()

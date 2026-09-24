@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,11 +47,13 @@ public class DownloadService extends Service {
             return START_NOT_STICKY;
         }
         String url = intent.getStringExtra("url");
+        ArrayList<String> storyUrls = intent.getStringArrayListExtra("story_urls");
         String importPath = intent.getStringExtra("import_path");
         String localPath = intent.getStringExtra("local_path");
         String muxAudioPath = intent.getStringExtra("mux_audio_path");
         String torrentPath = intent.getStringExtra("torrent_path");
-        if ((url == null || url.trim().isEmpty()) && importPath == null && localPath == null && torrentPath == null) return START_NOT_STICKY;
+        if ((url == null || url.trim().isEmpty()) && importPath == null && localPath == null && torrentPath == null
+                && (storyUrls == null || storyUrls.isEmpty())) return START_NOT_STICKY;
         String target = intent.getStringExtra("target");
         String token = intent.getStringExtra("drive_token");
         String folder = intent.getStringExtra("folder_id");
@@ -69,21 +72,65 @@ public class DownloadService extends Service {
         String dateFrom = intent.getStringExtra("date_from");
         String dateTo = intent.getStringExtra("date_to");
         String importOutput = intent.getStringExtra("import_output");
-        History.enqueue(this, id, importPath != null ? "Instagram JSON/ZIP import" : localPath != null ? "Local file" : torrentPath != null ? "Torrent file" : url,
+        ArrayList<Long> storyIds = new ArrayList<>();
+        if (storyUrls != null && !storyUrls.isEmpty()) {
+            ArrayList<String> validStoryUrls = new ArrayList<>();
+            for (String storyUrl : storyUrls) {
+                if (storyUrl == null || !storyUrl.matches("^https://www\\.instagram\\.com/stories/[A-Za-z0-9._]+/[0-9]+/$")) continue;
+                validStoryUrls.add(storyUrl);
+                long storyId = NEXT_ID.updateAndGet(last -> Math.max(System.currentTimeMillis(), last + 1));
+                storyIds.add(storyId);
+                History.enqueue(this, storyId, storyUrl, target, quality, 1, folder, subtitles, thumbnail,
+                    metadata, anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent,
+                    dateFrom, dateTo, verifyDrive);
+            }
+            if (storyIds.isEmpty()) return START_NOT_STICKY;
+            storyUrls = validStoryUrls;
+        } else History.enqueue(this, id,
+            importPath != null ? "Instagram JSON/ZIP import" : localPath != null ? "Local file" : torrentPath != null ? "Torrent file" : url,
             target, quality, count, folder, subtitles, thumbnail, metadata, anonymous, skipDrive,
             albumMode, profileContent == null ? "all" : profileContent, dateFrom, dateTo, verifyDrive);
         startForeground(3001, notification("TGDrive", "Menyiapkan antrean…", 0));
         PENDING.incrementAndGet();
+        final ArrayList<String> selectedStories = storyUrls;
         worker.submit(() -> {
             try {
-                synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
-                runJob(id, url, importPath, localPath, muxAudioPath, torrentPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
-                    dateFrom == null ? "" : dateFrom, dateTo == null ? "" : dateTo, importOutput == null ? "folder" : importOutput,
-                    anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive);
-            } catch (InterruptedException e) { event(id, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0); }
+                if (!storyIds.isEmpty()) {
+                    canceled = false;
+                    for (int i = 0; i < storyIds.size(); i++) {
+                        long storyId = storyIds.get(i);
+                        if (canceled) { event(storyId, "CANCELLED", "Antrean Story dibatalkan", 0); continue; }
+                        synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
+                        if (canceled) { event(storyId, "CANCELLED", "Antrean Story dibatalkan", 0); continue; }
+                        runJob(storyId, selectedStories.get(i), null, null, null, null, null, target,
+                            token, folder, quality, 1, subtitles, thumbnail, metadata, "", "", "folder",
+                            anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive);
+                    }
+                } else {
+                    synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
+                    runJob(id, url, importPath, localPath, muxAudioPath, torrentPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
+                        dateFrom == null ? "" : dateFrom, dateTo == null ? "" : dateTo, importOutput == null ? "folder" : importOutput,
+                        anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive);
+                }
+            } catch (InterruptedException e) {
+                if (storyIds.isEmpty()) event(id, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0);
+                else for (long storyId : storyIds) {
+                    JSONObject job = findJob(storyId);
+                    if (job != null && "QUEUED".equals(job.optString("state")))
+                        event(storyId, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0);
+                }
+            }
             finally { PENDING.decrementAndGet(); stopSelf(startId); }
         });
         return START_NOT_STICKY;
+    }
+    private JSONObject findJob(long id) {
+        JSONArray jobs = History.read(this);
+        for (int i = 0; i < jobs.length(); i++) {
+            JSONObject job = jobs.optJSONObject(i);
+            if (job != null && job.optLong("id") == id) return job;
+        }
+        return null;
     }
     private void runJob(long id, String url, String importPath, String localPath, String muxAudioPath, String torrentPath, String category, String target, String token, String folder, String quality, int count,
                         boolean subtitles, boolean thumbnail, boolean metadata, String dateFrom, String dateTo,

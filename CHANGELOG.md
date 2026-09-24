@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.3-alpha (versionCode 11)
+
+- Menambahkan thumbnail foto/video di pemilih Story; thumbnail dapat diketuk untuk melihat foto lebih besar atau memutar video ketika URL media tersedia.
+- Memproses pilihan Story sebagai satu batch di service dan mencatat hasil tiap Story secara terpisah. Ini mencegah rangkaian permintaan service terpisah berhenti sebelum seluruh pilihan selesai diproses.
+- Pilihan Story yang ditekan langsung selalu masuk antrean, termasuk ketika opsi "lewati link yang sudah berhasil diunduh" aktif; opsi tersebut tetap berlaku untuk download URL biasa.
+- Pratinjau dari CDN bisa kedaluwarsa; tombol download tetap bisa dipakai jika pratinjau tidak muncul. Perlu pengujian langsung di perangkat untuk daftar Story sebenarnya dan hasil Drive/Lokal.
+
 ## 1.3.2-alpha (versionCode 10)
 
 - Inisialisasi extractor gallery-dl ketika membuka pemilih Story, sehingga sesi dan API Instagram tersedia sebelum daftar dibaca.

@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -23,10 +25,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
+import android.widget.MediaController;
 import android.text.method.LinkMovementMethod;
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.AuthorizationResult;
@@ -40,7 +45,10 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.LocalDate;
@@ -76,10 +84,12 @@ public class MainActivity extends Activity {
     private final ArrayList<String> pendingLocalPaths = new ArrayList<>();
     private String importCategory = "all", importOutput = "folder", profileContent = "all";
     private ArrayList<String> pendingUrls = new ArrayList<>();
+    private final ArrayList<String> selectedStoryUrls = new ArrayList<>();
     private String driveAction = "connect", driveEmail;
     private String cookieHost;
     private boolean authorizingDrive;
     private final ExecutorService driveIo = Executors.newSingleThreadExecutor();
+    private final ExecutorService storyPreviewIo = Executors.newFixedThreadPool(2);
     private BroadcastReceiver receiver;
     private boolean restoringSettings;
 
@@ -113,7 +123,9 @@ public class MainActivity extends Activity {
         if (historyList != null && currentTab == 4) showHistory();
     }
     @Override protected void onPause() { saveSettings(); super.onPause(); }
-    @Override protected void onDestroy() { unregisterReceiver(receiver); driveIo.shutdownNow(); super.onDestroy(); }
+    @Override protected void onDestroy() {
+        unregisterReceiver(receiver); driveIo.shutdownNow(); storyPreviewIo.shutdownNow(); super.onDestroy();
+    }
     private void acceptShare(Intent intent) {
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
             selectedFiles.clear(); muxSelection = false;
@@ -444,6 +456,7 @@ public class MainActivity extends Activity {
             (muxSelection ? " file untuk digabung" : " file dari ponsel") + " dipilih · ketuk untuk batal");
     }
     private void start() {
+        selectedStoryUrls.clear();
         if (!selectedFiles.isEmpty()) { copyLocal(); return; }
         pendingImportPath = null;
         pendingTorrentPath = null;
@@ -532,27 +545,120 @@ public class MainActivity extends Activity {
     private void showStoryChoices(JSONArray items) {
         int n = items.length();
         if (n == 0) { toast("Tidak ada Story aktif yang dapat dibaca"); return; }
-        String[] labels = new String[n]; boolean[] selected = new boolean[n];
+        boolean[] selected = new boolean[n];
+        LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
+        list.setPadding(dp(12), 0, dp(12), dp(8));
         for (int i = 0; i < n; i++) {
             JSONObject item = items.optJSONObject(i);
-            labels[i] = item == null ? "Story " + (i + 1) :
-                (item.optBoolean("video") ? "Video" : "Foto") + " · " + item.optString("date") + " · " + item.optString("id");
+            int index = i;
+            LinearLayout row = new LinearLayout(this); row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(dp(4), dp(6), dp(4), dp(6));
+            CheckBox check = new CheckBox(this);
+            check.setOnCheckedChangeListener((button, checked) -> selected[index] = checked);
+            row.addView(check);
+            FrameLayout preview = new FrameLayout(this);
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(Color.rgb(225, 230, 249)); background.setCornerRadius(dp(12));
+            preview.setBackground(background); preview.setClipToOutline(true);
+            ImageView image = new ImageView(this); image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            preview.addView(image, new FrameLayout.LayoutParams(-1, -1));
+            TextView placeholder = label(item != null && item.optBoolean("video") ? "▶" : "▧", 22,
+                Color.rgb(65, 87, 220), true);
+            placeholder.setGravity(Gravity.CENTER);
+            preview.addView(placeholder, new FrameLayout.LayoutParams(-1, -1));
+            LinearLayout.LayoutParams thumb = new LinearLayout.LayoutParams(dp(76), dp(76));
+            thumb.rightMargin = dp(10); row.addView(preview, thumb);
+            String labelText = item == null ? "Story " + (i + 1) :
+                (item.optBoolean("video") ? "Video" : "Foto") + " · " + item.optString("date") +
+                "\nID " + item.optString("id");
+            TextView title = label(labelText, 14, Color.rgb(30, 39, 65), false);
+            row.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
+            row.setOnClickListener(v -> check.setChecked(!check.isChecked()));
+            if (item != null) {
+                String previewUrl = item.optString("preview");
+                if (!previewUrl.isEmpty()) loadStoryPreview(previewUrl, image, placeholder);
+                String videoUrl = item.optString("video_preview");
+                preview.setOnClickListener(v -> {
+                    if (item.optBoolean("video") && allowedStoryMediaUri(videoUrl)) {
+                        VideoView player = new VideoView(this);
+                        player.setLayoutParams(new LinearLayout.LayoutParams(-1, dp(420)));
+                        player.setVideoURI(Uri.parse(videoUrl));
+                        MediaController controls = new MediaController(this);
+                        controls.setAnchorView(player); player.setMediaController(controls);
+                        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(labelText)
+                            .setView(player).setPositiveButton("Tutup", null).create();
+                        dialog.setOnDismissListener(d -> player.stopPlayback());
+                        dialog.show(); player.start();
+                    } else if (image.getDrawable() instanceof android.graphics.drawable.BitmapDrawable) {
+                        ImageView larger = new ImageView(this);
+                        larger.setImageDrawable(image.getDrawable());
+                        larger.setAdjustViewBounds(true);
+                        larger.setPadding(dp(8), dp(8), dp(8), dp(8));
+                        new AlertDialog.Builder(this).setTitle(labelText).setView(larger)
+                            .setPositiveButton("Tutup", null).show();
+                    } else toast("Pratinjau belum tersedia; Story tetap dapat diunduh");
+                });
+            }
+            list.addView(row);
         }
+        ScrollView scroll = new ScrollView(this); scroll.addView(list);
         new AlertDialog.Builder(this).setTitle("Pilih Story (" + n + ")")
-            .setMultiChoiceItems(labels, selected, (dialog, index, checked) -> selected[index] = checked)
+            .setView(scroll)
             .setNeutralButton("Semua", (dialog, which) -> downloadStories(items, null))
             .setNegativeButton("Batal", null)
             .setPositiveButton("Unduh dipilih", (dialog, which) -> downloadStories(items, selected)).show();
     }
+    private void loadStoryPreview(String address, ImageView image, TextView placeholder) {
+        try {
+            if (!allowedStoryMediaUri(address)) return;
+            storyPreviewIo.execute(() -> {
+                HttpURLConnection connection = null;
+                try {
+                    connection = (HttpURLConnection) new URL(address).openConnection();
+                    connection.setConnectTimeout(6000); connection.setReadTimeout(6000);
+                    connection.setInstanceFollowRedirects(false);
+                    if (connection.getResponseCode() != 200 ||
+                        !connection.getContentType().toLowerCase(java.util.Locale.ROOT).startsWith("image/")) return;
+                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                    try (InputStream stream = connection.getInputStream()) {
+                        byte[] buffer = new byte[8192]; int size;
+                        while ((size = stream.read(buffer)) != -1 && bytes.size() + size <= 2_000_000)
+                            bytes.write(buffer, 0, size);
+                    }
+                    byte[] data = bytes.toByteArray();
+                    BitmapFactory.Options bounds = new BitmapFactory.Options(); bounds.inJustDecodeBounds = true;
+                    BitmapFactory.decodeByteArray(data, 0, data.length, bounds);
+                    BitmapFactory.Options scaled = new BitmapFactory.Options();
+                    scaled.inSampleSize = Math.max(1, Math.max(bounds.outWidth, bounds.outHeight) / 300);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, scaled);
+                    if (bitmap != null) runOnUiThread(() -> {
+                        image.setImageBitmap(bitmap); placeholder.setVisibility(View.GONE);
+                    });
+                } catch (Exception ignored) { /* Keep the photo/video placeholder if its CDN preview expires. */ }
+                finally { if (connection != null) connection.disconnect(); }
+            });
+        } catch (Exception ignored) { }
+    }
+    private boolean allowedStoryMediaUri(String address) {
+        try {
+            Uri uri = Uri.parse(address);
+            String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(java.util.Locale.ROOT);
+            return "https".equalsIgnoreCase(uri.getScheme()) &&
+                (host.equals("instagram.com") || host.endsWith(".instagram.com") ||
+                 host.equals("cdninstagram.com") || host.endsWith(".cdninstagram.com") ||
+                 host.equals("fbcdn.net") || host.endsWith(".fbcdn.net"));
+        } catch (Exception error) { return false; }
+    }
     private void downloadStories(JSONArray items, boolean[] selected) {
-        pendingUrls.clear(); pendingImportPath = null; pendingLocalPaths.clear();
+        selectedStoryUrls.clear(); pendingUrls.clear(); pendingImportPath = null; pendingLocalPaths.clear();
         for (int i = 0; i < items.length(); i++) {
             if (selected != null && !selected[i]) continue;
             JSONObject item = items.optJSONObject(i);
-            if (item != null) pendingUrls.add(item.optString("url"));
+            if (item != null && item.optString("url").startsWith("https://www.instagram.com/stories/"))
+                selectedStoryUrls.add(item.optString("url"));
         }
-        if (pendingUrls.isEmpty()) { toast("Pilih setidaknya satu Story"); return; }
-        if (destination.equals("gallery")) enqueue(null);
+        if (selectedStoryUrls.isEmpty()) { toast("Pilih setidaknya satu Story"); return; }
+        if (destination.equals("gallery")) enqueueStoryBatch(null);
         else { driveAction = "download"; authorizeDrive(driveEmail == null); }
     }
     private void authorizeDrive(boolean chooseAccount) {
@@ -707,7 +813,10 @@ public class MainActivity extends Activity {
                     toast("Drive terhubung: " + email);
                     if ("browse".equals(action))
                         startActivity(new Intent(this, DriveBrowserActivity.class).putExtra("token", token));
-                    else if ("download".equals(action)) enqueue(token);
+                    else if ("download".equals(action)) {
+                        if (selectedStoryUrls.isEmpty()) enqueue(token);
+                        else enqueueStoryBatch(token);
+                    }
                 });
             } catch (Exception e) { runOnUiThread(() -> driveFailed("Drive: " + e.getMessage())); }
         });
@@ -839,6 +948,30 @@ public class MainActivity extends Activity {
             muxSelection = false;
         }
         catch (Exception e) { toast("Gagal memulai unduhan: " + e.getMessage()); }
+    }
+    private void enqueueStoryBatch(String token) {
+        if (selectedStoryUrls.isEmpty()) return;
+        saveSettings();
+        ArrayList<String> urls = new ArrayList<>(selectedStoryUrls);
+        try {
+            Intent job = new Intent(this, DownloadService.class)
+                .putStringArrayListExtra("story_urls", urls)
+                .putExtra("target", destination).putExtra("quality", quality).putExtra("count", 1)
+                .putExtra("subtitles", subtitles.isChecked()).putExtra("thumbnail", thumbnail.isChecked())
+                .putExtra("metadata", metadata.isChecked()).putExtra("anonymous", anonymous.isChecked())
+                .putExtra("skip_drive", skipDrive.isChecked()).putExtra("verify_drive", verifyDrive.isChecked())
+                .putExtra("album_mode", albumMode.isChecked()).putExtra("profile_content", profileContent)
+                .putExtra("folder_id", folder.getText().toString().trim()).putExtra("drive_token", token)
+                .putExtra("date_from", dateFrom.getText().toString().trim())
+                .putExtra("date_to", dateTo.getText().toString().trim());
+            // The user chose these exact Story IDs; do not apply skip-completed to this selection.
+            startForegroundService(job);
+            selectedStoryUrls.clear();
+            toast(urls.size() + " Story masuk antrean");
+        } catch (Exception e) {
+            ErrorLog.record(this, "Antrean Story", e);
+            toast("Gagal memasukkan Story ke antrean. Lihat log error di Aktivitas.");
+        }
     }
     private void openLogin(String site) { startActivity(new Intent(this, LoginActivity.class).putExtra("site", site)); }
     private void renderSavedSites() {
