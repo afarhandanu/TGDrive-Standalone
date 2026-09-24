@@ -326,6 +326,9 @@ public class MainActivity extends Activity {
             toast(next ? "Tugas berikutnya dijeda; tugas aktif tetap berjalan" : "Antrean dilanjutkan");
         }); queueCard.addView(pause);
         TextView recent = label("RIWAYAT TERBARU", 13, muted, true);
+        Button errors = button("Lihat log error", navy);
+        errors.setOnClickListener(v -> showErrorLog());
+        activity.addView(errors);
         LinearLayout.LayoutParams recentP = new LinearLayout.LayoutParams(-1, -2); recentP.topMargin = dp(24);
         activity.addView(recent, recentP);
         historyList = new LinearLayout(this); historyList.setOrientation(LinearLayout.VERTICAL);
@@ -516,7 +519,14 @@ public class MainActivity extends Activity {
                 JSONArray items = new JSONArray(Python.getInstance().getModule("story_picker")
                     .callAttr("list_stories", username, session).toString());
                 runOnUiThread(() -> showStoryChoices(items));
-            } catch (Exception e) { runOnUiThread(() -> toast("Story: " + e.getMessage())); }
+            } catch (Exception e) {
+                ErrorLog.record(this, "Pemilih Story Instagram", e);
+                runOnUiThread(() -> new AlertDialog.Builder(this)
+                    .setTitle("Gagal memuat Story")
+                    .setMessage("Detail error tersimpan di Aktivitas → Lihat log error. Pastikan sesi Instagram masih aktif, lalu coba lagi.")
+                    .setPositiveButton("Buka log", (dialog, which) -> { openTab(4); showErrorLog(); })
+                    .setNegativeButton("Tutup", null).show());
+            }
         }).start();
     }
     private void showStoryChoices(JSONArray items) {
@@ -935,6 +945,21 @@ public class MainActivity extends Activity {
         detail.setMovementMethod(LinkMovementMethod.getInstance());
         ScrollView scroll = new ScrollView(this); scroll.addView(detail);
         new AlertDialog.Builder(this).setTitle(status).setView(scroll).setPositiveButton("Tutup", null).show();
+    }
+    private void showErrorLog() {
+        String report = ErrorLog.read(this);
+        TextView detail = label(report, 14, Color.rgb(30, 39, 65), false);
+        detail.setPadding(dp(18), dp(12), dp(18), dp(16));
+        detail.setTextIsSelectable(true);
+        ScrollView scroll = new ScrollView(this); scroll.addView(detail);
+        new AlertDialog.Builder(this).setTitle("Log error")
+            .setView(scroll)
+            .setNeutralButton("Bagikan log", (dialog, which) -> {
+                Intent share = new Intent(Intent.ACTION_SEND).setType("text/plain")
+                    .putExtra(Intent.EXTRA_TEXT, report);
+                startActivity(Intent.createChooser(share, "Bagikan log TGDrive"));
+            })
+            .setPositiveButton("Tutup", null).show();
     }
     private interface Select { void pick(String value); }
     private void row(LinearLayout parent, String[] names, String[] values, Select select) {

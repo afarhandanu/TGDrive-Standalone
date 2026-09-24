@@ -25,7 +25,9 @@ def list_stories(username, cookie_header):
             raise ValueError('Tidak dapat membuka Story Instagram')
         result = []
         seen = set()
-        for row in source.items():
+        # gallery-dl initializes cookies, the session and Instagram API in
+        # Extractor.__iter__. Calling items() directly skips that setup.
+        for row in source:
             if len(row) < 3 or row[0] != 3 or not isinstance(row[2], dict):
                 continue
             meta = row[2]

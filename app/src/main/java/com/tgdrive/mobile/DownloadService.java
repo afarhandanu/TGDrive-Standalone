@@ -165,6 +165,7 @@ public class DownloadService extends Service {
             deleteTree(jobDir);
         } catch (Exception ex) {
             // Keep downloaded files in private cache after a Drive failure so a retry can be added later.
+            if (!canceled) ErrorLog.record(this, "Unduhan #" + id, ex);
             event(id, canceled ? "CANCELLED" : "FAILED", ex.getMessage() == null ? ex.toString() : ex.getMessage(), 0);
         } finally {
             cookieFile.delete();

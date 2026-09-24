@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.2-alpha (versionCode 10)
+
+- Inisialisasi extractor gallery-dl ketika membuka pemilih Story, sehingga sesi dan API Instagram tersedia sebelum daftar dibaca.
+- Simpan traceback error pemilih Story dan kegagalan unduhan pada perangkat. Detailnya bisa dibaca dan dibagikan melalui Aktivitas → Lihat log error; nilai cookie dan token disamarkan.
+- Jika pemilih Story gagal, tampilkan dialog dengan tombol Buka log agar pesan yang semula terpotong pada toast dapat dibaca.
+- Perubahan ini belum diuji di perangkat; uji pemilih Story memakai akun Instagram yang masih login setelah memasang APK baru.
+
 ## 1.3.1-alpha (versionCode 9)
 
 - Memisahkan layar utama menjadi lima menu: Unduh, Opsi, Akun, Berkas, dan Aktivitas. Field, pilihan yang tersimpan, sesi login, serta alur enqueue lama tetap dipakai oleh semua menu.
