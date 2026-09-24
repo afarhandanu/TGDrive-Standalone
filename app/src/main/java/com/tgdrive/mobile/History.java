@@ -49,6 +49,18 @@ public final class History {
         try { return new JSONArray(context.getSharedPreferences("jobs", Context.MODE_PRIVATE).getString("history", "[]")); }
         catch (Exception e) { return new JSONArray(); }
     }
+    public static synchronized void remapDriveFile(Context context, String oldId, String newId) throws Exception {
+        JSONArray jobs=read(context); boolean changed=false;
+        String oldPath="/file/d/"+oldId+"/", newPath="/file/d/"+newId+"/";
+        for(int i=0;i<jobs.length();i++) {
+            JSONObject job=jobs.optJSONObject(i);
+            if(job==null) continue;
+            String message=job.optString("message");
+            if(message.contains(oldPath)) { job.put("message",message.replace(oldPath,newPath)); changed=true; }
+        }
+        if(changed && !context.getSharedPreferences("jobs",Context.MODE_PRIVATE).edit().putString("history",jobs.toString()).commit())
+            throw new java.io.IOException("Riwayat belum dapat diarahkan ke salinan; sumber Drive dipertahankan");
+    }
     public static JSONObject lastRetryable(Context context) {
         JSONArray jobs = read(context);
         for (int i = 0; i < jobs.length(); i++) {

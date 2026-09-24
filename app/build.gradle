@@ -59,3 +59,13 @@ dependencies {
     implementation 'org.libtorrent4j:libtorrent4j-android-arm64:2.1.0-39'
     implementation 'org.libtorrent4j:libtorrent4j-android-x86_64:2.1.0-39'
 }
+
+// Package the same changelog and feature document shown in the repository.
+def generatedAppDocs = layout.buildDirectory.dir('generated/appDocs')
+def syncAppDocs = tasks.register('syncAppDocs', Copy) {
+    from rootProject.file('CHANGELOG.md')
+    from rootProject.file('docs/FEATURES.md')
+    into generatedAppDocs
+}
+android.sourceSets.main.assets.srcDir(generatedAppDocs)
+tasks.named('preBuild').configure { dependsOn(syncAppDocs) }

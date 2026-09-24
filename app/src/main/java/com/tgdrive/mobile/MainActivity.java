@@ -157,6 +157,7 @@ public class MainActivity extends Activity {
         LinearLayout accounts = page();
         LinearLayout filesPage = page();
         LinearLayout activity = page();
+        LinearLayout info = page();
         outer.addView(brandBanner(112));
         TextView title = label("Simpan yang kamu suka.", 30, navy, true); outer.addView(title);
         TextView sub = label("Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu.", 15, muted, false);
@@ -165,6 +166,7 @@ public class MainActivity extends Activity {
         pageTitle(accounts, "Akun & Drive", "Kelola login situs dan file di Google Drive.");
         pageTitle(filesPage, "Berkas & impor", "Impor data Instagram atau pilih file dari ponsel.");
         pageTitle(activity, "Aktivitas", "Pantau antrean dan buka detail setiap hasil unduhan.");
+        pageTitle(info, "Info aplikasi", "Tentang The Great Drive, daftar fitur, dan perubahan versi.");
 
         LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(18), dp(18), dp(18), dp(18));
@@ -323,6 +325,15 @@ public class MainActivity extends Activity {
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE)
             .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), MUX_FILES));
         localCard.addView(muxFiles);
+        LinearLayout migrationCard = panel(filesPage);
+        migrationCard.addView(label("PINDAHKAN FOLDER LAMA", 12, muted, true));
+        migrationCard.addView(label("TGDrive → The Great Drive. Pilih simpan file lama atau hapus setelah salinan terverifikasi.", 14, muted, false));
+        Button migrateLocal = button("Pindahkan folder Lokal", navy);
+        migrateLocal.setOnClickListener(v -> startActivity(new Intent(this, MigrationActivity.class)));
+        migrationCard.addView(migrateLocal);
+        Button migrateDrive = button("Pindahkan folder Google Drive", Color.rgb(65, 87, 220));
+        migrateDrive.setOnClickListener(v -> { driveAction = "migrate"; authorizeDrive(driveEmail == null); });
+        migrationCard.addView(migrateDrive);
 
         LinearLayout queueCard = panel(activity);
         queueCard.addView(label("KONTROL ANTREAN", 12, muted, true));
@@ -362,12 +373,8 @@ public class MainActivity extends Activity {
         Button admin = button("Administrasi perangkat", navy);
         admin.setOnClickListener(v -> startActivity(new Intent(this, AdminActivity.class)));
         backupCard.addView(admin);
-        LinearLayout aboutCard = panel(accounts);
-        aboutCard.addView(label("TENTANG", 12, muted, true));
-        Button about = button("Tentang The Great Drive", navy);
-        about.setOnClickListener(v -> showAbout());
-        aboutCard.addView(about);
-        installTabs(outer, options, accounts, filesPage, activity);
+        buildInfo(info);
+        installTabs(outer, options, accounts, filesPage, activity, info);
         showHistory();
     }
     private ImageView brandBanner(int heightDp) {
@@ -383,7 +390,50 @@ public class MainActivity extends Activity {
         banner.setLayoutParams(new LinearLayout.LayoutParams(-1, dp(heightDp)));
         return banner;
     }
-    private void showAbout() {
+    private void buildInfo(LinearLayout parent) {
+        LinearLayout selector = new LinearLayout(this);
+        parent.addView(selector);
+        LinearLayout[] sections = {panel(parent), panel(parent), panel(parent)};
+        Button[] buttons = new Button[3];
+        String[] titles = {"Tentang", "Fitur", "Changelog"};
+        for (int i = 0; i < titles.length; i++) {
+            final int selected = i;
+            Button button = new Button(this); button.setText(titles[i]); button.setAllCaps(false);
+            button.setTextSize(12); buttons[i] = button;
+            selector.addView(button, new LinearLayout.LayoutParams(0, -2, 1));
+            button.setOnClickListener(v -> {
+                for (int j = 0; j < sections.length; j++) {
+                    sections[j].setVisibility(j == selected ? View.VISIBLE : View.GONE);
+                    buttons[j].setTextColor(j == selected ? Color.rgb(65, 87, 220) : Color.rgb(101, 111, 137));
+                    buttons[j].setTypeface(Typeface.DEFAULT, j == selected ? Typeface.BOLD : Typeface.NORMAL);
+                }
+            });
+        }
+        sections[0].addView(aboutContent());
+        renderInfoDocument(sections[1], "FEATURES.md");
+        renderInfoDocument(sections[2], "CHANGELOG.md");
+        buttons[0].performClick();
+    }
+    private void renderInfoDocument(LinearLayout parent, String asset) {
+        try (InputStream input = getAssets().open(asset)) {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192]; int count;
+            while ((count = input.read(buffer)) != -1) bytes.write(buffer, 0, count);
+            String content = new String(bytes.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
+            for (String line : content.split("\n")) {
+                if (line.trim().isEmpty()) continue;
+                boolean heading = line.startsWith("#");
+                String text = line.replaceFirst("^#+\\s*", "").replace("**", "").replace("`", "");
+                if (text.startsWith("- ")) text = "• " + text.substring(2);
+                TextView item = label(text, heading ? 18 : 14, Color.rgb(30, 39, 65), heading);
+                item.setTextIsSelectable(true); parent.addView(item);
+            }
+        } catch (Exception error) {
+            ErrorLog.record(this, "Info aplikasi", error);
+            parent.addView(label("Dokumen belum dapat dibuka.", 14, Color.RED, false));
+        }
+    }
+    private LinearLayout aboutContent() {
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(20), dp(8), dp(20), dp(8));
@@ -395,8 +445,7 @@ public class MainActivity extends Activity {
             18, Color.rgb(25, 36, 46), true));
         content.addView(label("Unduh tautan dan simpan media ke ponsel, Google Drive, atau keduanya. " +
             "Antrean dan sesi situs dikelola di perangkat ini.", 14, Color.rgb(101, 111, 137), false));
-        new AlertDialog.Builder(this).setTitle("Tentang aplikasi").setView(content)
-            .setPositiveButton("Tutup", null).show();
+        return content;
     }
     private LinearLayout page() {
         LinearLayout result = new LinearLayout(this);
@@ -447,7 +496,7 @@ public class MainActivity extends Activity {
         navigation.setBackgroundColor(Color.WHITE);
         navigation.setElevation(dp(8));
         tabButtons = new TextView[pages.length];
-        String[] names = {"↓\nUnduh", "⚙\nOpsi", "○\nAkun", "▣\nBerkas", "≡\nAktivitas"};
+        String[] names = {"↓\nUnduh", "⚙\nOpsi", "○\nAkun", "▣\nBerkas", "≡\nAktivitas", "ⓘ\nInfo"};
         for (int i = 0; i < pages.length; i++) {
             final int index = i;
             TextView tab = label(names[i], 11, Color.rgb(101, 111, 137), false);
@@ -846,6 +895,9 @@ public class MainActivity extends Activity {
                     toast("Drive terhubung: " + email);
                     if ("browse".equals(action))
                         startActivity(new Intent(this, DriveBrowserActivity.class).putExtra("token", token));
+                    else if ("migrate".equals(action))
+                        startActivity(new Intent(this, MigrationActivity.class).putExtra("token", token)
+                            .putExtra("parent", folder.getText().toString().trim()).putExtra("drive", true));
                     else if ("download".equals(action)) {
                         if (selectedStoryUrls.isEmpty()) enqueue(token);
                         else enqueueStoryBatch(token);

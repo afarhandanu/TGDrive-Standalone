@@ -33,6 +33,8 @@
         <activity android:name=".LoginActivity" android:exported="false"/>
         <activity android:name=".DriveBrowserActivity" android:exported="false"/>
         <activity android:name=".AdminActivity" android:exported="false"/>
+        <activity android:name=".MigrationActivity" android:exported="false"/>
+        <service android:name=".MigrationService" android:exported="false" android:foregroundServiceType="dataSync"/>
         <service android:name=".DownloadService" android:exported="false" android:foregroundServiceType="dataSync"/>
     </application>
 </manifest>

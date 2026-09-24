@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.7-alpha (versionCode 15)
+
+- Memperbaiki ikon yang tampil sebagai ikon Android bawaan: background ikon adaptif kini memakai atribut drawable yang benar. Menambahkan ikon bitmap cadangan.
+- Memindahkan Tentang ke tab Info, dengan pilihan Tentang, Fitur, dan Changelog. Daftar fitur serta changelog dikemas dari dokumen sumber saat build agar dapat dibaca offline.
+- Menambahkan Berkas → Pindahkan folder Lokal / Google Drive untuk memigrasikan TGDrive ke The Great Drive, dengan pemeriksaan jumlah file sebelum mulai.
+- Mode Simpan file lama menyalin tanpa menghapus sumber. Mode Hapus file lama menghapus sumber Lokal setelah verifikasi SHA-256 dan ukuran, atau memasukkannya ke Sampah Drive setelah ukuran dan MD5 cocok.
+- Salinan identik dapat dipakai ulang; berkas dengan isi berbeda tidak ditimpa. Tautan hasil Drive pada riwayat diperbarui sebelum sumber masuk Sampah. Folder sumber kosong tetap ada.
+- Proses memakai foreground service terpisah, menampilkan progres dan ringkasan hasil, mendukung penghentian, serta mencatat error. Pemindahan yang terhenti dapat dijalankan ulang.
+- Migrasi Lokal hanya mencakup file milik instalasi aplikasi ini pada Movies/Pictures/Music/Download. Drive mencari folder TGDrive pada My Drive atau ID folder induk yang dipilih di Opsi; dokumen Google dan pintasan dipertahankan.
+- Delapan kasus pengujian gerbang penghapusan sumber lulus; kelas migrasi dan resource Android berhasil dikompilasi. Build APK penuh, tampilan launcher, serta migrasi pada perangkat dan akun Drive tetap perlu diuji.
+
 ## 1.3.6-alpha (versionCode 14)
 
 - Rebrand aplikasi menjadi **The Great Drive**: label Android, ikon peluncur dari gambar yang diberikan, banner pada menu Unduh, dan Tentang pada menu Akun dengan nomor versi terpasang.

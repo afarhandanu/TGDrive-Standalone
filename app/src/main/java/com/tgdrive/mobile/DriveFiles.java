@@ -91,6 +91,29 @@ public final class DriveFiles {
         return request(ROOT + "/" + enc(id) + "?fields=md5Checksum", token, "GET", null)
             .optString("md5Checksum", "");
     }
+    static boolean isFolder(JSONObject item) {
+        return "application/vnd.google-apps.folder".equals(item.optString("mimeType"));
+    }
+    static JSONArray migrationChildren(String token, String parent) throws Exception {
+        String q="'"+parent.replace("\\", "\\\\").replace("'", "\\'")+"' in parents and trashed = false";
+        String uri=ROOT+"?supportsAllDrives=true&includeItemsFromAllDrives=true&pageSize=1000&q="+enc(q)+
+            "&fields=nextPageToken,files(id,name,mimeType,size,md5Checksum,parents,trashed)";
+        JSONArray files=new JSONArray(); String page="";
+        do {
+            JSONObject result=request(uri+(page.isEmpty()?"":"&pageToken="+enc(page)),token,"GET",null);
+            JSONArray part=result.optJSONArray("files");
+            if(part!=null) for(int i=0;i<part.length();i++) files.put(part.get(i));
+            page=result.optString("nextPageToken","");
+        } while(!page.isEmpty());
+        return files;
+    }
+    static JSONObject migrationInfo(String token,String id) throws Exception {
+        return request(ROOT+"/"+enc(id)+"?supportsAllDrives=true&fields=id,name,size,md5Checksum,parents,trashed",token,"GET",null);
+    }
+    static JSONObject migrationCopy(String token,String id,String name,String parent) throws Exception {
+        return request(ROOT+"/"+enc(id)+"/copy?supportsAllDrives=true&fields=id",token,"POST",
+            new JSONObject().put("name",name).put("parents",new JSONArray().put(parent)));
+    }
     public static String publicLink(String token, String id) throws Exception {
         request(ROOT + "/" + enc(id) + "/permissions?fields=id", token, "POST",
             new JSONObject().put("type", "anyone").put("role", "reader"));
