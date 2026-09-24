@@ -145,9 +145,9 @@ public class DownloadService extends Service {
                 }
                 String relative = jobDir.toPath().relativize(media.toPath()).toString();
                 if (gallery) {
-                    event(id, "SAVING", "Menyimpan ke Galeri: " + media.getName(), 99);
+                    event(id, "SAVING", "Menyimpan ke lokal: " + media.getName(), 99);
                     MediaDestination.publish(this, media, relative);
-                    result.append("Galeri: ").append(relative).append("\n");
+                    result.append("Lokal: ").append(relative).append("\n");
                 }
                 if (drive) {
                     String parent = DriveFiles.ensurePath(token, folder, relative);

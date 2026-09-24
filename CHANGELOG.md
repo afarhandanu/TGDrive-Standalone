@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.1-alpha (versionCode 9)
+
+- Memisahkan layar utama menjadi lima menu: Unduh, Opsi, Akun, Berkas, dan Aktivitas. Field, pilihan yang tersimpan, sesi login, serta alur enqueue lama tetap dipakai oleh semua menu.
+- Menamai tujuan di UI dan hasil baru sebagai **Lokal**, karena hasil JSON/ZIP masuk ke penyimpanan lokal selain foto/video yang terlihat di galeri. Nilai tujuan internal `gallery` tetap digunakan untuk kompatibilitas riwayat dan pengaturan yang tersimpan.
+- Merangkum riwayat dalam kartu pendek per job; detail path dan tautan Drive tetap tersedia saat kartu diketuk. Riwayat lama bertuliskan Galeri juga ditampilkan sebagai Lokal.
+- Memindahkan kontrol antrean ke bagian atas Aktivitas, cadangan dan administrasi perangkat ke Akun, serta menyediakan penanda saat file dari ponsel dipilih.
+- Membagi pilihan kualitas dan kategori panjang menjadi dua baris dan memberi ruang dari status bar serta navigasi sistem.
+- APK untuk versi ini harus dibangun dan diuji di perangkat; arsip source sudah disiapkan.
+
 ## 1.3.0-alpha (versionCode 8)
 
 - Menyimpan pilihan tujuan, kualitas, batas item, folder Drive, mode profil, rentang tanggal, dan opsi unduhan di perangkat. Tautan yang dibagikan ke aplikasi menggunakan pilihan terakhir.

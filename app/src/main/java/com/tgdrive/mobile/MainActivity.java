@@ -7,24 +7,27 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.database.Cursor;
 import android.provider.OpenableColumns;
 import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.text.method.LinkMovementMethod;
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.AuthorizationResult;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -56,8 +59,14 @@ public class MainActivity extends Activity {
     private static final int MUX_FILES = 719;
     private EditText url, limit, folder, dateFrom, dateTo;
     private CheckBox subtitles, thumbnail, metadata, skipCompleted, anonymous, skipDrive, albumMode, verifyDrive;
-    private TextView history, destinationLabel, qualityLabel, driveStatus, siteStatus;
+    private TextView destinationLabel, qualityLabel, driveStatus, siteStatus;
+    private TextView profileContentLabel, importCategoryLabel, importOutputLabel;
+    private TextView pendingFileNotice;
+    private LinearLayout historyList;
     private LinearLayout savedSites;
+    private ScrollView[] tabs;
+    private TextView[] tabButtons;
+    private int currentTab;
     private String destination = "gallery", quality = "best";
     private String pendingUrl;
     private String pendingImportPath;
@@ -79,8 +88,9 @@ public class MainActivity extends Activity {
         WebSessions.restore(this);
         if (!DownloadService.hasPendingJobs()) History.markInterrupted(this);
         driveEmail = getSharedPreferences("drive_account", MODE_PRIVATE).getString("email", null);
-        getWindow().setStatusBarColor(Color.rgb(16, 25, 54));
-        getWindow().setNavigationBarColor(Color.rgb(16, 25, 54));
+        getWindow().setStatusBarColor(Color.rgb(246, 248, 253));
+        getWindow().setNavigationBarColor(Color.rgb(246, 248, 253));
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         render();
         restoreSettings();
         acceptShare(getIntent());
@@ -92,10 +102,15 @@ public class MainActivity extends Activity {
         else registerReceiver(receiver, new IntentFilter(DownloadService.EVENTS));
     }
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); acceptShare(intent); }
+    @Override public void onBackPressed() {
+        if (currentTab != 0) openTab(0);
+        else super.onBackPressed();
+    }
     @Override protected void onResume() {
         super.onResume();
         if (siteStatus != null) updateSiteStatus();
         if (savedSites != null) renderSavedSites();
+        if (historyList != null && currentTab == 4) showHistory();
     }
     @Override protected void onPause() { saveSettings(); super.onPause(); }
     @Override protected void onDestroy() { unregisterReceiver(receiver); driveIo.shutdownNow(); super.onDestroy(); }
@@ -116,18 +131,28 @@ public class MainActivity extends Activity {
             if (streams != null) for (Object stream : streams) if (stream instanceof Uri) selectedFiles.add((Uri) stream);
             url.setHint(selectedFiles.size() + " file dibagikan · pilih tujuan lalu mulai");
         }
+        updatePendingFileNotice();
+        if (intent.getAction() != null && (Intent.ACTION_SEND.equals(intent.getAction()) ||
+                Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction()) || Intent.ACTION_VIEW.equals(intent.getAction()))) {
+            openTab(0);
+            tabs[0].post(() -> tabs[0].smoothScrollTo(0, 0));
+        }
     }
     private void render() {
         int navy = Color.rgb(16, 25, 54), ink = Color.rgb(30, 39, 65), muted = Color.rgb(101, 111, 137);
-        LinearLayout outer = new LinearLayout(this);
-        outer.setOrientation(LinearLayout.VERTICAL);
-        outer.setPadding(dp(22), dp(22), dp(22), dp(28));
-        outer.setBackgroundColor(Color.rgb(246, 248, 253));
-        ScrollView scroll = new ScrollView(this); scroll.addView(outer); setContentView(scroll);
+        LinearLayout outer = page();
+        LinearLayout options = page();
+        LinearLayout accounts = page();
+        LinearLayout filesPage = page();
+        LinearLayout activity = page();
         TextView brand = label("TG / DRIVE", 13, Color.rgb(65, 87, 220), true); outer.addView(brand);
         TextView title = label("Simpan yang kamu suka.", 30, navy, true); outer.addView(title);
-        TextView sub = label("Unduh media ke ponsel, Drive, atau keduanya. Antrean berjalan langsung di perangkatmu.", 15, muted, false);
+        TextView sub = label("Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu.", 15, muted, false);
         outer.addView(sub);
+        pageTitle(options, "Opsi unduhan", "Kualitas, folder, dan filter yang kamu pilih akan tetap tersimpan.");
+        pageTitle(accounts, "Akun & Drive", "Kelola login situs dan file di Google Drive.");
+        pageTitle(filesPage, "Berkas & impor", "Impor data Instagram atau pilih file dari ponsel.");
+        pageTitle(activity, "Aktivitas", "Pantau antrean dan buka detail setiap hasil unduhan.");
 
         LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(18), dp(18), dp(18), dp(18));
@@ -137,43 +162,67 @@ public class MainActivity extends Activity {
         card.addView(label("TAUTAN MEDIA", 12, muted, true));
         url = new EditText(this); url.setHint("Tempel satu atau beberapa link video, post, Reel, Story…"); url.setSingleLine(false);
         url.setTextColor(ink); url.setTextSize(16); card.addView(url);
+        pendingFileNotice = label("", 13, Color.rgb(65, 87, 220), true);
+        pendingFileNotice.setVisibility(View.GONE);
+        pendingFileNotice.setOnClickListener(v -> {
+            selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
+        });
+        card.addView(pendingFileNotice);
 
-        destinationLabel = label("Tujuan · Galeri", 15, ink, true); card.addView(destinationLabel);
-        row(card, new String[]{"Galeri", "Drive", "Keduanya"}, new String[]{"gallery", "drive", "both"}, value -> {
+        destinationLabel = label("Tujuan · Lokal", 15, ink, true); card.addView(destinationLabel);
+        row(card, new String[]{"Lokal", "Drive", "Keduanya"}, new String[]{"gallery", "drive", "both"}, value -> {
             destination = value;
-            destinationLabel.setText("Tujuan · " + (value.equals("both") ? "Galeri + Drive" : value.equals("drive") ? "Drive" : "Galeri"));
+            destinationLabel.setText("Tujuan · " + destinationName(value));
         });
         qualityLabel = label("Kualitas · Terbaik", 15, ink, true); card.addView(qualityLabel);
         row(card, new String[]{"Terbaik", "1080p", "720p", "Audio"}, new String[]{"best", "1080", "720", "audio"}, value -> {
-            quality = value; qualityLabel.setText("Kualitas · " + value);
+            quality = value; qualityLabel.setText("Kualitas · " + qualityName(value));
         });
         row(card, new String[]{"2160p", "1440p", "480p", "Video saja"},
             new String[]{"2160", "1440", "480", "video"}, value -> {
-                quality = value; qualityLabel.setText("Kualitas · " + value);
+                quality = value; qualityLabel.setText("Kualitas · " + qualityName(value));
             });
         card.addView(label("Maksimum item (profil / playlist)", 13, muted, false));
         limit = new EditText(this); limit.setInputType(2); limit.setHint("Kosong = tanpa batas"); limit.setText("1"); card.addView(limit);
-        subtitles = new CheckBox(this); subtitles.setText("Sertakan subtitle jika ada"); card.addView(subtitles);
-        thumbnail = new CheckBox(this); thumbnail.setText("Sertakan thumbnail"); card.addView(thumbnail);
-        metadata = new CheckBox(this); metadata.setText("Sertakan metadata JSON"); card.addView(metadata);
-        skipCompleted = new CheckBox(this); skipCompleted.setText("Lewati link yang sudah berhasil diunduh"); card.addView(skipCompleted);
-        anonymous = new CheckBox(this); anonymous.setText("Tanpa akun untuk link publik (abaikan sesi login)"); card.addView(anonymous);
-        skipDrive = new CheckBox(this); skipDrive.setText("Drive: lewati file dengan nama yang sama"); card.addView(skipDrive);
-        verifyDrive = new CheckBox(this); verifyDrive.setText("Drive: cocokkan checksum MD5 setelah unggah"); card.addView(verifyDrive);
-        albumMode = new CheckBox(this);
-        albumMode.setText("Mode profil / album (Instagram, X, Facebook; termasuk carousel)"); card.addView(albumMode);
-        Button pickStories = button("Pilih Story Instagram", Color.rgb(65, 87, 220));
-        pickStories.setOnClickListener(v -> pickStories()); card.addView(pickStories);
-        card.addView(label("Profil Facebook · jenis media", 13, muted, false));
-        row(card, new String[]{"Semua", "Foto", "Video"},
-            new String[]{"all", "photos", "videos"}, value -> { profileContent = value; toast("Profil: " + value); });
-        card.addView(label("ID folder Drive (opsional)", 13, muted, false));
-        folder = new EditText(this); folder.setHint("Kosong = My Drive"); card.addView(folder);
         Button go = button("Mulai download  ↗", navy); go.setOnClickListener(v -> start()); card.addView(go);
+        Button pickStories = button("Pilih Story Instagram", Color.rgb(65, 87, 220));
+        pickStories.setOnClickListener(v -> pickStories()); outer.addView(pickStories);
+        Button configure = button("Atur opsi unduhan & folder  →", Color.rgb(225, 230, 249));
+        configure.setTextColor(ink); configure.setOnClickListener(v -> openTab(1)); outer.addView(configure);
+
+        LinearLayout optionCard = panel(options);
+        optionCard.addView(label("PILIHAN FILE", 12, muted, true));
+        subtitles = new CheckBox(this); subtitles.setText("Sertakan subtitle jika ada"); optionCard.addView(subtitles);
+        thumbnail = new CheckBox(this); thumbnail.setText("Sertakan thumbnail"); optionCard.addView(thumbnail);
+        metadata = new CheckBox(this); metadata.setText("Sertakan metadata JSON"); optionCard.addView(metadata);
+        skipCompleted = new CheckBox(this); skipCompleted.setText("Lewati link yang sudah berhasil diunduh"); optionCard.addView(skipCompleted);
+        anonymous = new CheckBox(this); anonymous.setText("Tanpa akun untuk link publik (abaikan sesi login)"); optionCard.addView(anonymous);
+        skipDrive = new CheckBox(this); skipDrive.setText("Drive: lewati file dengan nama yang sama"); optionCard.addView(skipDrive);
+        verifyDrive = new CheckBox(this); verifyDrive.setText("Drive: cocokkan checksum MD5 setelah unggah"); optionCard.addView(verifyDrive);
+        albumMode = new CheckBox(this);
+        albumMode.setText("Mode profil / album (Instagram, X, Facebook; termasuk carousel)"); optionCard.addView(albumMode);
+        profileContentLabel = label("Profil Facebook · Semua", 13, muted, false);
+        optionCard.addView(profileContentLabel);
+        row(optionCard, new String[]{"Semua", "Foto", "Video"},
+            new String[]{"all", "photos", "videos"}, value -> {
+                profileContent = value;
+                profileContentLabel.setText("Profil Facebook · " + (value.equals("photos") ? "Foto" : value.equals("videos") ? "Video" : "Semua"));
+            });
+        optionCard.addView(label("ID folder Drive (opsional)", 13, muted, false));
+        folder = new EditText(this); folder.setHint("Kosong = My Drive"); optionCard.addView(folder);
+        optionCard.addView(label("Rentang tanggal import / profil (opsional, YYYY-MM-DD)", 13, muted, false));
+        dateFrom = new EditText(this); dateFrom.setHint("Dari tanggal"); dateFrom.setSingleLine(true);
+        dateFrom.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
+        optionCard.addView(dateFrom);
+        dateTo = new EditText(this); dateTo.setHint("Sampai tanggal"); dateTo.setSingleLine(true);
+        dateTo.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
+        optionCard.addView(dateTo);
+        LinearLayout loginCard = panel(accounts);
+        loginCard.addView(label("LOGIN SITUS", 12, muted, true));
         Button instagram = button("Masuk Instagram", Color.rgb(225, 62, 118));
-        instagram.setOnClickListener(v -> openLogin("instagram")); outer.addView(instagram);
-        Button x = button("Buka X / login", navy); x.setOnClickListener(v -> openLogin("x")); outer.addView(x);
-        siteStatus = label("Sesi situs", 13, muted, false); outer.addView(siteStatus);
+        instagram.setOnClickListener(v -> openLogin("instagram")); loginCard.addView(instagram);
+        Button x = button("Buka X / login", navy); x.setOnClickListener(v -> openLogin("x")); loginCard.addView(x);
+        siteStatus = label("Sesi situs", 13, muted, false); loginCard.addView(siteStatus);
         Button other = button("Masuk situs lain (URL HTTPS)", navy);
         other.setOnClickListener(v -> {
             EditText input = new EditText(this);
@@ -194,7 +243,7 @@ public class MainActivity extends Activity {
                     startActivity(new Intent(this, LoginActivity.class)
                         .putExtra("site", "custom").putExtra("login_url", loginUrl));
                 }).show();
-        }); outer.addView(other);
+        }); loginCard.addView(other);
         Button cookies = button("Impor cookies.txt untuk situs", navy);
         cookies.setOnClickListener(v -> {
             EditText input = new EditText(this);
@@ -212,32 +261,32 @@ public class MainActivity extends Activity {
                     startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
                         .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), IMPORT_COOKIES);
                 }).show();
-        }); outer.addView(cookies);
+        }); loginCard.addView(cookies);
         savedSites = new LinearLayout(this);
         savedSites.setOrientation(LinearLayout.VERTICAL);
-        outer.addView(savedSites);
+        loginCard.addView(savedSites);
         renderSavedSites();
+        LinearLayout driveCard = panel(accounts);
+        driveCard.addView(label("GOOGLE DRIVE", 12, muted, true));
         driveStatus = label("Google Drive · " + (driveEmail == null ? "Belum terhubung" :
-            "Memeriksa akun " + driveEmail + "…"), 14, ink, true); outer.addView(driveStatus);
+            "Memeriksa akun " + driveEmail + "…"), 14, ink, true); driveCard.addView(driveStatus);
         Button connect = button("Hubungkan / ganti akun Google Drive", Color.rgb(65, 87, 220));
-        connect.setOnClickListener(v -> { driveAction = "connect"; authorizeDrive(true); }); outer.addView(connect);
+        connect.setOnClickListener(v -> { driveAction = "connect"; authorizeDrive(true); }); driveCard.addView(connect);
         Button files = button("Kelola file Google Drive", Color.rgb(65, 87, 220));
-        files.setOnClickListener(v -> { driveAction = "browse"; authorizeDrive(driveEmail == null); }); outer.addView(files);
-        outer.addView(label("IMPORT INSTAGRAM JSON / ZIP", 13, muted, true));
-        row(outer, new String[]{"Semua", "Feed", "Reels", "Stories", "Tagged"},
+        files.setOnClickListener(v -> { driveAction = "browse"; authorizeDrive(driveEmail == null); }); driveCard.addView(files);
+        LinearLayout importCard = panel(filesPage);
+        importCategoryLabel = label("IMPORT INSTAGRAM JSON / ZIP · SEMUA", 13, muted, true);
+        importCard.addView(importCategoryLabel);
+        row(importCard, new String[]{"Semua", "Feed", "Reels", "Stories", "Tagged"},
             new String[]{"all", "feed", "reels", "stories", "mentions"}, value -> {
-                importCategory = value; toast("Kategori import: " + value);
+                importCategory = value; importCategoryLabel.setText("IMPORT INSTAGRAM JSON / ZIP · " + value.toUpperCase(java.util.Locale.ROOT));
             });
-        outer.addView(label("Rentang tanggal import / profil (opsional, YYYY-MM-DD)", 13, muted, false));
-        dateFrom = new EditText(this); dateFrom.setHint("Dari tanggal"); dateFrom.setSingleLine(true);
-        dateFrom.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
-        outer.addView(dateFrom);
-        dateTo = new EditText(this); dateTo.setHint("Sampai tanggal"); dateTo.setSingleLine(true);
-        dateTo.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
-        outer.addView(dateTo);
-        TextView importOutputLabel = label("Hasil import · Folder", 13, ink, true);
-        outer.addView(importOutputLabel);
-        row(outer, new String[]{"Folder", "Satu ZIP"}, new String[]{"folder", "zip"}, value -> {
+        Button dateOptions = button("Atur tanggal & opsi import  →", Color.rgb(225, 230, 249));
+        dateOptions.setTextColor(ink);
+        dateOptions.setOnClickListener(v -> openTab(1)); importCard.addView(dateOptions);
+        importOutputLabel = label("Hasil import · Folder", 13, ink, true);
+        importCard.addView(importOutputLabel);
+        row(importCard, new String[]{"Folder", "Satu ZIP"}, new String[]{"folder", "zip"}, value -> {
             importOutput = value;
             importOutputLabel.setText("Hasil import · " + (value.equals("zip") ? "Satu ZIP" : "Folder"));
         });
@@ -246,53 +295,150 @@ public class MainActivity extends Activity {
             Intent choose = new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*")
                 .addCategory(Intent.CATEGORY_OPENABLE);
             startActivityForResult(choose, IMPORT_FILE);
-        }); outer.addView(importButton);
+        }); importCard.addView(importButton);
+        LinearLayout localCard = panel(filesPage);
+        localCard.addView(label("FILE DARI PONSEL", 12, muted, true));
         Button pickLocal = button("Pilih file dari ponsel", navy);
         pickLocal.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), LOCAL_FILE));
-        outer.addView(pickLocal);
+        localCard.addView(pickLocal);
         Button pickTorrent = button("Pilih file .torrent", Color.rgb(65, 87, 220));
         pickTorrent.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), TORRENT_FILE));
-        outer.addView(pickTorrent);
+        localCard.addView(pickTorrent);
         Button muxFiles = button("Gabungkan video + audio (FFmpeg)", navy);
         muxFiles.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE)
             .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), MUX_FILES));
-        outer.addView(muxFiles);
+        localCard.addView(muxFiles);
 
-        TextView recent = label("AKTIVITAS", 13, muted, true);
-        LinearLayout.LayoutParams recentP = new LinearLayout.LayoutParams(-1, -2); recentP.topMargin = dp(24);
-        outer.addView(recent, recentP);
-        history = label("Belum ada unduhan.", 14, ink, false); outer.addView(history);
+        LinearLayout queueCard = panel(activity);
+        queueCard.addView(label("KONTROL ANTREAN", 12, muted, true));
         Button cancel = button("Batalkan job aktif", Color.rgb(132, 52, 72));
         cancel.setOnClickListener(v -> startService(new Intent(this, DownloadService.class).setAction("CANCEL")));
-        outer.addView(cancel);
+        queueCard.addView(cancel);
         Button retry = button("Ulangi job gagal / batal", Color.rgb(65, 87, 220));
-        retry.setOnClickListener(v -> retryLast()); outer.addView(retry);
+        retry.setOnClickListener(v -> retryLast()); queueCard.addView(retry);
         Button pause = button("Jeda / lanjutkan antrean", Color.rgb(65, 87, 220));
         pause.setOnClickListener(v -> {
             boolean next = !DownloadService.isPaused();
             startService(new Intent(this, DownloadService.class).setAction(next ? "PAUSE" : "RESUME"));
             toast(next ? "Tugas berikutnya dijeda; tugas aktif tetap berjalan" : "Antrean dilanjutkan");
-        }); outer.addView(pause);
-        outer.addView(label("CADANGAN", 13, muted, true));
+        }); queueCard.addView(pause);
+        TextView recent = label("RIWAYAT TERBARU", 13, muted, true);
+        LinearLayout.LayoutParams recentP = new LinearLayout.LayoutParams(-1, -2); recentP.topMargin = dp(24);
+        activity.addView(recent, recentP);
+        historyList = new LinearLayout(this); historyList.setOrientation(LinearLayout.VERTICAL);
+        activity.addView(historyList);
+        LinearLayout backupCard = panel(accounts);
+        backupCard.addView(label("DATA & PERANGKAT", 12, muted, true));
         Button backup = button("Ekspor riwayat dan daftar situs", navy);
         backup.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT)
             .addCategory(Intent.CATEGORY_OPENABLE).setType("application/json")
             .putExtra(Intent.EXTRA_TITLE, "TGDrive-backup.json"), EXPORT_BACKUP));
-        outer.addView(backup);
+        backupCard.addView(backup);
         Button restore = button("Pulihkan riwayat dan daftar situs", navy);
         restore.setOnClickListener(v -> {
             if (DownloadService.hasPendingJobs()) { toast("Tunggu antrean selesai sebelum memulihkan cadangan"); return; }
             startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
                 .addCategory(Intent.CATEGORY_OPENABLE).setType("application/json"), IMPORT_BACKUP);
-        }); outer.addView(restore);
-        outer.addView(label("Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini.", 12, muted, false));
+        }); backupCard.addView(restore);
+        backupCard.addView(label("Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini.", 12, muted, false));
         Button admin = button("Administrasi perangkat", navy);
         admin.setOnClickListener(v -> startActivity(new Intent(this, AdminActivity.class)));
-        outer.addView(admin);
+        backupCard.addView(admin);
+        installTabs(outer, options, accounts, filesPage, activity);
         showHistory();
+    }
+    private LinearLayout page() {
+        LinearLayout result = new LinearLayout(this);
+        result.setOrientation(LinearLayout.VERTICAL);
+        result.setPadding(dp(20), dp(20), dp(20), dp(30));
+        result.setBackgroundColor(Color.rgb(246, 248, 253));
+        return result;
+    }
+    private void pageTitle(LinearLayout parent, String title, String subtitle) {
+        parent.addView(label("TG / DRIVE", 12, Color.rgb(65, 87, 220), true));
+        parent.addView(label(title, 27, Color.rgb(16, 25, 54), true));
+        parent.addView(label(subtitle, 14, Color.rgb(101, 111, 137), false));
+    }
+    private LinearLayout panel(LinearLayout parent) {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(16), dp(18), dp(16), dp(18));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.WHITE); bg.setCornerRadius(dp(20));
+        panel.setBackground(bg); panel.setElevation(dp(2));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.topMargin = dp(18); parent.addView(panel, params);
+        return panel;
+    }
+    private void installTabs(LinearLayout... pages) {
+        LinearLayout shell = new LinearLayout(this);
+        shell.setOrientation(LinearLayout.VERTICAL);
+        shell.setBackgroundColor(Color.rgb(246, 248, 253));
+        shell.setOnApplyWindowInsetsListener((view, insets) -> {
+            if (Build.VERSION.SDK_INT >= 30) {
+                android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
+                shell.setPadding(0, bars.top, 0, bars.bottom);
+            } else shell.setPadding(0, insets.getSystemWindowInsetTop(), 0, insets.getSystemWindowInsetBottom());
+            return insets;
+        });
+        FrameLayout holder = new FrameLayout(this);
+        tabs = new ScrollView[pages.length];
+        for (int i = 0; i < pages.length; i++) {
+            tabs[i] = new ScrollView(this);
+            tabs[i].setFillViewport(true);
+            tabs[i].addView(pages[i]);
+            tabs[i].setVisibility(View.GONE);
+            holder.addView(tabs[i], new FrameLayout.LayoutParams(-1, -1));
+        }
+        shell.addView(holder, new LinearLayout.LayoutParams(-1, 0, 1));
+        LinearLayout navigation = new LinearLayout(this);
+        navigation.setPadding(dp(6), dp(5), dp(6), dp(5));
+        navigation.setBackgroundColor(Color.WHITE);
+        navigation.setElevation(dp(8));
+        tabButtons = new TextView[pages.length];
+        String[] names = {"↓\nUnduh", "⚙\nOpsi", "○\nAkun", "▣\nBerkas", "≡\nAktivitas"};
+        for (int i = 0; i < pages.length; i++) {
+            final int index = i;
+            TextView tab = label(names[i], 11, Color.rgb(101, 111, 137), false);
+            tab.setGravity(Gravity.CENTER);
+            tab.setOnClickListener(v -> openTab(index));
+            tabButtons[i] = tab;
+            navigation.addView(tab, new LinearLayout.LayoutParams(0, dp(58), 1));
+        }
+        shell.addView(navigation);
+        setContentView(shell);
+        openTab(0);
+    }
+    private void openTab(int index) {
+        if (tabs == null || index < 0 || index >= tabs.length) return;
+        currentTab = index;
+        for (int i = 0; i < tabs.length; i++) {
+            boolean selected = i == index;
+            tabs[i].setVisibility(selected ? View.VISIBLE : View.GONE);
+            tabButtons[i].setTextColor(selected ? Color.rgb(65, 87, 220) : Color.rgb(101, 111, 137));
+            tabButtons[i].setTypeface(Typeface.DEFAULT, selected ? Typeface.BOLD : Typeface.NORMAL);
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(selected ? Color.rgb(235, 240, 255) : Color.WHITE);
+            background.setCornerRadius(dp(14));
+            tabButtons[i].setBackground(background);
+        }
+        if (index == 4 && historyList != null) showHistory();
+    }
+    private String destinationName(String value) {
+        return value.equals("both") ? "Lokal + Drive" : value.equals("drive") ? "Drive" : "Lokal";
+    }
+    private String qualityName(String value) {
+        return value.equals("best") ? "Terbaik" : value.equals("audio") ? "Audio" :
+            value.equals("video") ? "Video saja" : value + "p";
+    }
+    private void updatePendingFileNotice() {
+        if (pendingFileNotice == null) return;
+        pendingFileNotice.setVisibility(selectedFiles.isEmpty() ? View.GONE : View.VISIBLE);
+        if (!selectedFiles.isEmpty()) pendingFileNotice.setText(selectedFiles.size() +
+            (muxSelection ? " file untuk digabung" : " file dari ponsel") + " dipilih · ketuk untuk batal");
     }
     private void start() {
         if (!selectedFiles.isEmpty()) { copyLocal(); return; }
@@ -347,8 +493,11 @@ public class MainActivity extends Activity {
             profileContent = data.optString("profile_content", "all");
             importCategory = data.optString("import_category", "all"); importOutput = data.optString("import_output", "folder");
             dateFrom.setText(data.optString("date_from", "")); dateTo.setText(data.optString("date_to", ""));
-            destinationLabel.setText("Tujuan · " + (destination.equals("both") ? "Galeri + Drive" : destination.equals("drive") ? "Drive" : "Galeri"));
-            qualityLabel.setText("Kualitas · " + (quality.equals("best") ? "Terbaik" : quality));
+            destinationLabel.setText("Tujuan · " + destinationName(destination));
+            qualityLabel.setText("Kualitas · " + qualityName(quality));
+            profileContentLabel.setText("Profil Facebook · " + (profileContent.equals("photos") ? "Foto" : profileContent.equals("videos") ? "Video" : "Semua"));
+            importCategoryLabel.setText("IMPORT INSTAGRAM JSON / ZIP · " + importCategory.toUpperCase(java.util.Locale.ROOT));
+            importOutputLabel.setText("Hasil import · " + (importOutput.equals("zip") ? "Satu ZIP" : "Folder"));
         } catch (Exception ignored) { toast("Pengaturan tersimpan tidak bisa dibaca"); }
         finally { restoringSettings = false; }
     }
@@ -446,6 +595,7 @@ public class MainActivity extends Activity {
                     }
                     runOnUiThread(() -> {
                         selectedFiles.clear(); pendingUrls.clear(); pendingLocalPaths.clear(); pendingImportPath = null;
+                        updatePendingFileNotice();
                         pendingTorrentPath = local.getAbsolutePath();
                         driveAction = "download";
                         if (destination.equals("gallery")) enqueue(null); else authorizeDrive(driveEmail == null);
@@ -464,6 +614,8 @@ public class MainActivity extends Activity {
                 selectedFiles.add(data.getClipData().getItemAt(i).getUri());
             else if (data.getData() != null) selectedFiles.add(data.getData());
             url.setHint(selectedFiles.size() + " file dipilih · pilih tujuan lalu mulai");
+            updatePendingFileNotice();
+            openTab(0);
             return;
         }
         if (request == MUX_FILES && result == RESULT_OK && data != null) {
@@ -471,9 +623,11 @@ public class MainActivity extends Activity {
             if (data.getClipData() != null) for (int i = 0; i < data.getClipData().getItemCount(); i++)
                 selectedFiles.add(data.getClipData().getItemAt(i).getUri());
             else if (data.getData() != null) selectedFiles.add(data.getData());
-            if (selectedFiles.size() != 2) { selectedFiles.clear(); muxSelection = false;
+            if (selectedFiles.size() != 2) { selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
                 toast("Pilih tepat dua file: satu video dan satu audio"); return; }
             url.setHint("2 file untuk digabung · pilih tujuan lalu mulai");
+            updatePendingFileNotice();
+            openTab(0);
             return;
         }
         if ((request == EXPORT_BACKUP || request == IMPORT_BACKUP) && result == RESULT_OK && data != null && data.getData() != null) {
@@ -584,6 +738,7 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     pendingImportPath = local.getAbsolutePath();
                     pendingUrls.clear(); pendingLocalPaths.clear(); selectedFiles.clear(); driveAction = "download";
+                    updatePendingFileNotice();
                     if (destination.equals("gallery")) enqueue(null);
                     else authorizeDrive(driveEmail == null);
                 });
@@ -622,12 +777,13 @@ public class MainActivity extends Activity {
                         if (!staged.get(0).toLowerCase(java.util.Locale.ROOT).endsWith(".mp4") ||
                             !staged.get(1).toLowerCase(java.util.Locale.ROOT).matches(".*\\.(m4a|aac|mp3|wav|ogg|opus)$")) {
                             for (String path : staged) new File(path).delete();
-                            pendingLocalPaths.clear(); selectedFiles.clear(); muxSelection = false;
+                            pendingLocalPaths.clear(); selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
                             toast("Pilih satu video MP4 dan satu audio (M4A/MP3/WAV)"); return;
                         }
                         pendingLocalPaths.clear(); pendingLocalPaths.addAll(staged);
                     }
                     pendingImportPath = null; pendingUrls.clear(); selectedFiles.clear(); driveAction = "download";
+                    updatePendingFileNotice();
                     if (destination.equals("gallery")) enqueue(null); else authorizeDrive(driveEmail == null);
                 });
             } catch (Exception e) { runOnUiThread(() -> toast("File: " + e.getMessage())); }
@@ -722,31 +878,82 @@ public class MainActivity extends Activity {
         profileContent = previous.optString("profile_content", "all");
         dateFrom.setText(previous.optString("date_from"));
         dateTo.setText(previous.optString("date_to"));
-        destinationLabel.setText("Tujuan · " + destination);
-        qualityLabel.setText("Kualitas · " + quality);
+        destinationLabel.setText("Tujuan · " + destinationName(destination));
+        qualityLabel.setText("Kualitas · " + qualityName(quality));
         start();
     }
     private void showHistory() {
+        if (historyList == null || currentTab != 4) return;
         JSONArray jobs = History.read(this);
-        if (jobs.length() == 0) { history.setText("Belum ada unduhan."); return; }
-        StringBuilder output = new StringBuilder();
+        historyList.removeAllViews();
+        if (jobs.length() == 0) {
+            historyList.addView(label("Belum ada unduhan. Tugas yang kamu mulai akan muncul di sini.",
+                14, Color.rgb(101, 111, 137), false));
+            return;
+        }
         for (int i = 0; i < Math.min(15, jobs.length()); i++) {
             JSONObject item = jobs.optJSONObject(i); if (item == null) continue;
-            output.append("● ").append(item.optString("state")).append(" · ")
-                .append(item.optString("message")).append("\n\n");
+            String state = item.optString("state");
+            String message = item.optString("message").replace("Galeri:", "Lokal:")
+                .replace("Menyimpan ke Galeri", "Menyimpan ke lokal");
+            int color = "COMPLETED".equals(state) ? Color.rgb(20, 126, 104) :
+                ("FAILED".equals(state) || "CANCELLED".equals(state)) ? Color.rgb(151, 62, 78) :
+                Color.rgb(65, 87, 220);
+            String status = "COMPLETED".equals(state) ? "SELESAI" :
+                "FAILED".equals(state) ? "GAGAL" : "RUNNING".equals(state) ? "BERJALAN" :
+                "CANCELLED".equals(state) ? "DIBATALKAN" : "INTERRUPTED".equals(state) ? "TERHENTI" :
+                "UPLOADING".equals(state) ? "UNGGAH DRIVE" : "SAVING".equals(state) ? "MENYIMPAN" : "ANTREAN";
+            LinearLayout card = panel(historyList);
+            card.addView(label(status + (item.optInt("progress", 0) > 0 && !"COMPLETED".equals(state) ?
+                "  ·  " + item.optInt("progress") + "%" : ""), 12, color, true));
+            String[] lines = message.split("\\n");
+            String headline = lines.length == 0 ? "Tugas unduhan" : lines[0].trim();
+            if (headline.startsWith("Lokal:")) {
+                headline = headline.substring("Lokal:".length()).trim();
+                headline = headline.substring(headline.lastIndexOf('/') + 1);
+            } else if (headline.startsWith("Drive:")) headline = "File tersimpan ke Drive";
+            TextView summary = label(headline.isEmpty() ? "Tugas unduhan" : headline, 15, Color.rgb(30, 39, 65), true);
+            summary.setMaxLines(2); summary.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            card.addView(summary);
+            int local = 0, drive = 0;
+            for (String line : lines) {
+                if (line.startsWith("Lokal:")) local++;
+                if (line.startsWith("Drive:")) drive++;
+            }
+            String count = local > 0 || drive > 0 ?
+                (local > 0 ? local + " file lokal" : "") + (local > 0 && drive > 0 ? "  ·  " : "") +
+                    (drive > 0 ? drive + " file Drive" : "") : "Ketuk untuk membaca detail";
+            card.addView(label(count, 12, Color.rgb(101, 111, 137), false));
+            card.setOnClickListener(v -> showJobDetail(status, message));
         }
-        history.setText(output.toString());
+    }
+    private void showJobDetail(String status, String message) {
+        TextView detail = label(message, 14, Color.rgb(30, 39, 65), false);
+        detail.setPadding(dp(18), dp(12), dp(18), dp(16));
+        detail.setTextIsSelectable(true);
+        Linkify.addLinks(detail, Linkify.WEB_URLS);
+        detail.setMovementMethod(LinkMovementMethod.getInstance());
+        ScrollView scroll = new ScrollView(this); scroll.addView(detail);
+        new AlertDialog.Builder(this).setTitle(status).setView(scroll).setPositiveButton("Tutup", null).show();
     }
     private interface Select { void pick(String value); }
     private void row(LinearLayout parent, String[] names, String[] values, Select select) {
-        LinearLayout line = new LinearLayout(this); line.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout group = new LinearLayout(this); group.setOrientation(LinearLayout.VERTICAL);
+        int columns = names.length >= 4 ? (names.length == 5 ? 3 : 2) : names.length;
+        LinearLayout line = null;
         for (int i = 0; i < names.length; i++) {
+            if (i % columns == 0) {
+                line = new LinearLayout(this); line.setOrientation(LinearLayout.HORIZONTAL);
+                group.addView(line);
+            }
             final String value = values[i]; Button b = button(names[i], Color.rgb(225, 230, 249));
-            b.setTextColor(Color.rgb(40, 51, 108)); b.setTextSize(11);
-            line.addView(b, new LinearLayout.LayoutParams(0, dp(45), 1));
+            b.setTextColor(Color.rgb(40, 51, 108)); b.setTextSize(12);
+            LinearLayout.LayoutParams chip = new LinearLayout.LayoutParams(0, dp(45), 1);
+            chip.rightMargin = dp(4); chip.topMargin = dp(5);
+            line.addView(b, chip);
             b.setOnClickListener(v -> select.pick(value));
         }
-        parent.addView(line);
+        parent.addView(group);
     }
     private Button button(String text, int color) {
         Button b = new Button(this); b.setText(text); b.setAllCaps(false); b.setTextColor(Color.WHITE);
