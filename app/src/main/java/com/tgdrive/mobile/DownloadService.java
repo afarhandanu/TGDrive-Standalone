@@ -104,13 +104,13 @@ public class DownloadService extends Service {
                         if (canceled) { event(storyId, "CANCELLED", "Antrean Story dibatalkan", 0); continue; }
                         runJob(storyId, selectedStories.get(i), null, null, null, null, null, target,
                             token, folder, quality, 1, subtitles, thumbnail, metadata, "", "", "folder",
-                            anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive);
+                            anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, true);
                     }
                 } else {
                     synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
                     runJob(id, url, importPath, localPath, muxAudioPath, torrentPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
                         dateFrom == null ? "" : dateFrom, dateTo == null ? "" : dateTo, importOutput == null ? "folder" : importOutput,
-                        anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive);
+                        anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, false);
                 }
             } catch (InterruptedException e) {
                 if (storyIds.isEmpty()) event(id, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0);
@@ -135,7 +135,7 @@ public class DownloadService extends Service {
     private void runJob(long id, String url, String importPath, String localPath, String muxAudioPath, String torrentPath, String category, String target, String token, String folder, String quality, int count,
                         boolean subtitles, boolean thumbnail, boolean metadata, String dateFrom, String dateTo,
                         String importOutput, boolean anonymous, boolean skipDrive, boolean albumMode,
-                        String profileContent, boolean verifyDrive) {
+                        String profileContent, boolean verifyDrive, boolean selectedStory) {
         canceled = false;
         File jobDir = new File(getCacheDir(), "job-" + id);
         jobDir.mkdirs();
@@ -166,8 +166,11 @@ public class DownloadService extends Service {
                 .callAttr("import_file", importPath, jobDir.getAbsolutePath(), category == null ? "all" : category, count, callback,
                     dateFrom, dateTo, importOutput).toString();
             else {
-                if (!anonymous) writeCookies(url, cookieFile);
-                if (albumMode) raw = Python.getInstance().getModule("gallery_download")
+                if (!anonymous || selectedStory) writeCookies(url, cookieFile);
+                if (selectedStory) raw = Python.getInstance().getModule("story_picker")
+                    .callAttr("download_story", url, jobDir.getAbsolutePath(), cookieFile.getAbsolutePath(),
+                        callback, thumbnail, metadata).toString();
+                else if (albumMode) raw = Python.getInstance().getModule("gallery_download")
                     .callAttr("download", url, jobDir.getAbsolutePath(), count,
                         cookieFile.exists() ? cookieFile.getAbsolutePath() : "", callback,
                         dateFrom, dateTo, profileContent, quality, subtitles, thumbnail, metadata).toString();

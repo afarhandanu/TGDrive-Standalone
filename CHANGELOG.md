@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.4-alpha (versionCode 12)
+
+- Memperbaiki pemilih Story yang menyimpan Story terakhir walaupun foto atau ID lain dipilih. Job Story kini mencari media melalui gallery-dl berdasarkan ID Story yang dipilih, lalu menyimpan hanya URL media dengan ID sama.
+- Jika ID sudah kedaluwarsa, job berstatus gagal dengan pesan agar memuat ulang daftar Story. Tidak ada fallback ke Story terakhir atau status selesai palsu.
+- Gambar, video, serta metadata JSON opsional dari Story terpilih memakai nama berisi ID Story. Tujuan Lokal/Drive dan antrean yang ada tetap dipakai.
+- Menambahkan tes regresi tiga Story dan ID yang tidak ditemukan. Download Story perlu diverifikasi pada APK di perangkat dengan sesi Instagram aktif.
+
 ## 1.3.3-alpha (versionCode 11)
 
 - Menambahkan thumbnail foto/video di pemilih Story; thumbnail dapat diketuk untuk melihat foto lebih besar atau memutar video ketika URL media tersedia.

@@ -48,6 +48,7 @@ public final class ErrorLog {
         String value = raw == null ? "Error tanpa rincian" : raw;
         value = value.replaceAll("(?i)((?:sessionid|csrftoken|authorization|access_token|refresh_token|cookie|token)\\s*[:=]\\s*)[^\\s&;,]+", "$1[disembunyikan]");
         value = value.replaceAll("(?i)(Bearer\\s+)[^\\s,;]+", "$1[disembunyikan]");
+        value = value.replaceAll("(https://[^\\s?#]+)\\?[^\\s)]+", "$1?[parameter disembunyikan]");
         return value.length() > 6000 ? value.substring(0, 6000) + "…" : value;
     }
 }
