@@ -126,7 +126,7 @@ def _resolve_username(path, root, url):
 
 def _download_direct(url, root, callback):
     root.mkdir(parents=True, exist_ok=True)
-    request = urllib.request.Request(url, headers={'User-Agent': 'TGDrive/1.1'})
+    request = urllib.request.Request(url, headers={'User-Agent': 'TheGreatDrive/1.3'})
     with urllib.request.urlopen(request, timeout=30) as response:
         mime = response.headers.get_content_type()
         if mime in {'text/html', 'application/xhtml+xml'}:

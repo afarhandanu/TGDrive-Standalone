@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.TGDrive" parent="android:style/Theme.Material.Light.NoActionBar">
+    <style name="Theme.TheGreatDrive" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:colorAccent">#4157DC</item>
         <item name="android:statusBarColor">#101936</item>

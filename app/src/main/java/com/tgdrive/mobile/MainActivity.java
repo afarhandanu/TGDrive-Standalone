@@ -157,7 +157,7 @@ public class MainActivity extends Activity {
         LinearLayout accounts = page();
         LinearLayout filesPage = page();
         LinearLayout activity = page();
-        TextView brand = label("TG / DRIVE", 13, Color.rgb(65, 87, 220), true); outer.addView(brand);
+        outer.addView(brandBanner(112));
         TextView title = label("Simpan yang kamu suka.", 30, navy, true); outer.addView(title);
         TextView sub = label("Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu.", 15, muted, false);
         outer.addView(sub);
@@ -350,7 +350,7 @@ public class MainActivity extends Activity {
         Button backup = button("Ekspor riwayat dan daftar situs", navy);
         backup.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT)
             .addCategory(Intent.CATEGORY_OPENABLE).setType("application/json")
-            .putExtra(Intent.EXTRA_TITLE, "TGDrive-backup.json"), EXPORT_BACKUP));
+            .putExtra(Intent.EXTRA_TITLE, "The-Great-Drive-backup.json"), EXPORT_BACKUP));
         backupCard.addView(backup);
         Button restore = button("Pulihkan riwayat dan daftar situs", navy);
         restore.setOnClickListener(v -> {
@@ -362,8 +362,41 @@ public class MainActivity extends Activity {
         Button admin = button("Administrasi perangkat", navy);
         admin.setOnClickListener(v -> startActivity(new Intent(this, AdminActivity.class)));
         backupCard.addView(admin);
+        LinearLayout aboutCard = panel(accounts);
+        aboutCard.addView(label("TENTANG", 12, muted, true));
+        Button about = button("Tentang The Great Drive", navy);
+        about.setOnClickListener(v -> showAbout());
+        aboutCard.addView(about);
         installTabs(outer, options, accounts, filesPage, activity);
         showHistory();
+    }
+    private ImageView brandBanner(int heightDp) {
+        ImageView banner = new ImageView(this);
+        banner.setImageResource(R.drawable.brand_banner);
+        banner.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        banner.setContentDescription("Logo The Great Drive");
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(Color.rgb(251, 248, 241));
+        background.setCornerRadius(dp(16));
+        banner.setBackground(background);
+        banner.setClipToOutline(true);
+        banner.setLayoutParams(new LinearLayout.LayoutParams(-1, dp(heightDp)));
+        return banner;
+    }
+    private void showAbout() {
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(dp(20), dp(8), dp(20), dp(8));
+        content.addView(brandBanner(110));
+        String version = "";
+        try { version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName; }
+        catch (Exception ignored) { }
+        content.addView(label("The Great Drive" + (version == null || version.isEmpty() ? "" : " · " + version),
+            18, Color.rgb(25, 36, 46), true));
+        content.addView(label("Unduh tautan dan simpan media ke ponsel, Google Drive, atau keduanya. " +
+            "Antrean dan sesi situs dikelola di perangkat ini.", 14, Color.rgb(101, 111, 137), false));
+        new AlertDialog.Builder(this).setTitle("Tentang aplikasi").setView(content)
+            .setPositiveButton("Tutup", null).show();
     }
     private LinearLayout page() {
         LinearLayout result = new LinearLayout(this);
@@ -373,7 +406,7 @@ public class MainActivity extends Activity {
         return result;
     }
     private void pageTitle(LinearLayout parent, String title, String subtitle) {
-        parent.addView(label("TG / DRIVE", 12, Color.rgb(65, 87, 220), true));
+        parent.addView(label("THE GREAT DRIVE", 12, Color.rgb(65, 87, 220), true));
         parent.addView(label(title, 27, Color.rgb(16, 25, 54), true));
         parent.addView(label(subtitle, 14, Color.rgb(101, 111, 137), false));
     }
@@ -1090,7 +1123,7 @@ public class MainActivity extends Activity {
             .setNeutralButton("Bagikan log", (dialog, which) -> {
                 Intent share = new Intent(Intent.ACTION_SEND).setType("text/plain")
                     .putExtra(Intent.EXTRA_TEXT, report);
-                startActivity(Intent.createChooser(share, "Bagikan log TGDrive"));
+                startActivity(Intent.createChooser(share, "Bagikan log The Great Drive"));
             })
             .setPositiveButton("Tutup", null).show();
     }

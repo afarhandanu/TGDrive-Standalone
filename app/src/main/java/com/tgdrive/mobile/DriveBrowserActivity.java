@@ -23,7 +23,7 @@ public class DriveBrowserActivity extends Activity {
         super.onCreate(state);
         token = getIntent().getStringExtra("token");
         LinearLayout outer = new LinearLayout(this); outer.setOrientation(1); outer.setPadding(24, 24, 24, 24);
-        TextView heading = new TextView(this); heading.setText("Google Drive · TGDrive"); heading.setTextSize(24); outer.addView(heading);
+        TextView heading = new TextView(this); heading.setText("Google Drive · The Great Drive"); heading.setTextSize(24); outer.addView(heading);
         Button back = new Button(this); back.setText("Kembali ke My Drive"); back.setOnClickListener(v -> { folder = "root"; load(); }); outer.addView(back);
         Button create = new Button(this); create.setText("Buat folder"); create.setOnClickListener(v -> input("Nama folder", "", value -> action(() -> DriveFiles.createFolder(token, folder, value)))); outer.addView(create);
         Button search = new Button(this); search.setText("Cari file"); search.setOnClickListener(v -> input("Nama file", "", value -> io.execute(() -> {

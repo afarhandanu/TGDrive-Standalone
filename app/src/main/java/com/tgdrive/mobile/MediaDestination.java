@@ -29,16 +29,16 @@ public final class MediaDestination {
         String folder;
         if (type.startsWith("video/")) {
             collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-            folder = Environment.DIRECTORY_MOVIES + "/TGDrive";
+            folder = Environment.DIRECTORY_MOVIES + "/The Great Drive";
         } else if (type.startsWith("image/")) {
             collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-            folder = Environment.DIRECTORY_PICTURES + "/TGDrive";
+            folder = Environment.DIRECTORY_PICTURES + "/The Great Drive";
         } else if (type.startsWith("audio/")) {
             collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            folder = Environment.DIRECTORY_MUSIC + "/TGDrive";
+            folder = Environment.DIRECTORY_MUSIC + "/The Great Drive";
         } else {
             collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-            folder = Environment.DIRECTORY_DOWNLOADS + "/TGDrive";
+            folder = Environment.DIRECTORY_DOWNLOADS + "/The Great Drive";
         }
         ContentValues values = new ContentValues();
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);

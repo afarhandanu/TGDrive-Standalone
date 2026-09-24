@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.6-alpha (versionCode 14)
+
+- Rebrand aplikasi menjadi **The Great Drive**: label Android, ikon peluncur dari gambar yang diberikan, banner pada menu Unduh, dan Tentang pada menu Akun dengan nomor versi terpasang.
+- Nama proyek Gradle, workflow GitHub Actions, nama APK dan artifact, teks UI serta notifikasi memakai merek baru. README dan panduan penyiapan diperbarui.
+- Unduhan baru tersimpan di folder `The Great Drive/` pada Lokal dan Google Drive. Berkas yang sudah ada di `TGDrive/` tetap tersedia di lokasi lama tanpa dipindahkan.
+- Identitas paket `com.tgdrive.mobile`, sertifikat rilis, konfigurasi OAuth, nama secret GitHub, sesi login, pengaturan, dan format cadangan tetap kompatibel dengan versi sebelumnya.
+- Perubahan visual dan nama belum dibangun menjadi APK atau diuji pada perangkat dalam workspace ini.
+
 ## 1.3.5-alpha (versionCode 13)
 
 - Memperbaiki Story video yang gagal dengan "URL media ... tidak tersedia" ketika gallery-dl mengembalikan URL DASH sintetis berawalan `ytdl:`. Khusus pemilih Story, extractor menggunakan mode video `merged` agar mengembalikan tautan MP4 langsung.

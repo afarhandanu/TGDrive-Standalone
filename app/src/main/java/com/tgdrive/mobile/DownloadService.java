@@ -36,7 +36,7 @@ public class DownloadService extends Service {
     @Override public void onCreate() {
         super.onCreate();
         notifications = getSystemService(NotificationManager.class);
-        notifications.createNotificationChannel(new NotificationChannel("downloads", "TGDrive downloads", NotificationManager.IMPORTANCE_LOW));
+        notifications.createNotificationChannel(new NotificationChannel("downloads", "Unduhan The Great Drive", NotificationManager.IMPORTANCE_LOW));
     }
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) return START_NOT_STICKY;
@@ -90,7 +90,7 @@ public class DownloadService extends Service {
             importPath != null ? "Instagram JSON/ZIP import" : localPath != null ? "Local file" : torrentPath != null ? "Torrent file" : url,
             target, quality, count, folder, subtitles, thumbnail, metadata, anonymous, skipDrive,
             albumMode, profileContent == null ? "all" : profileContent, dateFrom, dateTo, verifyDrive);
-        startForeground(3001, notification("TGDrive", "Menyiapkan antrean…", 0));
+        startForeground(3001, notification("The Great Drive", "Menyiapkan antrean…", 0));
         PENDING.incrementAndGet();
         final ArrayList<String> selectedStories = storyUrls;
         worker.submit(() -> {

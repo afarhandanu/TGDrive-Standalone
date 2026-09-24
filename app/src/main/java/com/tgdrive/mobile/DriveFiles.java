@@ -20,10 +20,10 @@ public final class DriveFiles {
         if (email.isEmpty()) throw new IOException("Drive tidak memberikan alamat akun. Pilih akun lain lalu coba lagi.");
         return email;
     }
-    /** The optional folder ID is the parent of TGDrive/site/username/category. */
+    /** The optional folder ID is the parent of The Great Drive/site/username/category. */
     public static String ensurePath(String token, String baseId, String relativeFile) throws Exception {
         String parent = baseId == null || baseId.trim().isEmpty() ? "root" : baseId.trim();
-        parent = ensureFolder(token, parent, "TGDrive");
+        parent = ensureFolder(token, parent, "The Great Drive");
         String[] pieces = relativeFile.replace('\\', '/').split("/");
         for (int i = 0; i < pieces.length - 1; i++) {
             if (!pieces[i].isEmpty() && !pieces[i].equals(".") && !pieces[i].equals(".."))

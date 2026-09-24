@@ -1,5 +1,5 @@
-name: Build TGDrive APK
-run-name: "TGDrive APK • #${{ github.run_number }} • ${{ github.ref_name }} • ${{ github.actor }}"
+name: Build The Great Drive APK
+run-name: "The Great Drive APK • #${{ github.run_number }} • ${{ github.ref_name }} • ${{ github.actor }}"
 
 on:
   workflow_dispatch:
@@ -85,7 +85,7 @@ jobs:
           VERSION_NAME="$(grep '^VERSION_NAME=' version.properties | cut -d= -f2)"
           VERSION_CODE="$(grep '^VERSION_CODE=' version.properties | cut -d= -f2)"
           SHORT_SHA="${GITHUB_SHA::7}"
-          BASENAME="TGDrive-v${VERSION_NAME}-vc${VERSION_CODE}-run${GITHUB_RUN_NUMBER}-${SHORT_SHA}"
+          BASENAME="The-Great-Drive-v${VERSION_NAME}-vc${VERSION_CODE}-run${GITHUB_RUN_NUMBER}-${SHORT_SHA}"
           mkdir -p dist
           cp app/build/outputs/apk/release/app-release.apk "dist/${BASENAME}.apk"
           sha256sum "dist/${BASENAME}.apk" > "dist/${BASENAME}.sha256"

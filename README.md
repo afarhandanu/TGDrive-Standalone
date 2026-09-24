@@ -1,6 +1,6 @@
-# TGDrive Standalone Android
+# The Great Drive
 
-An Android downloader inspired by the capabilities of TgDriveBot v3.6.12-r24. All downloads and uploads in this project run on the phone. The app does not connect to the Telegram bot, CT 105, or the old `/api/v1` server bridge. `Mone-v1.1.1.apk` was used only as a behavioral reference; its code and visual assets are not included.
+The Great Drive is an Android downloader inspired by the capabilities of TgDriveBot v3.6.12-r24. All downloads and uploads in this project run on the phone. The app does not connect to the Telegram bot, CT 105, or the old `/api/v1` server bridge. `Mone-v1.1.1.apk` was used only as a behavioral reference; its code and visual assets are not included.
 
 ## Implemented in this source
 
@@ -8,17 +8,22 @@ An Android downloader inspired by the capabilities of TgDriveBot v3.6.12-r24. Al
 - `yt-dlp` media extraction inside the APK, direct file fallback, quality selection, profile or playlist item limit, optional subtitles, thumbnails and JSON metadata.
 - Local WebView sessions for Instagram and X. Cookies are exported to a private temporary Netscape file for a download, then deleted when the job ends.
 - Instagram JSON or ZIP import using the bot's parser, with All/Feed/Reels/Stories/Tagged selection and local, embedded or remote media extraction.
-- Three destinations: Gallery (MediaStore), Google Drive (resumable upload), or both. Video, photo and audio appear in their corresponding media collections; other files appear in Downloads/TGDrive.
+- Three destinations: local storage (MediaStore), Google Drive (resumable upload), or both. Video, photo and audio appear in their corresponding media collections; other files appear in Downloads/The Great Drive.
+- The provided brand icon is the Android launcher icon. The matching banner appears on the download screen and in the About dialog under Akun.
 - Google Drive browser for folders, search, rename, trash and public links.
 - Fixed `com.tgdrive.mobile` package ID, release signing through the existing keystore secrets, and unique GitHub Actions artifact names.
 
 ## Build and sign
 
-Push the **contents** of this directory to a GitHub repository. Set the four repository secrets described in `docs/SIGNING.md`, then start `Build TGDrive APK` from Actions. Download the artifact named `TGDrive-v<version>-vc<code>-run<run>-<commit>`.
+Push the **contents** of this directory to a GitHub repository. Set the four repository secrets described in `docs/SIGNING.md`, then start `Build The Great Drive APK` from Actions. Download the artifact named `The-Great-Drive-v<version>-vc<code>-run<run>-<commit>`.
 
 Google Drive requires an Android OAuth client for package `com.tgdrive.mobile` and the **SHA-1 of the existing release signing certificate**. Enable the Drive API, configure the OAuth consent screen, and add your Google account as a test user if the app is in testing. The app requests Drive authorization when Drive is selected; do not put a web client secret in the APK.
 
 The release workflow refuses to sign with a fresh key. `VERSION_CODE` must increase for an installable upgrade. `VERSION_NAME` is the displayed version. The existing release key stays private and outside this source archive.
+
+## Rebrand and existing installs
+
+Version 1.3.6-alpha (versionCode 14) installs as an update to the previous app when signed with the same release key. Keep the Android package `com.tgdrive.mobile`, the existing OAuth Android client and the `TGDRIVE_*` signing secrets. New downloads go into `The Great Drive/site/username/type/` inside the corresponding local media collection or under `My Drive/The Great Drive/`. Earlier files stay in their existing `TGDrive/` folders; this release does not move or delete them. Existing login sessions, saved settings, and backup files stay compatible.
 
 ## Development policy
 
