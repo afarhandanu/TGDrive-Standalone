@@ -1,0 +1,424 @@
+<resources>
+    <string name="text_1ac2fb3c85c87046" formatted="false">"1 file dibagikan · pilih tujuan lalu mulai"</string>
+    <string name="text_1ccd1a2dc488e33f" formatted="false">" file dibagikan · pilih tujuan lalu mulai"</string>
+    <string name="text_0de5a81bac0d6dc9" formatted="false">"Simpan yang kamu suka."</string>
+    <string name="text_d3b105100a88e022" formatted="false">"Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu."</string>
+    <string name="text_b7250cdb9348a862" formatted="false">"Opsi unduhan"</string>
+    <string name="text_f7396349704d5892" formatted="false">"Kualitas, folder, dan filter yang kamu pilih akan tetap tersimpan."</string>
+    <string name="text_56d5e49fc1ec339a" formatted="false">"Akun &amp; Drive"</string>
+    <string name="text_4c16caf9157ffbb4" formatted="false">"Kelola login situs dan file di Google Drive."</string>
+    <string name="text_15cb94beaa989d88" formatted="false">"Berkas &amp; impor"</string>
+    <string name="text_1db19f791641f8bd" formatted="false">"Impor data Instagram atau pilih file dari ponsel."</string>
+    <string name="text_3a4bc87a2125f8f9" formatted="false">"Aktivitas"</string>
+    <string name="text_688a18f98ca8a72a" formatted="false">"Pantau antrean dan buka detail setiap hasil unduhan."</string>
+    <string name="text_0d10e2ef82299dd1" formatted="false">"Info aplikasi"</string>
+    <string name="text_e1c246fd23af51d9" formatted="false">"Tentang The Great Drive, daftar fitur, dan perubahan versi."</string>
+    <string name="text_c2c98ce94d43b0d1" formatted="false">"TAUTAN MEDIA"</string>
+    <string name="text_51bd07108a70e2b6" formatted="false">"Tempel satu atau beberapa link video, post, Reel, Story…"</string>
+    <string name="text_a3c994d2c47878a0" formatted="false">"Tujuan · Lokal"</string>
+    <string name="text_f69c25b51b80211c" formatted="false">"Lokal"</string>
+    <string name="text_353294e0861ac5c8" formatted="false">"Keduanya"</string>
+    <string name="text_7f1f9e0f50769ace" formatted="false">"Tujuan · "</string>
+    <string name="text_76a87c65ea850f6f" formatted="false">"Kualitas · Terbaik"</string>
+    <string name="text_cf76bae8ff4e9979" formatted="false">"Terbaik"</string>
+    <string name="text_03fe325ab3efaa17" formatted="false">"Kualitas · "</string>
+    <string name="text_94e591ca01a0fd38" formatted="false">"Video saja"</string>
+    <string name="text_a46d323f61a04f20" formatted="false">"Maksimum item (profil / playlist)"</string>
+    <string name="text_202d3cdddd2fdc48" formatted="false">"Kosong = tanpa batas"</string>
+    <string name="text_645807c24033c0e3" formatted="false">"Mulai unduh  ↗"</string>
+    <string name="text_61cd360677634056" formatted="false">"Pilih Story Instagram"</string>
+    <string name="text_536d81f697ae690e" formatted="false">"Atur opsi unduhan &amp; folder  →"</string>
+    <string name="text_7926ba68b14547c8" formatted="false">"PILIHAN FILE"</string>
+    <string name="text_c29b1d35dbc1b80f" formatted="false">"Sertakan takarir jika tersedia"</string>
+    <string name="text_fdd80a7ce069f636" formatted="false">"Sertakan gambar mini"</string>
+    <string name="text_1a03626d5b233420" formatted="false">"Sertakan metadata JSON"</string>
+    <string name="text_097c05c3a30ab6f7" formatted="false">"Lewati link yang sudah berhasil diunduh"</string>
+    <string name="text_3873acd3686ab7c6" formatted="false">"Tanpa akun untuk link publik (abaikan sesi login)"</string>
+    <string name="text_719e63765bef5d96" formatted="false">"Drive: lewati file dengan nama yang sama"</string>
+    <string name="text_d621aba3b7474192" formatted="false">"Drive: cocokkan checksum MD5 setelah unggah"</string>
+    <string name="text_5d58f7462229cba3" formatted="false">"Mode profil / album (Instagram, X, Facebook; termasuk carousel)"</string>
+    <string name="text_59da653fa716cb5b" formatted="false">"Profil Facebook · Semua"</string>
+    <string name="text_72c349094479caae" formatted="false">"Semua"</string>
+    <string name="text_494e0843d958b988" formatted="false">"Foto"</string>
+    <string name="text_44a45f5ec665065f" formatted="false">"Profil Facebook · "</string>
+    <string name="text_ff8887637589d897" formatted="false">"ID folder Drive (opsional)"</string>
+    <string name="text_af60c65165efdd86" formatted="false">"Kosong = My Drive"</string>
+    <string name="text_1a2dbedafb442e4b" formatted="false">"Rentang tanggal impor / profil (opsional, YYYY-MM-DD)"</string>
+    <string name="text_7650d876eae9d1a9" formatted="false">"Dari tanggal"</string>
+    <string name="text_665ce504236e32b6" formatted="false">"Sampai tanggal"</string>
+    <string name="text_473acfa2d6c300e9" formatted="false">"LOGIN SITUS"</string>
+    <string name="text_f7e3026b005eed2d" formatted="false">"Masuk Instagram"</string>
+    <string name="text_4770b50d5a472897" formatted="false">"Buka X / login"</string>
+    <string name="text_bbf32cd6e3fc12c6" formatted="false">"Sesi situs"</string>
+    <string name="text_eb7f298f637a3885" formatted="false">"Masuk situs lain (URL HTTPS)"</string>
+    <string name="text_9a64c9f4572802a3" formatted="false">"https://contoh.com/login"</string>
+    <string name="text_9ed0f0371c47b796" formatted="false">"Alamat halaman login situs"</string>
+    <string name="text_5f52f732645aeeb9" formatted="false">"Batal"</string>
+    <string name="text_49297e5484186f4a" formatted="false">"Buka"</string>
+    <string name="text_584016e908b1481b" formatted="false">"Masukkan URL HTTPS situs yang valid"</string>
+    <string name="text_c9c455787a18aaab" formatted="false">"Impor cookies.txt untuk situs"</string>
+    <string name="text_8e9a03012a8381df" formatted="false">"https://contoh.com/"</string>
+    <string name="text_7715bf7898471de4" formatted="false">"Situs pemilik cookies"</string>
+    <string name="text_9e975c9a9cf70aec" formatted="false">"Pilih cookies.txt"</string>
+    <string name="text_4dd991860aa294b5" formatted="false">"Gunakan alamat HTTPS situs"</string>
+    <string name="text_8d7f8d6d28de0aa0" formatted="false">"Belum terhubung"</string>
+    <string name="text_009fff24e7a1d1b4" formatted="false">"Memeriksa akun "</string>
+    <string name="text_6869a14a7ec94d12" formatted="false">"Hubungkan / ganti akun Google Drive"</string>
+    <string name="text_ed2c74e877fc3764" formatted="false">"Kelola file Google Drive"</string>
+    <string name="text_7ac85217b814fe05" formatted="false">"IMPOR INSTAGRAM JSON / ZIP · SEMUA"</string>
+    <string name="text_396c3cb18f811a18" formatted="false">"Postingan"</string>
+    <string name="text_d97f161575d9f74b" formatted="false">"Reels"</string>
+    <string name="text_6d09cf5748829bd2" formatted="false">"Cerita"</string>
+    <string name="text_e9eda90d969f8266" formatted="false">"Ditandai"</string>
+    <string name="text_7e83ad4064dc2791" formatted="false">"IMPOR INSTAGRAM JSON / ZIP · "</string>
+    <string name="text_fbaade067592d984" formatted="false">"Atur tanggal &amp; opsi impor  →"</string>
+    <string name="text_79d364df1e4a6e38" formatted="false">"Hasil impor · Folder"</string>
+    <string name="text_6f2d2b98fc26b7b0" formatted="false">"Satu ZIP"</string>
+    <string name="text_050396426245d965" formatted="false">"Hasil impor · "</string>
+    <string name="text_c7832b6ef2a2ec37" formatted="false">"Pilih file JSON / ZIP"</string>
+    <string name="text_d7b5fdac38546a5f" formatted="false">"FILE DARI PONSEL"</string>
+    <string name="text_4eca085f0b584794" formatted="false">"Pilih file dari ponsel"</string>
+    <string name="text_67a3e0f8a138a783" formatted="false">"Pilih file .torrent"</string>
+    <string name="text_763acac7824d3c8a" formatted="false">"Gabungkan video + audio (FFmpeg)"</string>
+    <string name="text_b49fa9d8fbfa766b" formatted="false">"PINDAHKAN FOLDER LAMA"</string>
+    <string name="text_d7eefe9a2d3334f2" formatted="false">"TGDrive → The Great Drive. Pilih simpan file lama atau hapus setelah salinan terverifikasi."</string>
+    <string name="text_d768395a09486ea2" formatted="false">"Pindahkan folder Lokal"</string>
+    <string name="text_78639c0702c9480a" formatted="false">"Pindahkan folder Google Drive"</string>
+    <string name="text_2781b3c396d2fec1" formatted="false">"KONTROL ANTREAN"</string>
+    <string name="text_62fe0b34747b5129" formatted="false">"Batalkan tugas aktif"</string>
+    <string name="text_62ba150bd81e52e6" formatted="false">"Ulangi tugas gagal / batal"</string>
+    <string name="text_333fae9321fdd1c2" formatted="false">"Jeda / lanjutkan antrean"</string>
+    <string name="text_0736a41d25f2a51a" formatted="false">"Tugas berikutnya dijeda; tugas aktif tetap berjalan"</string>
+    <string name="text_15027d8b780eda8f" formatted="false">"Antrean dilanjutkan"</string>
+    <string name="text_335dc4737f74a5e2" formatted="false">"RIWAYAT TERBARU"</string>
+    <string name="text_12fb6eaec1c4edd2" formatted="false">"Lihat log kesalahan"</string>
+    <string name="text_b815ffb5951cea07" formatted="false">"DATA &amp; PERANGKAT"</string>
+    <string name="text_70225f9703f52422" formatted="false">"Ekspor riwayat dan daftar situs"</string>
+    <string name="text_d540e0c510030b5a" formatted="false">"Pulihkan riwayat dan daftar situs"</string>
+    <string name="text_81cad7d1dbfc6b0c" formatted="false">"Tunggu antrean selesai sebelum memulihkan cadangan"</string>
+    <string name="text_df856246898b42b7" formatted="false">"Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini."</string>
+    <string name="text_747a303953e72a6c" formatted="false">"Administrasi perangkat"</string>
+    <string name="text_ab75af39c0260260" formatted="false">"Logo The Great Drive"</string>
+    <string name="text_6fc30298c3a1e345" formatted="false">"Tentang"</string>
+    <string name="text_7f1056e7c29d1db5" formatted="false">"Fitur"</string>
+    <string name="text_ead07c84baac57a9" formatted="false">"Catatan versi"</string>
+    <string name="text_ff5c67a750710261" formatted="false">"Dokumen belum dapat dibuka."</string>
+    <string name="text_a12b6c59e08221fa" formatted="false">"Unduh tautan dan simpan media ke ponsel, Google Drive, atau keduanya. "</string>
+    <string name="text_34826ac0a442dafa" formatted="false">"Antrean dan sesi situs dikelola di perangkat ini."</string>
+    <string name="text_9a749919bb2f67e8" formatted="false">"↓\nUnduh"</string>
+    <string name="text_b1d9e52f57187ff2" formatted="false">"⚙\nOpsi"</string>
+    <string name="text_6df5a4a321c0bb61" formatted="false">"○\nAkun"</string>
+    <string name="text_90b26c7ebe0df87d" formatted="false">"▣\nBerkas"</string>
+    <string name="text_4f9ae418505588e6" formatted="false">"≡\nAktivitas"</string>
+    <string name="text_96749cf81cee09b0" formatted="false">"ⓘ\nInfo"</string>
+    <string name="text_120c5053f1cc8351" formatted="false">"Lokal + Drive"</string>
+    <string name="text_4cc52075443c05d8" formatted="false">" file untuk digabung"</string>
+    <string name="text_60e518a85c2726ff" formatted="false">" file dari ponsel"</string>
+    <string name="text_64dadeb3e69574bf" formatted="false">" dipilih · ketuk untuk batal"</string>
+    <string name="text_b79c8eead406a724" formatted="false">"Masukkan URL http/https yang valid"</string>
+    <string name="text_aabd9e595850bc9c" formatted="false">"Pengaturan tersimpan tidak bisa dibaca"</string>
+    <string name="text_21243c29cbbc80be" formatted="false">"Isi tautan profil Story: instagram.com/stories/username/"</string>
+    <string name="text_0befe27156f3a619" formatted="false">"Masuk Instagram dahulu untuk melihat Story aktif"</string>
+    <string name="text_f155346fe3a6719a" formatted="false">"Memuat daftar Story…"</string>
+    <string name="text_f74de7e81dacffee" formatted="false">"Pemilih Story Instagram"</string>
+    <string name="text_9708455247920d7b" formatted="false">"Gagal memuat Story"</string>
+    <string name="text_33412269734c9641" formatted="false">"Rincian kesalahan tersimpan di Aktivitas → Lihat log kesalahan. Pastikan sesi Instagram masih aktif, lalu coba lagi."</string>
+    <string name="text_1877a99f8d614a85" formatted="false">"Buka log"</string>
+    <string name="text_c2321fe2ff9c12a4" formatted="false">"Tutup"</string>
+    <string name="text_06600d5264bf76bc" formatted="false">"Tidak ada Story aktif yang dapat dibaca"</string>
+    <string name="text_820b7b86e6d94aff" formatted="false">"Pratinjau belum tersedia; Story tetap dapat diunduh"</string>
+    <string name="text_4063f86877f295d3" formatted="false">"Pilih Story ("</string>
+    <string name="text_94418b9758795f6d" formatted="false">"Unduh dipilih"</string>
+    <string name="text_6cb97fac5f62be0d" formatted="false">"Pilih setidaknya satu Story"</string>
+    <string name="text_58c6b7111fc870ce" formatted="false">"Tunggu proses koneksi Drive selesai"</string>
+    <string name="text_fd76f8f491260821" formatted="false">"Google Drive · Menghubungkan…"</string>
+    <string name="text_682998ff0d4c645e" formatted="false">"Login Drive: "</string>
+    <string name="text_61c2a41813f98728" formatted="false">" · ketuk Hubungkan untuk memberi izin lagi"</string>
+    <string name="text_8f71800a4397c8ee" formatted="false">" · ketuk Hubungkan untuk menyambung ulang"</string>
+    <string name="text_4e8f9acce515b66e" formatted="false">"Berkas torrent tidak dapat dibaca"</string>
+    <string name="text_fe7804869a98ad13" formatted="false">"Berkas torrent lebih dari 8 MB"</string>
+    <string name="text_e0667877027ba168" formatted="false">" file dipilih · pilih tujuan lalu mulai"</string>
+    <string name="text_24de8309fa92a376" formatted="false">"Pilih tepat dua file: satu video dan satu audio"</string>
+    <string name="text_6d55ba000c132163" formatted="false">"2 file untuk digabung · pilih tujuan lalu mulai"</string>
+    <string name="text_110fbc986b0e8e28" formatted="false">"Tidak bisa menulis file cadangan"</string>
+    <string name="text_35338c99d9ab4034" formatted="false">"Cadangan tersimpan"</string>
+    <string name="text_940ad2ede87f2b40" formatted="false">"Ekspor: "</string>
+    <string name="text_414ba3274844d0cb" formatted="false">"Ganti riwayat unduhan dengan isi cadangan ini?"</string>
+    <string name="text_1b97a4e06a8b5b49" formatted="false">"Pulihkan"</string>
+    <string name="text_649ccd78c1a3894e" formatted="false">"Tidak bisa membaca cadangan"</string>
+    <string name="text_0979a53735f62253" formatted="false">"Cadangan dipulihkan"</string>
+    <string name="text_d821f2c4045dbae1" formatted="false">"Pulihkan: "</string>
+    <string name="text_13e9b687ec4e61a8" formatted="false">"File cookies tidak dapat dibaca"</string>
+    <string name="text_f7e42757e4e2a169" formatted="false">" cookie tersimpan untuk "</string>
+    <string name="text_7fbf389b9c7d88d0" formatted="false">"Otorisasi Drive gagal (kode "</string>
+    <string name="text_79fccd2c862f7107" formatted="false">"). Periksa OAuth Android dan akun penguji."</string>
+    <string name="text_fac33a369eecd9a8" formatted="false">"Otorisasi Drive tidak selesai setelah memilih akun (hasil "</string>
+    <string name="text_5310c26de66fd9df" formatted="false">"). Periksa OAuth Android, SHA-1 sertifikat rilis, dan akun penguji."</string>
+    <string name="text_188d597dc2320d96" formatted="false">"Drive tidak memberikan akses. Periksa izin akun lalu coba lagi."</string>
+    <string name="text_e569a6117af39543" formatted="false">"Google Drive · Terhubung: "</string>
+    <string name="text_a4873ea52bc71d75" formatted="false">"Drive terhubung: "</string>
+    <string name="text_8210624d0d3908cf" formatted="false">"Akun terakhir: "</string>
+    <string name="text_6bd67cc115bdbc0c" formatted="false">"Tanggal awal melewati tanggal akhir"</string>
+    <string name="text_95be6af18104d3e3" formatted="false">"Periksa tanggal (YYYY-MM-DD): "</string>
+    <string name="text_fc291c29eef77cbb" formatted="false">"Pilih file .json atau .zip"</string>
+    <string name="text_b58a9685a3004abd" formatted="false">"Berkas impor tidak bisa dibaca"</string>
+    <string name="text_ecca1bfb9066ae0d" formatted="false">"Impor: "</string>
+    <string name="text_9cdf47ec10e7e6b9" formatted="false">"File tidak bisa dibaca"</string>
+    <string name="text_0597bac6300fd54b" formatted="false">"Pilih satu video MP4 dan satu audio (M4A/MP3/WAV)"</string>
+    <string name="text_35a13f8518db386a" formatted="false">"File: "</string>
+    <string name="text_1c4299e1c09f5a7c" formatted="false">"Maksimum item harus angka positif atau kosong untuk tanpa batas"</string>
+    <string name="text_996b2047f784e439" formatted="false">" tugas masuk antrean"</string>
+    <string name="text_9569c586b68a2e7b" formatted="false">" sudah pernah selesai"</string>
+    <string name="text_3957837ea46a5708" formatted="false">"Gagal memulai unduhan: "</string>
+    <string name="text_34b3ff853f324422" formatted="false">" Story masuk antrean"</string>
+    <string name="text_9f69af94f0808a4f" formatted="false">"Antrean Story"</string>
+    <string name="text_da86b28bc0ed02f9" formatted="false">"Gagal memasukkan Story ke antrean. Lihat log kesalahan di Aktivitas."</string>
+    <string name="text_8f875c82aececdd9" formatted="false">"Buka situs · "</string>
+    <string name="text_b5ff6821fefc3631" formatted="false">"Hapus tombol "</string>
+    <string name="text_de48842ff3a42bb1" formatted="false">" dari daftar?"</string>
+    <string name="text_10725a56892ea5b3" formatted="false">"Hapus"</string>
+    <string name="text_e6cefc03194df54c" formatted="false">"Sesi tersimpan · Instagram: "</string>
+    <string name="text_fdee430d40bd57de" formatted="false">"ada"</string>
+    <string name="text_980cb553717b6d47" formatted="false">"belum"</string>
+    <string name="text_8a82961d25ba1578" formatted="false">"Tidak ada tugas yang bisa diulang"</string>
+    <string name="text_e79542feaaead372" formatted="false">"Belum ada unduhan. Tugas yang kamu mulai akan muncul di sini."</string>
+    <string name="text_e7e29f1472e03c9a" formatted="false">"SELESAI"</string>
+    <string name="text_e625db30aa55e278" formatted="false">"GAGAL"</string>
+    <string name="text_e57ff987c034523c" formatted="false">"BERJALAN"</string>
+    <string name="text_90b5772129036a78" formatted="false">"DIBATALKAN"</string>
+    <string name="text_46f6969c363f1eab" formatted="false">"TERHENTI"</string>
+    <string name="text_7d069eac6dbb7581" formatted="false">"UNGGAH DRIVE"</string>
+    <string name="text_0adc20ccd768ad7d" formatted="false">"MENYIMPAN"</string>
+    <string name="text_72c28125d49d5203" formatted="false">"ANTREAN"</string>
+    <string name="text_aad9fd83264cc3f0" formatted="false">"Tugas unduhan"</string>
+    <string name="text_5c32ff999db360f9" formatted="false">"File tersimpan ke Drive"</string>
+    <string name="text_f704eb5b5bde5958" formatted="false">" file lokal"</string>
+    <string name="text_c41150c362a97dd8" formatted="false">" file Drive"</string>
+    <string name="text_96e97fd0a72ff59c" formatted="false">"Ketuk untuk membaca detail"</string>
+    <string name="text_1dcc94d58e76c81d" formatted="false">"Log kesalahan"</string>
+    <string name="text_8badeb98effc7b41" formatted="false">"Bagikan log"</string>
+    <string name="text_6aa91e4275e8036e" formatted="false">"Bagikan log The Great Drive"</string>
+    <string name="text_e917691fd01446fe" formatted="false">"Gunakan URL HTTPS situs yang valid"</string>
+    <string name="text_6f9dcd19351f44b8" formatted="false">"Buka situs"</string>
+    <string name="text_e164a7c19dd311c3" formatted="false">"Gunakan URL HTTPS yang valid"</string>
+    <string name="text_82e94f1e57c53bd2" formatted="false">"Selesai login / kembali"</string>
+    <string name="text_5657ce3500696e3b" formatted="false">"Sesi X belum terbaca. Selesaikan login hingga beranda terbuka."</string>
+    <string name="text_14ea187872c3bda2" formatted="false">"Kembali ke My Drive"</string>
+    <string name="text_b5d7eb2633d1837e" formatted="false">"Buat folder"</string>
+    <string name="text_7a71258e77bac160" formatted="false">"Nama folder"</string>
+    <string name="text_0059cf49077a7ff0" formatted="false">"Cari file"</string>
+    <string name="text_8ff42dd1b45a4651" formatted="false">"Nama file"</string>
+    <string name="text_9738b3d6daccccb9" formatted="false">"Folder kosong"</string>
+    <string name="text_21a2e0d6dbc0132d" formatted="false">"Ganti nama"</string>
+    <string name="text_31eafd7e5599cf7a" formatted="false">"Link publik"</string>
+    <string name="text_452a7dc82fc5e886" formatted="false">"Pindah ke sampah"</string>
+    <string name="text_d0828ce15fd1151f" formatted="false">"Hapus bintang"</string>
+    <string name="text_4fdc4dba0ef8bc5b" formatted="false">"Beri bintang"</string>
+    <string name="text_2325413bc899da87" formatted="false">"Cabut link publik"</string>
+    <string name="text_cc98b3b23579500a" formatted="false">"Pindah ke folder…"</string>
+    <string name="text_8376a426a3c98b3d" formatted="false">"Nama baru"</string>
+    <string name="text_70f60daec854fa20" formatted="false">"Pindahkan ke sampah?"</string>
+    <string name="text_3bc5f88660e4812c" formatted="false">"Ya"</string>
+    <string name="text_541d3e3b9846a093" formatted="false">"Cabut akses publik untuk file/folder ini?"</string>
+    <string name="text_620fc50767c9bb82" formatted="false">"Cabut"</string>
+    <string name="text_3ffdaa7bebf04a24" formatted="false">"Pilih folder tujuan"</string>
+    <string name="text_7d9882d7d0026d33" formatted="false">"Pindahkan ke folder ini"</string>
+    <string name="text_051093df9158bde0" formatted="false">"Simpan"</string>
+    <string name="text_4e92cdda1b90f3a2" formatted="false">"← Kembali"</string>
+    <string name="text_e7d1c0e22d5f9771" formatted="false">"Pindahkan folder "</string>
+    <string name="text_522b53b1f5c39df7" formatted="false">"Folder TGDrive di "</string>
+    <string name="text_42402dad8fef6132" formatted="false">"folder induk "</string>
+    <string name="text_3178f8bc549ac82a" formatted="false">" akan disalin ke The Great Drive pada induk yang sama."</string>
+    <string name="text_634419dea72a29c7" formatted="false">"Periksa folder TGDrive milik aplikasi ini di Movies, Pictures, Music, dan Download. Struktur site/username/jenis tetap dipertahankan."</string>
+    <string name="text_828cf9918a6698ac" formatted="false">"Simpan file lama (salin)"</string>
+    <string name="text_190a8f79f98076e8" formatted="false">"Hapus file lama setelah verifikasi"</string>
+    <string name="text_871df6c1e5f82c3e" formatted="false">"Mode hapus memindahkan file sumber ke Sampah Drive setelah ukuran dan checksum cocok."</string>
+    <string name="text_7632e5d3f4d5bcc4" formatted="false">"Mode hapus menghapus file sumber dari ponsel setelah ukuran dan SHA-256 salinan cocok."</string>
+    <string name="text_e23a79f1573a7120" formatted="false">"File dengan isi berbeda tidak ditimpa. Salinan yang sama dapat dipakai kembali. Folder lama yang kosong tetap ada."</string>
+    <string name="text_9f42771de69d3f5e" formatted="false">"Periksa folder lama"</string>
+    <string name="text_c28ecfaaddc4b063" formatted="false">"Periksa folder untuk melihat jumlah file sebelum memulai."</string>
+    <string name="text_eb8ab58014e1c545" formatted="false">"Mulai pemindahan"</string>
+    <string name="text_63241f2bb48d9151" formatted="false">"Hentikan pemindahan"</string>
+    <string name="text_297e336d594ef031" formatted="false">"Hentikan setelah operasi yang sedang berjalan? File yang sudah diproses tetap tersimpan."</string>
+    <string name="text_6dd7d1695eae8ad5" formatted="false">"Kembali"</string>
+    <string name="text_9002cb355ffc5429" formatted="false">"Hentikan"</string>
+    <string name="text_8b9ca25108bbf568" formatted="false">"HASIL TERAKHIR"</string>
+    <string name="text_4f3fa742277e639d" formatted="false">"Buka Berkas → Pindahkan folder Google Drive untuk menghubungkan akun kembali."</string>
+    <string name="text_192e7b64cfbb3db4" formatted="false">"Memeriksa folder…"</string>
+    <string name="text_17443abb1d279555" formatted="false">" file · "</string>
+    <string name="text_a151ee4f4b984d96" formatted="false">"Tidak ada file lama yang dapat diakses. "</string>
+    <string name="text_24126f05f73b0b74" formatted="false">"Periksa ID folder induk pada Opsi."</string>
+    <string name="text_0dfb92ef73d91507" formatted="false">"Pencarian hanya mencakup file milik instalasi aplikasi ini."</string>
+    <string name="text_fae44ea23b418969" formatted="false">"Gagal memeriksa: "</string>
+    <string name="text_f0bfcf9cbfd54e84" formatted="false">"Pindahkan dan hapus sumber?"</string>
+    <string name="text_e0e7e58fc99c8d2e" formatted="false">"Salin dan simpan sumber?"</string>
+    <string name="text_1dce0ceed74de1a6" formatted="false">" file terdeteksi. Tujuan: The Great Drive.\n\n"</string>
+    <string name="text_f0509f8c93075ed3" formatted="false">"Sumber masuk Sampah Drive"</string>
+    <string name="text_75b892cacc212eb5" formatted="false">"Sumber dihapus dari ponsel"</string>
+    <string name="text_bcd72db3cbfc8b01" formatted="false">" hanya setelah salinan terverifikasi."</string>
+    <string name="text_cee27f0726f38699" formatted="false">"Semua file sumber tetap disimpan."</string>
+    <string name="text_73432eae38232b0e" formatted="false">"\n\nDaftar file diperiksa ulang saat mulai."</string>
+    <string name="text_bc692f0398d9e6ef" formatted="false">"Mulai"</string>
+    <string name="text_31098a2bc4889681" formatted="false">"Bahasa aplikasi"</string>
+    <string name="text_11b8712670ffce5a" formatted="false">"Bahasa Indonesia"</string>
+    <string name="text_ba118bf7fc9c1aed" formatted="false">"English"</string>
+    <string name="text_0e8289bc066801b6" formatted="false">"Pilihan bahasa disimpan di perangkat ini."</string>
+    <string name="text_fbdb352418970368" formatted="false">"Kelola antrean, penyimpanan sementara, dan riwayat perangkatmu."</string>
+    <string name="text_f3dc338681c5c67b" formatted="false">"RINGKASAN UNDUHAN"</string>
+    <string name="text_fee5c98985a57d26" formatted="false">"Selesai"</string>
+    <string name="text_7c4eeec73e01c3a3" formatted="false">"Gagal / batal"</string>
+    <string name="text_27f525d124eebc4b" formatted="false">"Belum selesai"</string>
+    <string name="text_5aa225ad14b28063" formatted="false">"Dijeda"</string>
+    <string name="text_0436bb346d9b4c76" formatted="false">"Berjalan"</string>
+    <string name="text_c456c88ddb4b53d7" formatted="false">"Kosong"</string>
+    <string name="text_66480f969bfeb5cd" formatted="false">"Ada tugas aktif atau menunggu"</string>
+    <string name="text_6194963092e247fa" formatted="false">"Lanjutkan antrean"</string>
+    <string name="text_fba13bc6ac119c43" formatted="false">"Jeda antrean"</string>
+    <string name="text_a653bf0480cd21ee" formatted="false">"Batalkan tugas aktif"</string>
+    <string name="text_e1d7b5c30523601d" formatted="false">"Batalkan tugas yang sedang berjalan?"</string>
+    <string name="text_40e57d6045961752" formatted="false">"AKUN &amp; SITUS"</string>
+    <string name="text_92f1fe5db3de374d" formatted="false">"Belum tersambung"</string>
+    <string name="text_2ac990927c0ae515" formatted="false">"Situs tersimpan"</string>
+    <string name="text_712da6bd1f884756" formatted="false">"PENYIMPANAN"</string>
+    <string name="text_089d40cb6a7aa35b" formatted="false">"Cache sementara"</string>
+    <string name="text_b51f2a55e56ddb64" formatted="false">"Menghitung…"</string>
+    <string name="text_689cd94348f71f3c" formatted="false">"Bersihkan cache tugas lama"</string>
+    <string name="text_f60a0226a9d05968" formatted="false">"Berkas unduhan dan sesi login tetap tersimpan."</string>
+    <string name="text_16502b625b4c5ac8" formatted="false">"Hapus berkas sementara dari tugas yang tidak berjalan?"</string>
+    <string name="text_9f7929ef8020ef21" formatted="false">"Tunggu sampai antrean kosong"</string>
+    <string name="text_88b00c90e8368806" formatted="false">"Cache tugas dibersihkan"</string>
+    <string name="text_35d62a8643128979" formatted="false">"Hapus riwayat unduhan"</string>
+    <string name="text_7826a2daec82a252" formatted="false">"Hapus semua catatan riwayat di perangkat ini?"</string>
+    <string name="text_b3b2aab9277e0d13" formatted="false">"Riwayat dibersihkan"</string>
+    <string name="text_b7dae482bdf38964" formatted="false">"Hanya catatan riwayat yang dihapus. Berkas unduhan tetap tersimpan."</string>
+    <string name="text_bae9e3381b9043fe" formatted="false">"Lanjutkan"</string>
+    <string name="text_dcb080ea9e51d9c2" formatted="false">"Perbarui ringkasan"</string>
+    <string name="text_c0b0666f71007bf1" formatted="false">"Backup lebih dari 2 MB"</string>
+    <string name="text_06c10ffa6223e76c" formatted="false">"Format backup tidak dikenali"</string>
+    <string name="text_7dc3ac57dff175c6" formatted="false">"FFmpeg tersedia untuk perangkat Android arm64; unduhan lain tetap dapat digunakan"</string>
+    <string name="text_5716e1f1ac712c99" formatted="false">"Video atau audio untuk digabung tidak tersedia"</string>
+    <string name="text_735d3992587df92e" formatted="false">"FFmpeg gagal menggabungkan audio dan video: {0}"</string>
+    <string name="text_ebc4f47d5ff772ed" formatted="false">"Drive tidak memberikan alamat akun. Pilih akun lain lalu coba lagi."</string>
+    <string name="text_a06581649d2a641d" formatted="false">"Folder tujuan tidak valid"</string>
+    <string name="text_7875fc04ad404c02" formatted="false">"Folder torrent tidak tersedia"</string>
+    <string name="text_153411a7f56f5619" formatted="false">"Mencari metadata magnet dari peer…"</string>
+    <string name="text_bfcb238077a75887" formatted="false">"Metadata magnet tidak tersedia dari peer"</string>
+    <string name="text_9543bb5f96841cd9" formatted="false">"Link .torrent harus HTTPS dan dapat diakses"</string>
+    <string name="text_698978109cc0c58f" formatted="false">"File .torrent lebih dari 8 MB"</string>
+    <string name="text_01b0d6553bddd109" formatted="false">"Metadata torrent tidak valid"</string>
+    <string name="text_ef9e3b43bc393a2b" formatted="false">"Torrent dibatalkan"</string>
+    <string name="text_debad359bb44798f" formatted="false">"Torrent belum selesai dalam 24 jam"</string>
+    <string name="text_e9d50fc23bb62d33" formatted="false">"Pustaka torrent tidak cocok dengan arsitektur ponsel"</string>
+    <string name="text_9ee54cd55929c2a1" formatted="false">"Torrent selesai tanpa file hasil"</string>
+    <string name="text_cda734ebda4966f0" formatted="false">"Pemindahan dibatalkan; file sumber yang belum diproses tetap disimpan"</string>
+    <string name="text_0725d434a0fa5a37" formatted="false">"Verifikasi salinan tidak cocok. File lama dipertahankan."</string>
+    <string name="text_8e57e6e3bdc42ee9" formatted="false">"Daftar file Lokal tidak dapat dibaca"</string>
+    <string name="text_f6b8c99bface7945" formatted="false">"Tidak bisa membuat salinan Lokal"</string>
+    <string name="text_1e4c09ced4c30096" formatted="false">"Tidak bisa membuka file untuk disalin"</string>
+    <string name="text_932adf2d4dd09269" formatted="false">"Salinan belum dapat diterbitkan"</string>
+    <string name="text_43fd12a6755dc25f" formatted="false">"Catatan salinan tidak dapat disimpan; sumber dipertahankan"</string>
+    <string name="text_a801ebe0bd1c6063" formatted="false">"Salinan tersimpan; file lama belum dapat dihapus"</string>
+    <string name="text_f15e0e80a1f7dc8a" formatted="false">"Dokumen Google/pintasan dipertahankan: verifikasi checksum hanya mendukung file biasa"</string>
+    <string name="text_81c364b9ef846e87" formatted="false">"Checksum sumber Drive tidak tersedia; sumber dipertahankan"</string>
+    <string name="text_7fba3fa9c2b6e92a" formatted="false">"Catatan salinan Drive gagal disimpan; sumber dipertahankan"</string>
+    <string name="text_628458c85d2aa106" formatted="false">"File tidak dapat dibaca untuk verifikasi"</string>
+    <string name="text_1d6a3ea41d96cba8" formatted="false">"Belum ada pemindahan folder."</string>
+    <string name="text_22feb44e099f08e3" formatted="false">"Proses sebelumnya terhenti. Periksa folder lalu jalankan lagi untuk melanjutkan."</string>
+    <string name="text_0a0430825a4fee7d" formatted="false">"Pemindahan folder"</string>
+    <string name="text_d9616b9d473abc89" formatted="false">"Memeriksa folder lama…"</string>
+    <string name="text_c2e4314d3cf33e8d" formatted="false">"Memeriksa folder Drive…"</string>
+    <string name="text_d3189113cbb8c14e" formatted="false">"Memeriksa folder Lokal…"</string>
+    <string name="text_f4911bb39fc9db7f" formatted="false">"Hubungkan Drive kembali melalui menu Berkas"</string>
+    <string name="text_e03739e54a56cd82" formatted="false">"Hapus sumber setelah verifikasi"</string>
+    <string name="text_dfd18b54e0dee4a1" formatted="false">"Simpan file lama"</string>
+    <string name="text_80ef25713b8a8e1f" formatted="false">"Pemindahan: {0}"</string>
+    <string name="text_c96fb44674f97efc" formatted="false">"Tidak ditemukan file lama yang bisa diakses."</string>
+    <string name="text_38418fbc3677961c" formatted="false">"Selesai · {0} berhasil · {1} gagal dari {2} file."</string>
+    <string name="text_72ac8306e7d5ec38" formatted="false">"Dibatalkan · {0} berhasil · {1} gagal dari {2} file."</string>
+    <string name="text_898616e242db854c" formatted="false">"Terhenti · {0} berhasil · {1} gagal dari {2} file."</string>
+    <string name="text_a85ffa01697c78cb" formatted="false">"Sumber yang gagal diproses tetap disimpan."</string>
+    <string name="text_c5a259bb5ca348ad" formatted="false">"File lama tetap disimpan."</string>
+    <string name="text_59eab62d28681098" formatted="false">"File yang belum diproses tetap disimpan."</string>
+    <string name="text_372f727df2ffa0fe" formatted="false">"The Great Drive · Pindahkan folder"</string>
+    <string name="text_cf2c40868023c721" formatted="false">"Pemindahan dihentikan Android. Jalankan lagi untuk melanjutkan; sumber yang belum diproses tetap disimpan."</string>
+    <string name="text_20016790009b5aad" formatted="false">"Host tidak valid"</string>
+    <string name="text_fb9419596f078ed5" formatted="false">"File cookies terlalu besar"</string>
+    <string name="text_7cdf263aa2e6ee0f" formatted="false">"Tidak ada cookies HTTPS yang cocok untuk {0}"</string>
+    <string name="text_f202d1c5318d0a64" formatted="false">"URL situs tidak valid"</string>
+    <string name="text_56bc53a25b4a64f0" formatted="false">"Gagal menyimpan situs"</string>
+    <string name="text_54bb1be330f88f13" formatted="false">"Riwayat belum dapat diarahkan ke salinan; sumber Drive dipertahankan"</string>
+    <string name="text_858ce23c448c4a2d" formatted="false">"Aplikasi berhenti saat tugas berjalan. Pilih Ulangi untuk mencoba lagi."</string>
+    <string name="text_453ec5964fad8394" formatted="false">"Unduhan The Great Drive"</string>
+    <string name="text_15dca6740fb7946d" formatted="false">"Impor Instagram JSON/ZIP"</string>
+    <string name="text_f6ecab8105350004" formatted="false">"Berkas lokal"</string>
+    <string name="text_4ea3c5f3cc8a91eb" formatted="false">"Berkas torrent"</string>
+    <string name="text_d74da93eb5dbb461" formatted="false">"Menyiapkan antrean…"</string>
+    <string name="text_82c9a9e6a95187ca" formatted="false">"Antrean Story dibatalkan"</string>
+    <string name="text_a84657af0f1f502d" formatted="false">"Antrean terhenti; tugas dapat diulang"</string>
+    <string name="text_4ab1666545304f1d" formatted="false">"Mengambil media…"</string>
+    <string name="text_c1d07ee1a94c1ea8" formatted="false">"Gagal membuat folder file lokal"</string>
+    <string name="text_61e93910ed751247" formatted="false">"Menggabungkan video + audio dengan FFmpeg"</string>
+    <string name="text_e46830100fbc1042" formatted="false">"Hasil unduhan keluar dari direktori kerja"</string>
+    <string name="text_eb6386e1ed733ad2" formatted="false">"Audio keluar dari direktori kerja"</string>
+    <string name="text_67f83846e1089a99" formatted="false">"Menggabungkan audio + video dengan FFmpeg"</string>
+    <string name="text_1be0355fc15de2a2" formatted="false">"Menyimpan ke lokal: {0}"</string>
+    <string name="text_5d3200471ba8667a" formatted="false">"Lokal: {0}"</string>
+    <string name="text_6543ba1072bf5da1" formatted="false">"Lokal: {0}"</string>
+    <string name="text_bc0c1574239a309d" formatted="false">"Drive sudah ada: {0}"</string>
+    <string name="text_9a66c9956aa56526" formatted="false">"Mengunggah {0}"</string>
+    <string name="text_e0e70e84a25066c9" formatted="false">"Unduhan #{0}"</string>
+    <string name="text_a2861fc5960a1144" formatted="false">"Media mux keluar dari direktori kerja"</string>
+    <string name="text_777b9548e1e44571" formatted="false">"Unduhan selesai; menyiapkan penyimpanan"</string>
+    <string name="text_ed281032b2b07f08" formatted="false">"Belum ada kesalahan yang dicatat pada perangkat ini."</string>
+    <string name="text_66c591e5177c7f3d" formatted="false">"Log error tidak dapat dibaca: {0}"</string>
+    <string name="text_2bc952e66db04ded" formatted="false">"Error tanpa rincian"</string>
+    <string name="text_e87260e44668fd52" formatted="false">"Gagal membuat file galeri"</string>
+    <string name="text_03276bffb96c1cf9" formatted="false">"Gagal membuka file galeri"</string>
+    <string name="text_9791087f77ecefc8" formatted="false">"Hubungkan Google Drive dahulu"</string>
+    <string name="text_7111ae5d7288f228" formatted="false">"Drive gagal memulai upload: HTTP {0}"</string>
+    <string name="text_6e4e54354841fac5" formatted="false">"Sesi upload Drive tidak valid"</string>
+    <string name="text_53129257bffad8b3" formatted="false">"File berubah selama upload"</string>
+    <string name="text_d0a631e99fb3fcf3" formatted="false">"Checksum MD5 Drive berbeda atau belum tersedia untuk {0}"</string>
+    <string name="text_7574f6626a97cdf0" formatted="false">"Offset upload Drive berubah; hentikan agar data tidak rusak"</string>
+    <string name="text_73469473bf065a5f" formatted="false">"Token Drive kedaluwarsa. Hubungkan Drive ulang lalu coba lagi."</string>
+    <string name="text_2f27486a5311c940" formatted="false">"Upload Drive gagal sesudah retry"</string>
+    <string name="text_5ac18027d7430bd5" formatted="false">"Drive tidak mengonfirmasi hasil upload"</string>
+    <string name="text_8e4ecbf965cb1657" formatted="false">"Tanggal awal harus sebelum atau sama dengan tanggal akhir"</string>
+    <string name="text_8f448cce24274be9" formatted="false">"Path media keluar dari folder import"</string>
+    <string name="text_40861c21ab89159e" formatted="false">"Media embedded tidak valid"</string>
+    <string name="text_8aef94da183c1c82" formatted="false">"URL media import harus HTTPS"</string>
+    <string name="text_33c26a94878637cb" formatted="false">"Jenis media tidak dikenal"</string>
+    <string name="text_0f844639359a5944" formatted="false">"URL audio harus HTTPS"</string>
+    <string name="text_cf0e8d84901c3319" formatted="false">"Audio embedded tidak valid"</string>
+    <string name="text_4add207e712408c2" formatted="false">"Path audio keluar dari folder import"</string>
+    <string name="text_d7824dc9262e6247" formatted="false">"Tidak ada media untuk kategori ini"</string>
+    <string name="text_bb96080183f220e5" formatted="false">"Pilihan output import tidak dikenal"</string>
+    <string name="text_f93eaee376202438" formatted="false">"Username Instagram tidak valid"</string>
+    <string name="text_67dd57feba6e158a" formatted="false">"Sesi Instagram diperlukan untuk membaca Story"</string>
+    <string name="text_c3b0013a874cb77e" formatted="false">"Tidak dapat membuka Story Instagram"</string>
+    <string name="text_4e2bca51a27a3989" formatted="false">"URL Story tidak memiliki username dan ID yang valid"</string>
+    <string name="text_8c215673663ccd81" formatted="false">"Sesi Instagram diperlukan untuk mengunduh Story terpilih"</string>
+    <string name="text_ac6e6bdbb0302caa" formatted="false">"Tidak dapat membaca daftar Story Instagram"</string>
+    <string name="text_7641412637e09c49" formatted="false">"Mencari Story ID {0}"</string>
+    <string name="text_53ec509c7b2b3273" formatted="false">"Story ID {0} tidak ditemukan atau sudah kedaluwarsa. Muat ulang daftar Story."</string>
+    <string name="text_5600bccdf59b359e" formatted="false">"URL media untuk Story ID {0} tidak tersedia"</string>
+    <string name="text_e6364a1fac473254" formatted="false">"Jenis media Story ID {0} tidak didukung: {1}"</string>
+    <string name="text_ec6ace12dcb42211" formatted="false">"Story ID {0} selesai"</string>
+    <string name="text_1d3de03b84fd32e0" formatted="false">"Server Instagram tidak mengirimkan file media"</string>
+    <string name="text_bfcabdb5cb8ae9e3" formatted="false">"Jenis file Story tidak sesuai dengan ID yang dipilih"</string>
+    <string name="text_7e5ac9856ab34277" formatted="false">"File Story tidak lengkap; silakan coba lagi"</string>
+    <string name="text_6f82baa3d94ce503" formatted="false">"Maksimum item tidak boleh negatif"</string>
+    <string name="text_3c4d9b34f045478e" formatted="false">"Mode profil/album tersedia untuk Instagram, X, dan Facebook"</string>
+    <string name="text_28f8dd4963aedac0" formatted="false">"Mengambil profil / album"</string>
+    <string name="text_2580746cfa540f9e" formatted="false">"gallery-dl gagal membaca profil / album; periksa URL atau sesi akun"</string>
+    <string name="text_3d229f9cffab1810" formatted="false">"Tidak ada media pada profil / album atau rentang tanggal ini"</string>
+    <string name="text_78269200c0ba08e8" formatted="false">"Sebagian item profil gagal diekstrak; coba lagi dengan jumlah lebih kecil"</string>
+    <string name="text_3caa36c1b54bdbfd" formatted="false">"{0} file ditemukan"</string>
+    <string name="text_a4d0540472fad2da" formatted="false">"Ekstraktor Instagram tidak menemukan file gambar"</string>
+    <string name="text_b8961ed2e576340e" formatted="false">"Foto Instagram gagal: {0}"</string>
+    <string name="text_ccd6bc560c67666f" formatted="false">"Ekstraktor tidak menghasilkan foto atau video. Periksa link atau sesi login."</string>
+    <string name="text_ed8ad5df9682f40c" formatted="false">"Tautan mengarah ke halaman web, bukan file. Coba login lalu ulangi."</string>
+    <string name="text_279ddc4f3809b2b0" formatted="false">"Mengolah file"</string>
+    <string name="text_01ba5d6ac08ab708" formatted="false">"Dibatalkan"</string>
+    <string name="text_fd8ccb786ce43cc5" formatted="false">"Terhenti"</string>
+</resources>

@@ -56,7 +56,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /** Local downloader UI. Google authorization is only requested when Drive is selected. */
-public class MainActivity extends Activity {
+public class MainActivity extends LocalizedActivity {
     private static final int DRIVE_AUTH = 712;
     private static final int IMPORT_FILE = 713;
     private static final int LOCAL_FILE = 714;
@@ -92,6 +92,7 @@ public class MainActivity extends Activity {
     private final ExecutorService storyPreviewIo = Executors.newFixedThreadPool(2);
     private BroadcastReceiver receiver;
     private boolean restoringSettings;
+    private boolean driveConnected;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -136,12 +137,12 @@ public class MainActivity extends Activity {
         }
         else if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
             selectedFiles.clear(); muxSelection = false; selectedFiles.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
-            url.setHint("1 file dibagikan · pilih tujuan lalu mulai");
+            url.setHint(t("1 file dibagikan · pilih tujuan lalu mulai"));
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())) {
             selectedFiles.clear(); muxSelection = false;
             var streams = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (streams != null) for (Object stream : streams) if (stream instanceof Uri) selectedFiles.add((Uri) stream);
-            url.setHint(selectedFiles.size() + " file dibagikan · pilih tujuan lalu mulai");
+            url.setHint(selectedFiles.size() + t(" file dibagikan · pilih tujuan lalu mulai"));
         }
         updatePendingFileNotice();
         if (intent.getAction() != null && (Intent.ACTION_SEND.equals(intent.getAction()) ||
@@ -159,22 +160,22 @@ public class MainActivity extends Activity {
         LinearLayout activity = page();
         LinearLayout info = page();
         outer.addView(brandBanner(112));
-        TextView title = label("Simpan yang kamu suka.", 30, navy, true); outer.addView(title);
-        TextView sub = label("Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu.", 15, muted, false);
+        TextView title = label(t("Simpan yang kamu suka."), 30, navy, true); outer.addView(title);
+        TextView sub = label(t("Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu."), 15, muted, false);
         outer.addView(sub);
-        pageTitle(options, "Opsi unduhan", "Kualitas, folder, dan filter yang kamu pilih akan tetap tersimpan.");
-        pageTitle(accounts, "Akun & Drive", "Kelola login situs dan file di Google Drive.");
-        pageTitle(filesPage, "Berkas & impor", "Impor data Instagram atau pilih file dari ponsel.");
-        pageTitle(activity, "Aktivitas", "Pantau antrean dan buka detail setiap hasil unduhan.");
-        pageTitle(info, "Info aplikasi", "Tentang The Great Drive, daftar fitur, dan perubahan versi.");
+        pageTitle(options, t("Opsi unduhan"), t("Kualitas, folder, dan filter yang kamu pilih akan tetap tersimpan."));
+        pageTitle(accounts, t("Akun & Drive"), t("Kelola login situs dan file di Google Drive."));
+        pageTitle(filesPage, t("Berkas & impor"), t("Impor data Instagram atau pilih file dari ponsel."));
+        pageTitle(activity, t("Aktivitas"), t("Pantau antrean dan buka detail setiap hasil unduhan."));
+        pageTitle(info, t("Info aplikasi"), t("Tentang The Great Drive, daftar fitur, dan perubahan versi."));
 
         LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(18), dp(18), dp(18), dp(18));
         GradientDrawable bg = new GradientDrawable(); bg.setColor(Color.WHITE); bg.setCornerRadius(dp(24));
         card.setBackground(bg); card.setElevation(dp(4));
         LinearLayout.LayoutParams cardP = new LinearLayout.LayoutParams(-1, -2); cardP.topMargin = dp(24); outer.addView(card, cardP);
-        card.addView(label("TAUTAN MEDIA", 12, muted, true));
-        url = new EditText(this); url.setHint("Tempel satu atau beberapa link video, post, Reel, Story…"); url.setSingleLine(false);
+        card.addView(label(t("TAUTAN MEDIA"), 12, muted, true));
+        url = new EditText(this); url.setHint(t("Tempel satu atau beberapa link video, post, Reel, Story…")); url.setSingleLine(false);
         url.setTextColor(ink); url.setTextSize(16); card.addView(url);
         pendingFileNotice = label("", 13, Color.rgb(65, 87, 220), true);
         pendingFileNotice.setVisibility(View.GONE);
@@ -183,95 +184,110 @@ public class MainActivity extends Activity {
         });
         card.addView(pendingFileNotice);
 
-        destinationLabel = label("Tujuan · Lokal", 15, ink, true); card.addView(destinationLabel);
-        row(card, new String[]{"Lokal", "Drive", "Keduanya"}, new String[]{"gallery", "drive", "both"}, value -> {
+        destinationLabel = label(t("Tujuan · Lokal"), 15, ink, true); card.addView(destinationLabel);
+        row(card, new String[]{t("Lokal"), "Drive", t("Keduanya")}, new String[]{"gallery", "drive", "both"}, value -> {
             destination = value;
-            destinationLabel.setText("Tujuan · " + destinationName(value));
+            destinationLabel.setText(t("Tujuan · ") + destinationName(value));
         });
-        qualityLabel = label("Kualitas · Terbaik", 15, ink, true); card.addView(qualityLabel);
-        row(card, new String[]{"Terbaik", "1080p", "720p", "Audio"}, new String[]{"best", "1080", "720", "audio"}, value -> {
-            quality = value; qualityLabel.setText("Kualitas · " + qualityName(value));
+        qualityLabel = label(t("Kualitas · Terbaik"), 15, ink, true); card.addView(qualityLabel);
+        row(card, new String[]{t("Terbaik"), "1080p", "720p", "Audio"}, new String[]{"best", "1080", "720", "audio"}, value -> {
+            quality = value; qualityLabel.setText(t("Kualitas · ") + qualityName(value));
         });
-        row(card, new String[]{"2160p", "1440p", "480p", "Video saja"},
+        row(card, new String[]{"2160p", "1440p", "480p", t("Video saja")},
             new String[]{"2160", "1440", "480", "video"}, value -> {
-                quality = value; qualityLabel.setText("Kualitas · " + qualityName(value));
+                quality = value; qualityLabel.setText(t("Kualitas · ") + qualityName(value));
             });
-        card.addView(label("Maksimum item (profil / playlist)", 13, muted, false));
-        limit = new EditText(this); limit.setInputType(2); limit.setHint("Kosong = tanpa batas"); limit.setText("1"); card.addView(limit);
-        Button go = button("Mulai download  ↗", navy); go.setOnClickListener(v -> start()); card.addView(go);
-        Button pickStories = button("Pilih Story Instagram", Color.rgb(65, 87, 220));
+        card.addView(label(t("Maksimum item (profil / playlist)"), 13, muted, false));
+        limit = new EditText(this); limit.setInputType(2); limit.setHint(t("Kosong = tanpa batas")); limit.setText("1"); card.addView(limit);
+        Button go = button(t("Mulai download  ↗"), navy); go.setOnClickListener(v -> start()); card.addView(go);
+        Button pickStories = button(t("Pilih Story Instagram"), Color.rgb(65, 87, 220));
         pickStories.setOnClickListener(v -> pickStories()); outer.addView(pickStories);
-        Button configure = button("Atur opsi unduhan & folder  →", Color.rgb(225, 230, 249));
+        Button configure = button(t("Atur opsi unduhan & folder  →"), Color.rgb(225, 230, 249));
         configure.setTextColor(ink); configure.setOnClickListener(v -> openTab(1)); outer.addView(configure);
 
+        LinearLayout languageCard = panel(options);
+        languageCard.addView(label(t("Bahasa aplikasi"), 17, ink, true));
+        languageCard.addView(label(t("Pilihan bahasa disimpan di perangkat ini."), 13, muted, false));
+        android.widget.RadioGroup languages = new android.widget.RadioGroup(this);
+        String[] languageCodes = {"id", "en"};
+        String[] languageNames = {"Bahasa Indonesia", "English"};
+        for (int i = 0; i < languageCodes.length; i++) {
+            final String code = languageCodes[i];
+            android.widget.RadioButton choice = new android.widget.RadioButton(this);
+            choice.setId(View.generateViewId()); choice.setText(languageNames[i]);
+            languages.addView(choice);
+            choice.setChecked(code.equals(L10n.language(this)));
+            choice.setOnClickListener(v -> changeLanguage(code));
+        }
+        languageCard.addView(languages);
         LinearLayout optionCard = panel(options);
-        optionCard.addView(label("PILIHAN FILE", 12, muted, true));
-        subtitles = new CheckBox(this); subtitles.setText("Sertakan subtitle jika ada"); optionCard.addView(subtitles);
-        thumbnail = new CheckBox(this); thumbnail.setText("Sertakan thumbnail"); optionCard.addView(thumbnail);
-        metadata = new CheckBox(this); metadata.setText("Sertakan metadata JSON"); optionCard.addView(metadata);
-        skipCompleted = new CheckBox(this); skipCompleted.setText("Lewati link yang sudah berhasil diunduh"); optionCard.addView(skipCompleted);
-        anonymous = new CheckBox(this); anonymous.setText("Tanpa akun untuk link publik (abaikan sesi login)"); optionCard.addView(anonymous);
-        skipDrive = new CheckBox(this); skipDrive.setText("Drive: lewati file dengan nama yang sama"); optionCard.addView(skipDrive);
-        verifyDrive = new CheckBox(this); verifyDrive.setText("Drive: cocokkan checksum MD5 setelah unggah"); optionCard.addView(verifyDrive);
+        optionCard.addView(label(t("PILIHAN FILE"), 12, muted, true));
+        subtitles = new CheckBox(this); subtitles.setText(t("Sertakan subtitle jika ada")); optionCard.addView(subtitles);
+        thumbnail = new CheckBox(this); thumbnail.setText(t("Sertakan thumbnail")); optionCard.addView(thumbnail);
+        metadata = new CheckBox(this); metadata.setText(t("Sertakan metadata JSON")); optionCard.addView(metadata);
+        skipCompleted = new CheckBox(this); skipCompleted.setText(t("Lewati link yang sudah berhasil diunduh")); optionCard.addView(skipCompleted);
+        anonymous = new CheckBox(this); anonymous.setText(t("Tanpa akun untuk link publik (abaikan sesi login)")); optionCard.addView(anonymous);
+        skipDrive = new CheckBox(this); skipDrive.setText(t("Drive: lewati file dengan nama yang sama")); optionCard.addView(skipDrive);
+        verifyDrive = new CheckBox(this); verifyDrive.setText(t("Drive: cocokkan checksum MD5 setelah unggah")); optionCard.addView(verifyDrive);
         albumMode = new CheckBox(this);
-        albumMode.setText("Mode profil / album (Instagram, X, Facebook; termasuk carousel)"); optionCard.addView(albumMode);
-        profileContentLabel = label("Profil Facebook · Semua", 13, muted, false);
+        albumMode.setText(t("Mode profil / album (Instagram, X, Facebook; termasuk carousel)")); optionCard.addView(albumMode);
+        profileContentLabel = label(t("Profil Facebook · Semua"), 13, muted, false);
         optionCard.addView(profileContentLabel);
-        row(optionCard, new String[]{"Semua", "Foto", "Video"},
+        row(optionCard, new String[]{t("Semua"), t("Foto"), "Video"},
             new String[]{"all", "photos", "videos"}, value -> {
                 profileContent = value;
-                profileContentLabel.setText("Profil Facebook · " + (value.equals("photos") ? "Foto" : value.equals("videos") ? "Video" : "Semua"));
+                profileContentLabel.setText(t("Profil Facebook · ") + (value.equals("photos") ? t("Foto") : value.equals("videos") ? "Video" : t("Semua")));
             });
-        optionCard.addView(label("ID folder Drive (opsional)", 13, muted, false));
-        folder = new EditText(this); folder.setHint("Kosong = My Drive"); optionCard.addView(folder);
-        optionCard.addView(label("Rentang tanggal import / profil (opsional, YYYY-MM-DD)", 13, muted, false));
-        dateFrom = new EditText(this); dateFrom.setHint("Dari tanggal"); dateFrom.setSingleLine(true);
+        optionCard.addView(label(t("ID folder Drive (opsional)"), 13, muted, false));
+        folder = new EditText(this); folder.setHint(t("Kosong = My Drive")); optionCard.addView(folder);
+        optionCard.addView(label(t("Rentang tanggal import / profil (opsional, YYYY-MM-DD)"), 13, muted, false));
+        dateFrom = new EditText(this); dateFrom.setHint(t("Dari tanggal")); dateFrom.setSingleLine(true);
         dateFrom.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
         optionCard.addView(dateFrom);
-        dateTo = new EditText(this); dateTo.setHint("Sampai tanggal"); dateTo.setSingleLine(true);
+        dateTo = new EditText(this); dateTo.setHint(t("Sampai tanggal")); dateTo.setSingleLine(true);
         dateTo.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
         optionCard.addView(dateTo);
         LinearLayout loginCard = panel(accounts);
-        loginCard.addView(label("LOGIN SITUS", 12, muted, true));
-        Button instagram = button("Masuk Instagram", Color.rgb(225, 62, 118));
+        loginCard.addView(label(t("LOGIN SITUS"), 12, muted, true));
+        Button instagram = button(t("Masuk Instagram"), Color.rgb(225, 62, 118));
         instagram.setOnClickListener(v -> openLogin("instagram")); loginCard.addView(instagram);
-        Button x = button("Buka X / login", navy); x.setOnClickListener(v -> openLogin("x")); loginCard.addView(x);
-        siteStatus = label("Sesi situs", 13, muted, false); loginCard.addView(siteStatus);
-        Button other = button("Masuk situs lain (URL HTTPS)", navy);
+        Button x = button(t("Buka X / login"), navy); x.setOnClickListener(v -> openLogin("x")); loginCard.addView(x);
+        siteStatus = label(t("Sesi situs"), 13, muted, false); loginCard.addView(siteStatus);
+        Button other = button(t("Masuk situs lain (URL HTTPS)"), navy);
         other.setOnClickListener(v -> {
             EditText input = new EditText(this);
             input.setSingleLine(true);
-            input.setHint("https://contoh.com/login");
+            input.setHint(t("https://contoh.com/login"));
             input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI);
             String current = url.getText().toString().trim();
             if (WebSessions.host(current) != null) input.setText(current);
-            new AlertDialog.Builder(this).setTitle("Alamat halaman login situs")
+            new AlertDialog.Builder(this).setTitle(t("Alamat halaman login situs"))
                 .setView(input)
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Buka", (dialog, which) -> {
+                .setNegativeButton(t("Batal"), null)
+                .setPositiveButton(t("Buka"), (dialog, which) -> {
                     String loginUrl = input.getText().toString().trim();
-                    if (WebSessions.host(loginUrl) == null) { toast("Masukkan URL HTTPS situs yang valid"); return; }
+                    if (WebSessions.host(loginUrl) == null) { toast(t("Masukkan URL HTTPS situs yang valid")); return; }
                     try { SavedSites.remember(this, loginUrl); }
-                    catch (IllegalArgumentException e) { toast(e.getMessage()); return; }
+                    catch (IllegalArgumentException e) { toast(message(e.getMessage())); return; }
                     renderSavedSites();
                     startActivity(new Intent(this, LoginActivity.class)
                         .putExtra("site", "custom").putExtra("login_url", loginUrl));
                 }).show();
         }); loginCard.addView(other);
-        Button cookies = button("Impor cookies.txt untuk situs", navy);
+        Button cookies = button(t("Impor cookies.txt untuk situs"), navy);
         cookies.setOnClickListener(v -> {
             EditText input = new EditText(this);
-            input.setSingleLine(true); input.setHint("https://contoh.com/");
+            input.setSingleLine(true); input.setHint(t("https://contoh.com/"));
             String current = url.getText().toString().trim();
             if (WebSessions.host(current) != null) input.setText(current);
-            new AlertDialog.Builder(this).setTitle("Situs pemilik cookies")
-                .setView(input).setNegativeButton("Batal", null)
-                .setPositiveButton("Pilih cookies.txt", (d, w) -> {
+            new AlertDialog.Builder(this).setTitle(t("Situs pemilik cookies"))
+                .setView(input).setNegativeButton(t("Batal"), null)
+                .setPositiveButton(t("Pilih cookies.txt"), (d, w) -> {
                     String address = input.getText().toString().trim();
                     cookieHost = WebSessions.host(address);
-                    if (cookieHost == null) { toast("Gunakan alamat HTTPS situs"); return; }
+                    if (cookieHost == null) { toast(t("Gunakan alamat HTTPS situs")); return; }
                     try { SavedSites.remember(this, address); renderSavedSites(); }
-                    catch (IllegalArgumentException e) { toast(e.getMessage()); return; }
+                    catch (IllegalArgumentException e) { toast(message(e.getMessage())); return; }
                     startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
                         .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), IMPORT_COOKIES);
                 }).show();
@@ -282,74 +298,74 @@ public class MainActivity extends Activity {
         renderSavedSites();
         LinearLayout driveCard = panel(accounts);
         driveCard.addView(label("GOOGLE DRIVE", 12, muted, true));
-        driveStatus = label("Google Drive · " + (driveEmail == null ? "Belum terhubung" :
-            "Memeriksa akun " + driveEmail + "…"), 14, ink, true); driveCard.addView(driveStatus);
-        Button connect = button("Hubungkan / ganti akun Google Drive", Color.rgb(65, 87, 220));
+        driveStatus = label("Google Drive · " + (driveEmail == null ? t("Belum terhubung") :
+            t("Memeriksa akun ") + driveEmail + "…"), 14, ink, true); driveCard.addView(driveStatus);
+        Button connect = button(t("Hubungkan / ganti akun Google Drive"), Color.rgb(65, 87, 220));
         connect.setOnClickListener(v -> { driveAction = "connect"; authorizeDrive(true); }); driveCard.addView(connect);
-        Button files = button("Kelola file Google Drive", Color.rgb(65, 87, 220));
+        Button files = button(t("Kelola file Google Drive"), Color.rgb(65, 87, 220));
         files.setOnClickListener(v -> { driveAction = "browse"; authorizeDrive(driveEmail == null); }); driveCard.addView(files);
         LinearLayout importCard = panel(filesPage);
-        importCategoryLabel = label("IMPORT INSTAGRAM JSON / ZIP · SEMUA", 13, muted, true);
+        importCategoryLabel = label(t("IMPORT INSTAGRAM JSON / ZIP · SEMUA"), 13, muted, true);
         importCard.addView(importCategoryLabel);
-        row(importCard, new String[]{"Semua", "Feed", "Reels", "Stories", "Tagged"},
+        row(importCard, new String[]{t("Semua"), t("Feed"), t("Reels"), t("Stories"), t("Tagged")},
             new String[]{"all", "feed", "reels", "stories", "mentions"}, value -> {
-                importCategory = value; importCategoryLabel.setText("IMPORT INSTAGRAM JSON / ZIP · " + value.toUpperCase(java.util.Locale.ROOT));
+                importCategory = value; importCategoryLabel.setText(t("IMPORT INSTAGRAM JSON / ZIP · ") + categoryName(value));
             });
-        Button dateOptions = button("Atur tanggal & opsi import  →", Color.rgb(225, 230, 249));
+        Button dateOptions = button(t("Atur tanggal & opsi import  →"), Color.rgb(225, 230, 249));
         dateOptions.setTextColor(ink);
         dateOptions.setOnClickListener(v -> openTab(1)); importCard.addView(dateOptions);
-        importOutputLabel = label("Hasil import · Folder", 13, ink, true);
+        importOutputLabel = label(t("Hasil import · Folder"), 13, ink, true);
         importCard.addView(importOutputLabel);
-        row(importCard, new String[]{"Folder", "Satu ZIP"}, new String[]{"folder", "zip"}, value -> {
+        row(importCard, new String[]{"Folder", t("Satu ZIP")}, new String[]{"folder", "zip"}, value -> {
             importOutput = value;
-            importOutputLabel.setText("Hasil import · " + (value.equals("zip") ? "Satu ZIP" : "Folder"));
+            importOutputLabel.setText(t("Hasil import · ") + (value.equals("zip") ? t("Satu ZIP") : "Folder"));
         });
-        Button importButton = button("Pilih file JSON / ZIP", Color.rgb(65, 87, 220));
+        Button importButton = button(t("Pilih file JSON / ZIP"), Color.rgb(65, 87, 220));
         importButton.setOnClickListener(v -> {
             Intent choose = new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*")
                 .addCategory(Intent.CATEGORY_OPENABLE);
             startActivityForResult(choose, IMPORT_FILE);
         }); importCard.addView(importButton);
         LinearLayout localCard = panel(filesPage);
-        localCard.addView(label("FILE DARI PONSEL", 12, muted, true));
-        Button pickLocal = button("Pilih file dari ponsel", navy);
+        localCard.addView(label(t("FILE DARI PONSEL"), 12, muted, true));
+        Button pickLocal = button(t("Pilih file dari ponsel"), navy);
         pickLocal.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), LOCAL_FILE));
         localCard.addView(pickLocal);
-        Button pickTorrent = button("Pilih file .torrent", Color.rgb(65, 87, 220));
+        Button pickTorrent = button(t("Pilih file .torrent"), Color.rgb(65, 87, 220));
         pickTorrent.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), TORRENT_FILE));
         localCard.addView(pickTorrent);
-        Button muxFiles = button("Gabungkan video + audio (FFmpeg)", navy);
+        Button muxFiles = button(t("Gabungkan video + audio (FFmpeg)"), navy);
         muxFiles.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE)
             .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), MUX_FILES));
         localCard.addView(muxFiles);
         LinearLayout migrationCard = panel(filesPage);
-        migrationCard.addView(label("PINDAHKAN FOLDER LAMA", 12, muted, true));
-        migrationCard.addView(label("TGDrive → The Great Drive. Pilih simpan file lama atau hapus setelah salinan terverifikasi.", 14, muted, false));
-        Button migrateLocal = button("Pindahkan folder Lokal", navy);
+        migrationCard.addView(label(t("PINDAHKAN FOLDER LAMA"), 12, muted, true));
+        migrationCard.addView(label(t("TGDrive → The Great Drive. Pilih simpan file lama atau hapus setelah salinan terverifikasi."), 14, muted, false));
+        Button migrateLocal = button(t("Pindahkan folder Lokal"), navy);
         migrateLocal.setOnClickListener(v -> startActivity(new Intent(this, MigrationActivity.class)));
         migrationCard.addView(migrateLocal);
-        Button migrateDrive = button("Pindahkan folder Google Drive", Color.rgb(65, 87, 220));
+        Button migrateDrive = button(t("Pindahkan folder Google Drive"), Color.rgb(65, 87, 220));
         migrateDrive.setOnClickListener(v -> { driveAction = "migrate"; authorizeDrive(driveEmail == null); });
         migrationCard.addView(migrateDrive);
 
         LinearLayout queueCard = panel(activity);
-        queueCard.addView(label("KONTROL ANTREAN", 12, muted, true));
-        Button cancel = button("Batalkan job aktif", Color.rgb(132, 52, 72));
+        queueCard.addView(label(t("KONTROL ANTREAN"), 12, muted, true));
+        Button cancel = button(t("Batalkan job aktif"), Color.rgb(132, 52, 72));
         cancel.setOnClickListener(v -> startService(new Intent(this, DownloadService.class).setAction("CANCEL")));
         queueCard.addView(cancel);
-        Button retry = button("Ulangi job gagal / batal", Color.rgb(65, 87, 220));
+        Button retry = button(t("Ulangi job gagal / batal"), Color.rgb(65, 87, 220));
         retry.setOnClickListener(v -> retryLast()); queueCard.addView(retry);
-        Button pause = button("Jeda / lanjutkan antrean", Color.rgb(65, 87, 220));
+        Button pause = button(t("Jeda / lanjutkan antrean"), Color.rgb(65, 87, 220));
         pause.setOnClickListener(v -> {
             boolean next = !DownloadService.isPaused();
             startService(new Intent(this, DownloadService.class).setAction(next ? "PAUSE" : "RESUME"));
-            toast(next ? "Tugas berikutnya dijeda; tugas aktif tetap berjalan" : "Antrean dilanjutkan");
+            toast(next ? t("Tugas berikutnya dijeda; tugas aktif tetap berjalan") : t("Antrean dilanjutkan"));
         }); queueCard.addView(pause);
-        TextView recent = label("RIWAYAT TERBARU", 13, muted, true);
-        Button errors = button("Lihat log error", navy);
+        TextView recent = label(t("RIWAYAT TERBARU"), 13, muted, true);
+        Button errors = button(t("Lihat log error"), navy);
         errors.setOnClickListener(v -> showErrorLog());
         activity.addView(errors);
         LinearLayout.LayoutParams recentP = new LinearLayout.LayoutParams(-1, -2); recentP.topMargin = dp(24);
@@ -357,31 +373,54 @@ public class MainActivity extends Activity {
         historyList = new LinearLayout(this); historyList.setOrientation(LinearLayout.VERTICAL);
         activity.addView(historyList);
         LinearLayout backupCard = panel(accounts);
-        backupCard.addView(label("DATA & PERANGKAT", 12, muted, true));
-        Button backup = button("Ekspor riwayat dan daftar situs", navy);
+        backupCard.addView(label(t("DATA & PERANGKAT"), 12, muted, true));
+        Button backup = button(t("Ekspor riwayat dan daftar situs"), navy);
         backup.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT)
             .addCategory(Intent.CATEGORY_OPENABLE).setType("application/json")
             .putExtra(Intent.EXTRA_TITLE, "The-Great-Drive-backup.json"), EXPORT_BACKUP));
         backupCard.addView(backup);
-        Button restore = button("Pulihkan riwayat dan daftar situs", navy);
+        Button restore = button(t("Pulihkan riwayat dan daftar situs"), navy);
         restore.setOnClickListener(v -> {
-            if (DownloadService.hasPendingJobs()) { toast("Tunggu antrean selesai sebelum memulihkan cadangan"); return; }
+            if (DownloadService.hasPendingJobs()) { toast(t("Tunggu antrean selesai sebelum memulihkan cadangan")); return; }
             startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
                 .addCategory(Intent.CATEGORY_OPENABLE).setType("application/json"), IMPORT_BACKUP);
         }); backupCard.addView(restore);
-        backupCard.addView(label("Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini.", 12, muted, false));
-        Button admin = button("Administrasi perangkat", navy);
+        backupCard.addView(label(t("Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini."), 12, muted, false));
+        Button admin = button(t("Administrasi perangkat"), navy);
         admin.setOnClickListener(v -> startActivity(new Intent(this, AdminActivity.class)));
         backupCard.addView(admin);
         buildInfo(info);
         installTabs(outer, options, accounts, filesPage, activity, info);
         showHistory();
     }
+    private void changeLanguage(String code) {
+        if (code.equals(L10n.language(this))) return;
+        saveSettings();
+        String enteredUrl = url.getText().toString();
+        int previousTab = currentTab;
+        L10n.setLanguage(this, code);
+        L10n.refreshNotifications(this);
+        render(); restoreSettings();
+        url.setText(enteredUrl); updatePendingFileNotice();
+        if (authorizingDrive) driveStatus.setText(t("Google Drive · Menghubungkan…"));
+        else if (driveConnected) driveStatus.setText(t("Google Drive · Terhubung: ") + driveEmail);
+        else if (driveEmail != null) driveStatus.setText(t("Akun terakhir: ") + driveEmail + t(" · ketuk Hubungkan untuk menyambung ulang"));
+        updateSiteStatus(); renderSavedSites(); openTab(previousTab);
+    }
+    private String categoryName(String category) {
+        switch (category) {
+            case "feed": return t("Feed");
+            case "reels": return t("Reels");
+            case "stories": return t("Stories");
+            case "mentions": return t("Tagged");
+            default: return t("Semua");
+        }
+    }
     private ImageView brandBanner(int heightDp) {
         ImageView banner = new ImageView(this);
         banner.setImageResource(R.drawable.brand_banner);
         banner.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        banner.setContentDescription("Logo The Great Drive");
+        banner.setContentDescription(t("Logo The Great Drive"));
         GradientDrawable background = new GradientDrawable();
         background.setColor(Color.rgb(251, 248, 241));
         background.setCornerRadius(dp(16));
@@ -395,16 +434,21 @@ public class MainActivity extends Activity {
         parent.addView(selector);
         LinearLayout[] sections = {panel(parent), panel(parent), panel(parent)};
         Button[] buttons = new Button[3];
-        String[] titles = {"Tentang", "Fitur", "Changelog"};
+        String[] titles = {t("Tentang"), t("Fitur"), t("Changelog")};
         for (int i = 0; i < titles.length; i++) {
             final int selected = i;
-            Button button = new Button(this); button.setText(titles[i]); button.setAllCaps(false);
+            Button button = button(titles[i], Color.rgb(225, 230, 249));
             button.setTextSize(12); buttons[i] = button;
-            selector.addView(button, new LinearLayout.LayoutParams(0, -2, 1));
+            LinearLayout.LayoutParams choiceParams = new LinearLayout.LayoutParams(0, -2, 1);
+            choiceParams.setMargins(dp(3), dp(10), dp(3), 0);
+            button.setMinHeight(dp(48)); selector.addView(button, choiceParams);
             button.setOnClickListener(v -> {
                 for (int j = 0; j < sections.length; j++) {
                     sections[j].setVisibility(j == selected ? View.VISIBLE : View.GONE);
-                    buttons[j].setTextColor(j == selected ? Color.rgb(65, 87, 220) : Color.rgb(101, 111, 137));
+                    GradientDrawable selectedShape = new GradientDrawable();
+                    selectedShape.setColor(j == selected ? Color.rgb(65, 87, 220) : Color.rgb(225, 230, 249));
+                    selectedShape.setCornerRadius(dp(14)); buttons[j].setBackground(selectedShape);
+                    buttons[j].setTextColor(j == selected ? Color.WHITE : Color.rgb(40, 51, 108));
                     buttons[j].setTypeface(Typeface.DEFAULT, j == selected ? Typeface.BOLD : Typeface.NORMAL);
                 }
             });
@@ -415,7 +459,7 @@ public class MainActivity extends Activity {
         buttons[0].performClick();
     }
     private void renderInfoDocument(LinearLayout parent, String asset) {
-        try (InputStream input = getAssets().open(asset)) {
+        try (InputStream input = getAssets().open("info/" + L10n.language(this) + "/" + asset)) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192]; int count;
             while ((count = input.read(buffer)) != -1) bytes.write(buffer, 0, count);
@@ -429,8 +473,8 @@ public class MainActivity extends Activity {
                 item.setTextIsSelectable(true); parent.addView(item);
             }
         } catch (Exception error) {
-            ErrorLog.record(this, "Info aplikasi", error);
-            parent.addView(label("Dokumen belum dapat dibuka.", 14, Color.RED, false));
+            ErrorLog.record(this, t("Info aplikasi"), error);
+            parent.addView(label(t("Dokumen belum dapat dibuka."), 14, Color.RED, false));
         }
     }
     private LinearLayout aboutContent() {
@@ -443,8 +487,8 @@ public class MainActivity extends Activity {
         catch (Exception ignored) { }
         content.addView(label("The Great Drive" + (version == null || version.isEmpty() ? "" : " · " + version),
             18, Color.rgb(25, 36, 46), true));
-        content.addView(label("Unduh tautan dan simpan media ke ponsel, Google Drive, atau keduanya. " +
-            "Antrean dan sesi situs dikelola di perangkat ini.", 14, Color.rgb(101, 111, 137), false));
+        content.addView(label(t("Unduh tautan dan simpan media ke ponsel, Google Drive, atau keduanya. ") +
+            t("Antrean dan sesi situs dikelola di perangkat ini."), 14, Color.rgb(101, 111, 137), false));
         return content;
     }
     private LinearLayout page() {
@@ -496,7 +540,7 @@ public class MainActivity extends Activity {
         navigation.setBackgroundColor(Color.WHITE);
         navigation.setElevation(dp(8));
         tabButtons = new TextView[pages.length];
-        String[] names = {"↓\nUnduh", "⚙\nOpsi", "○\nAkun", "▣\nBerkas", "≡\nAktivitas", "ⓘ\nInfo"};
+        String[] names = {t("↓\nUnduh"), t("⚙\nOpsi"), t("○\nAkun"), t("▣\nBerkas"), t("≡\nAktivitas"), t("ⓘ\nInfo")};
         for (int i = 0; i < pages.length; i++) {
             final int index = i;
             TextView tab = label(names[i], 11, Color.rgb(101, 111, 137), false);
@@ -525,17 +569,17 @@ public class MainActivity extends Activity {
         if (index == 4 && historyList != null) showHistory();
     }
     private String destinationName(String value) {
-        return value.equals("both") ? "Lokal + Drive" : value.equals("drive") ? "Drive" : "Lokal";
+        return value.equals("both") ? t("Lokal + Drive") : value.equals("drive") ? "Drive" : t("Lokal");
     }
     private String qualityName(String value) {
-        return value.equals("best") ? "Terbaik" : value.equals("audio") ? "Audio" :
-            value.equals("video") ? "Video saja" : value + "p";
+        return value.equals("best") ? t("Terbaik") : value.equals("audio") ? "Audio" :
+            value.equals("video") ? t("Video saja") : value + "p";
     }
     private void updatePendingFileNotice() {
         if (pendingFileNotice == null) return;
         pendingFileNotice.setVisibility(selectedFiles.isEmpty() ? View.GONE : View.VISIBLE);
         if (!selectedFiles.isEmpty()) pendingFileNotice.setText(selectedFiles.size() +
-            (muxSelection ? " file untuk digabung" : " file dari ponsel") + " dipilih · ketuk untuk batal");
+            (muxSelection ? t(" file untuk digabung") : t(" file dari ponsel")) + t(" dipilih · ketuk untuk batal"));
     }
     private void start() {
         selectedStoryUrls.clear();
@@ -551,7 +595,7 @@ public class MainActivity extends Activity {
             pendingUrls.clear(); pendingUrls.add(pendingUrl);
         }
         if (pendingUrls.isEmpty()) {
-            toast("Masukkan URL http/https yang valid"); return;
+            toast(t("Masukkan URL http/https yang valid")); return;
         }
         if (albumMode.isChecked() && !validDates()) return;
         if (destination.equals("gallery")) { enqueue(null); return; }
@@ -591,42 +635,42 @@ public class MainActivity extends Activity {
             profileContent = data.optString("profile_content", "all");
             importCategory = data.optString("import_category", "all"); importOutput = data.optString("import_output", "folder");
             dateFrom.setText(data.optString("date_from", "")); dateTo.setText(data.optString("date_to", ""));
-            destinationLabel.setText("Tujuan · " + destinationName(destination));
-            qualityLabel.setText("Kualitas · " + qualityName(quality));
-            profileContentLabel.setText("Profil Facebook · " + (profileContent.equals("photos") ? "Foto" : profileContent.equals("videos") ? "Video" : "Semua"));
-            importCategoryLabel.setText("IMPORT INSTAGRAM JSON / ZIP · " + importCategory.toUpperCase(java.util.Locale.ROOT));
-            importOutputLabel.setText("Hasil import · " + (importOutput.equals("zip") ? "Satu ZIP" : "Folder"));
-        } catch (Exception ignored) { toast("Pengaturan tersimpan tidak bisa dibaca"); }
+            destinationLabel.setText(t("Tujuan · ") + destinationName(destination));
+            qualityLabel.setText(t("Kualitas · ") + qualityName(quality));
+            profileContentLabel.setText(t("Profil Facebook · ") + (profileContent.equals("photos") ? t("Foto") : profileContent.equals("videos") ? "Video" : t("Semua")));
+            importCategoryLabel.setText(t("IMPORT INSTAGRAM JSON / ZIP · ") + categoryName(importCategory));
+            importOutputLabel.setText(t("Hasil import · ") + (importOutput.equals("zip") ? t("Satu ZIP") : "Folder"));
+        } catch (Exception ignored) { toast(t("Pengaturan tersimpan tidak bisa dibaca")); }
         finally { restoringSettings = false; }
     }
     private void pickStories() {
         String address = url.getText().toString().trim();
         Matcher story = Pattern.compile("^https://(?:www\\.)?instagram\\.com/stories/([A-Za-z0-9._]+)/?(?:\\?.*)?$", Pattern.CASE_INSENSITIVE).matcher(address);
-        if (!story.matches()) { toast("Isi tautan profil Story: instagram.com/stories/username/"); return; }
+        if (!story.matches()) { toast(t("Isi tautan profil Story: instagram.com/stories/username/")); return; }
         String username = story.group(1);
         String cookies = WebSessions.cookies(this, "www.instagram.com");
         if (cookies == null || !cookies.contains("sessionid=")) cookies = WebSessions.cookies(this, "instagram.com");
-        if (cookies == null || !cookies.contains("sessionid=")) { toast("Masuk Instagram dahulu untuk melihat Story aktif"); return; }
+        if (cookies == null || !cookies.contains("sessionid=")) { toast(t("Masuk Instagram dahulu untuk melihat Story aktif")); return; }
         final String session = cookies;
-        toast("Memuat daftar Story…");
+        toast(t("Memuat daftar Story…"));
         new Thread(() -> {
             try {
                 JSONArray items = new JSONArray(Python.getInstance().getModule("story_picker")
                     .callAttr("list_stories", username, session).toString());
                 runOnUiThread(() -> showStoryChoices(items));
             } catch (Exception e) {
-                ErrorLog.record(this, "Pemilih Story Instagram", e);
+                ErrorLog.record(this, t("Pemilih Story Instagram"), e);
                 runOnUiThread(() -> new AlertDialog.Builder(this)
-                    .setTitle("Gagal memuat Story")
-                    .setMessage("Detail error tersimpan di Aktivitas → Lihat log error. Pastikan sesi Instagram masih aktif, lalu coba lagi.")
-                    .setPositiveButton("Buka log", (dialog, which) -> { openTab(4); showErrorLog(); })
-                    .setNegativeButton("Tutup", null).show());
+                    .setTitle(t("Gagal memuat Story"))
+                    .setMessage(t("Detail error tersimpan di Aktivitas → Lihat log error. Pastikan sesi Instagram masih aktif, lalu coba lagi."))
+                    .setPositiveButton(t("Buka log"), (dialog, which) -> { openTab(4); showErrorLog(); })
+                    .setNegativeButton(t("Tutup"), null).show());
             }
         }).start();
     }
     private void showStoryChoices(JSONArray items) {
         int n = items.length();
-        if (n == 0) { toast("Tidak ada Story aktif yang dapat dibaca"); return; }
+        if (n == 0) { toast(t("Tidak ada Story aktif yang dapat dibaca")); return; }
         boolean[] selected = new boolean[n];
         LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
         list.setPadding(dp(12), 0, dp(12), dp(8));
@@ -651,7 +695,7 @@ public class MainActivity extends Activity {
             LinearLayout.LayoutParams thumb = new LinearLayout.LayoutParams(dp(76), dp(76));
             thumb.rightMargin = dp(10); row.addView(preview, thumb);
             String labelText = item == null ? "Story " + (i + 1) :
-                (item.optBoolean("video") ? "Video" : "Foto") + " · " + item.optString("date") +
+                (item.optBoolean("video") ? "Video" : t("Foto")) + " · " + item.optString("date") +
                 "\nID " + item.optString("id");
             TextView title = label(labelText, 14, Color.rgb(30, 39, 65), false);
             row.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
@@ -668,7 +712,7 @@ public class MainActivity extends Activity {
                         MediaController controls = new MediaController(this);
                         controls.setAnchorView(player); player.setMediaController(controls);
                         AlertDialog dialog = new AlertDialog.Builder(this).setTitle(labelText)
-                            .setView(player).setPositiveButton("Tutup", null).create();
+                            .setView(player).setPositiveButton(t("Tutup"), null).create();
                         dialog.setOnDismissListener(d -> player.stopPlayback());
                         dialog.show(); player.start();
                     } else if (image.getDrawable() instanceof android.graphics.drawable.BitmapDrawable) {
@@ -677,18 +721,18 @@ public class MainActivity extends Activity {
                         larger.setAdjustViewBounds(true);
                         larger.setPadding(dp(8), dp(8), dp(8), dp(8));
                         new AlertDialog.Builder(this).setTitle(labelText).setView(larger)
-                            .setPositiveButton("Tutup", null).show();
-                    } else toast("Pratinjau belum tersedia; Story tetap dapat diunduh");
+                            .setPositiveButton(t("Tutup"), null).show();
+                    } else toast(t("Pratinjau belum tersedia; Story tetap dapat diunduh"));
                 });
             }
             list.addView(row);
         }
         ScrollView scroll = new ScrollView(this); scroll.addView(list);
-        new AlertDialog.Builder(this).setTitle("Pilih Story (" + n + ")")
+        new AlertDialog.Builder(this).setTitle(t("Pilih Story (") + n + ")")
             .setView(scroll)
-            .setNeutralButton("Semua", (dialog, which) -> downloadStories(items, null))
-            .setNegativeButton("Batal", null)
-            .setPositiveButton("Unduh dipilih", (dialog, which) -> downloadStories(items, selected)).show();
+            .setNeutralButton(t("Semua"), (dialog, which) -> downloadStories(items, null))
+            .setNegativeButton(t("Batal"), null)
+            .setPositiveButton(t("Unduh dipilih"), (dialog, which) -> downloadStories(items, selected)).show();
     }
     private void loadStoryPreview(String address, ImageView image, TextView placeholder) {
         try {
@@ -739,14 +783,14 @@ public class MainActivity extends Activity {
             if (item != null && item.optString("url").startsWith("https://www.instagram.com/stories/"))
                 selectedStoryUrls.add(item.optString("url"));
         }
-        if (selectedStoryUrls.isEmpty()) { toast("Pilih setidaknya satu Story"); return; }
+        if (selectedStoryUrls.isEmpty()) { toast(t("Pilih setidaknya satu Story")); return; }
         if (destination.equals("gallery")) enqueueStoryBatch(null);
         else { driveAction = "download"; authorizeDrive(driveEmail == null); }
     }
     private void authorizeDrive(boolean chooseAccount) {
-        if (authorizingDrive) { toast("Tunggu proses koneksi Drive selesai"); return; }
+        if (authorizingDrive) { toast(t("Tunggu proses koneksi Drive selesai")); return; }
         authorizingDrive = true;
-        driveStatus.setText("Google Drive · Menghubungkan…");
+        driveStatus.setText(t("Google Drive · Menghubungkan…"));
         AuthorizationRequest.Builder builder = AuthorizationRequest.builder()
             .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive")));
         if (chooseAccount) builder.setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT);
@@ -755,9 +799,9 @@ public class MainActivity extends Activity {
         Identity.getAuthorizationClient(this).authorize(request).addOnSuccessListener(result -> {
             if (result.hasResolution()) {
                 try { startIntentSenderForResult(result.getPendingIntent().getIntentSender(), DRIVE_AUTH, null, 0, 0, 0); }
-                catch (Exception e) { driveFailed("Login Drive: " + e.getMessage()); }
+                catch (Exception e) { driveFailed(t("Login Drive: ") + message(e.getMessage())); }
             } else authorized(result.getAccessToken());
-        }).addOnFailureListener(e -> driveFailed("Drive: " + e.getMessage()));
+        }).addOnFailureListener(e -> driveFailed("Drive: " + message(e.getMessage())));
     }
     private void restoreDriveSession() {
         authorizingDrive = true;
@@ -767,11 +811,11 @@ public class MainActivity extends Activity {
         Identity.getAuthorizationClient(this).authorize(request).addOnSuccessListener(result -> {
             if (result.hasResolution() || result.getAccessToken() == null) {
                 authorizingDrive = false;
-                driveStatus.setText("Google Drive · " + driveEmail + " · ketuk Hubungkan untuk memberi izin lagi");
+                driveStatus.setText("Google Drive · " + driveEmail + t(" · ketuk Hubungkan untuk memberi izin lagi"));
             } else authorized(result.getAccessToken());
         }).addOnFailureListener(e -> {
             authorizingDrive = false;
-            driveStatus.setText("Google Drive · " + driveEmail + " · ketuk Hubungkan untuk menyambung ulang");
+            driveStatus.setText("Google Drive · " + driveEmail + t(" · ketuk Hubungkan untuk menyambung ulang"));
         });
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
@@ -783,11 +827,11 @@ public class MainActivity extends Activity {
                     File local = new File(getCacheDir(), "chosen-" + System.nanoTime() + ".torrent");
                     try (InputStream input = getContentResolver().openInputStream(selected);
                          FileOutputStream output = new FileOutputStream(local)) {
-                        if (input == null) throw new IllegalArgumentException("Berkas torrent tidak dapat dibaca");
+                        if (input == null) throw new IllegalArgumentException(t("Berkas torrent tidak dapat dibaca"));
                         byte[] buffer = new byte[32768]; int bytes, total = 0;
                         while ((bytes = input.read(buffer)) != -1) {
                             total += bytes;
-                            if (total > 8 * 1024 * 1024) throw new IllegalArgumentException("Berkas torrent lebih dari 8 MB");
+                            if (total > 8 * 1024 * 1024) throw new IllegalArgumentException(t("Berkas torrent lebih dari 8 MB"));
                             output.write(buffer, 0, bytes);
                         }
                     }
@@ -798,7 +842,7 @@ public class MainActivity extends Activity {
                         driveAction = "download";
                         if (destination.equals("gallery")) enqueue(null); else authorizeDrive(driveEmail == null);
                     });
-                } catch (Exception e) { runOnUiThread(() -> toast("Torrent: " + e.getMessage())); }
+                } catch (Exception e) { runOnUiThread(() -> toast("Torrent: " + message(e.getMessage()))); }
             }).start();
             return;
         }
@@ -811,7 +855,7 @@ public class MainActivity extends Activity {
             if (data.getClipData() != null) for (int i = 0; i < data.getClipData().getItemCount(); i++)
                 selectedFiles.add(data.getClipData().getItemAt(i).getUri());
             else if (data.getData() != null) selectedFiles.add(data.getData());
-            url.setHint(selectedFiles.size() + " file dipilih · pilih tujuan lalu mulai");
+            url.setHint(selectedFiles.size() + t(" file dipilih · pilih tujuan lalu mulai"));
             updatePendingFileNotice();
             openTab(0);
             return;
@@ -822,8 +866,8 @@ public class MainActivity extends Activity {
                 selectedFiles.add(data.getClipData().getItemAt(i).getUri());
             else if (data.getData() != null) selectedFiles.add(data.getData());
             if (selectedFiles.size() != 2) { selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
-                toast("Pilih tepat dua file: satu video dan satu audio"); return; }
-            url.setHint("2 file untuk digabung · pilih tujuan lalu mulai");
+                toast(t("Pilih tepat dua file: satu video dan satu audio")); return; }
+            url.setHint(t("2 file untuk digabung · pilih tujuan lalu mulai"));
             updatePendingFileNotice();
             openTab(0);
             return;
@@ -832,18 +876,18 @@ public class MainActivity extends Activity {
             Uri selected = data.getData();
             if (request == EXPORT_BACKUP) new Thread(() -> {
                 try (java.io.OutputStream output = getContentResolver().openOutputStream(selected, "w")) {
-                    if (output == null) throw new IllegalStateException("Tidak bisa menulis file cadangan");
+                    if (output == null) throw new IllegalStateException(t("Tidak bisa menulis file cadangan"));
                     output.write(AppBackup.exportData(this));
-                    runOnUiThread(() -> toast("Cadangan tersimpan"));
-                } catch (Exception e) { runOnUiThread(() -> toast("Ekspor: " + e.getMessage())); }
+                    runOnUiThread(() -> toast(t("Cadangan tersimpan")));
+                } catch (Exception e) { runOnUiThread(() -> toast(t("Ekspor: ") + message(e.getMessage()))); }
             }).start();
-            else new AlertDialog.Builder(this).setMessage("Ganti riwayat unduhan dengan isi cadangan ini?")
-                .setNegativeButton("Batal", null).setPositiveButton("Pulihkan", (d, w) -> new Thread(() -> {
+            else new AlertDialog.Builder(this).setMessage(t("Ganti riwayat unduhan dengan isi cadangan ini?"))
+                .setNegativeButton(t("Batal"), null).setPositiveButton(t("Pulihkan"), (d, w) -> new Thread(() -> {
                     try (InputStream input = getContentResolver().openInputStream(selected)) {
-                        if (input == null) throw new IllegalStateException("Tidak bisa membaca cadangan");
+                        if (input == null) throw new IllegalStateException(t("Tidak bisa membaca cadangan"));
                         AppBackup.restoreData(this, input);
-                        runOnUiThread(() -> { showHistory(); renderSavedSites(); toast("Cadangan dipulihkan"); });
-                    } catch (Exception e) { runOnUiThread(() -> toast("Pulihkan: " + e.getMessage())); }
+                        runOnUiThread(() -> { showHistory(); renderSavedSites(); toast(t("Cadangan dipulihkan")); });
+                    } catch (Exception e) { runOnUiThread(() -> toast(t("Pulihkan: ") + message(e.getMessage()))); }
                 }).start()).show();
             return;
         }
@@ -851,12 +895,12 @@ public class MainActivity extends Activity {
             String host = cookieHost;
             new Thread(() -> {
                 try (InputStream input = getContentResolver().openInputStream(data.getData())) {
-                    if (input == null) throw new IllegalStateException("File cookies tidak dapat dibaca");
+                    if (input == null) throw new IllegalStateException(t("File cookies tidak dapat dibaca"));
                     ArrayList<String> parsed = CookieImporter.parse(input, host);
                     runOnUiThread(() -> CookieImporter.install(this, host, parsed, () -> {
-                        updateSiteStatus(); toast(parsed.size() + " cookie tersimpan untuk " + host);
+                        updateSiteStatus(); toast(parsed.size() + t(" cookie tersimpan untuk ") + host);
                     }));
-                } catch (Exception e) { runOnUiThread(() -> toast("Cookies: " + e.getMessage())); }
+                } catch (Exception e) { runOnUiThread(() -> toast("Cookies: " + message(e.getMessage()))); }
             }).start();
             cookieHost = null;
             return;
@@ -871,28 +915,28 @@ public class MainActivity extends Activity {
                         authorized(auth.getAccessToken()); return;
                     }
                 } catch (ApiException e) {
-                    driveFailed("Otorisasi Drive gagal (kode " + e.getStatusCode() + "). Periksa OAuth Android dan akun penguji.");
+                    driveFailed(t("Otorisasi Drive gagal (kode ") + e.getStatusCode() + t("). Periksa OAuth Android dan akun penguji."));
                     return;
                 } catch (Exception e) {
-                    driveFailed("Drive: " + e.getMessage()); return;
+                    driveFailed("Drive: " + message(e.getMessage())); return;
                 }
             }
-            driveFailed("Otorisasi Drive tidak selesai setelah memilih akun (hasil " + result +
-                "). Periksa OAuth Android, SHA-1 sertifikat rilis, dan akun penguji.");
+            driveFailed(t("Otorisasi Drive tidak selesai setelah memilih akun (hasil ") + result +
+                t("). Periksa OAuth Android, SHA-1 sertifikat rilis, dan akun penguji."));
         }
     }
     private void authorized(String token) {
-        if (token == null || token.isEmpty()) { driveFailed("Drive tidak memberikan akses. Periksa izin akun lalu coba lagi."); return; }
+        if (token == null || token.isEmpty()) { driveFailed(t("Drive tidak memberikan akses. Periksa izin akun lalu coba lagi.")); return; }
         String action = driveAction;
         driveIo.execute(() -> {
             try {
                 String email = DriveFiles.accountLabel(token);
                 runOnUiThread(() -> {
                     authorizingDrive = false;
-                    driveEmail = email;
+                    driveEmail = email; driveConnected = true;
                     getSharedPreferences("drive_account", MODE_PRIVATE).edit().putString("email", email).apply();
-                    driveStatus.setText("Google Drive · Terhubung: " + email);
-                    toast("Drive terhubung: " + email);
+                    driveStatus.setText(t("Google Drive · Terhubung: ") + email);
+                    toast(t("Drive terhubung: ") + email);
                     if ("browse".equals(action))
                         startActivity(new Intent(this, DriveBrowserActivity.class).putExtra("token", token));
                     else if ("migrate".equals(action))
@@ -903,12 +947,12 @@ public class MainActivity extends Activity {
                         else enqueueStoryBatch(token);
                     }
                 });
-            } catch (Exception e) { runOnUiThread(() -> driveFailed("Drive: " + e.getMessage())); }
+            } catch (Exception e) { runOnUiThread(() -> driveFailed("Drive: " + message(e.getMessage()))); }
         });
     }
     private void driveFailed(String message) {
-        authorizingDrive = false;
-        driveStatus.setText("Google Drive · " + (driveEmail == null ? "Belum terhubung" : "Akun terakhir: " + driveEmail));
+        authorizingDrive = false; driveConnected = false;
+        driveStatus.setText("Google Drive · " + (driveEmail == null ? t("Belum terhubung") : t("Akun terakhir: ") + driveEmail));
         toast(message);
     }
     private boolean validDates() {
@@ -917,9 +961,9 @@ public class MainActivity extends Activity {
             if (!from.isEmpty()) LocalDate.parse(from);
             if (!to.isEmpty()) LocalDate.parse(to);
             if (!from.isEmpty() && !to.isEmpty() && LocalDate.parse(from).isAfter(LocalDate.parse(to)))
-                throw new IllegalArgumentException("Tanggal awal melewati tanggal akhir");
+                throw new IllegalArgumentException(t("Tanggal awal melewati tanggal akhir"));
             return true;
-        } catch (Exception e) { toast("Periksa tanggal (YYYY-MM-DD): " + e.getMessage()); return false; }
+        } catch (Exception e) { toast(t("Periksa tanggal (YYYY-MM-DD): ") + message(e.getMessage())); return false; }
     }
     private void copyImport(Uri selected) {
         if (!validDates()) return;
@@ -931,11 +975,11 @@ public class MainActivity extends Activity {
                 }
                 String extension = name.toLowerCase().endsWith(".zip") ? ".zip" :
                     name.toLowerCase().endsWith(".json") ? ".json" : "";
-                if (extension.isEmpty()) throw new IllegalArgumentException("Pilih file .json atau .zip");
+                if (extension.isEmpty()) throw new IllegalArgumentException(t("Pilih file .json atau .zip"));
                 File local = new File(getCacheDir(), "import-" + System.currentTimeMillis() + extension);
                 try (InputStream in = getContentResolver().openInputStream(selected);
                      FileOutputStream out = new FileOutputStream(local)) {
-                    if (in == null) throw new IllegalArgumentException("File import tidak bisa dibaca");
+                    if (in == null) throw new IllegalArgumentException(t("File import tidak bisa dibaca"));
                     byte[] buffer = new byte[262144]; int n;
                     while ((n = in.read(buffer)) >= 0) out.write(buffer, 0, n);
                 }
@@ -946,7 +990,7 @@ public class MainActivity extends Activity {
                     if (destination.equals("gallery")) enqueue(null);
                     else authorizeDrive(driveEmail == null);
                 });
-            } catch (Exception e) { runOnUiThread(() -> toast("Import: " + e.getMessage())); }
+            } catch (Exception e) { runOnUiThread(() -> toast(t("Import: ") + message(e.getMessage()))); }
         }).start();
     }
     private void copyLocal() {
@@ -964,7 +1008,7 @@ public class MainActivity extends Activity {
                     File local = new File(getCacheDir(), "selected_" + System.nanoTime() + "_" + name);
                     try (InputStream in = getContentResolver().openInputStream(uri);
                          FileOutputStream out = new FileOutputStream(local)) {
-                        if (in == null) throw new IllegalArgumentException("File tidak bisa dibaca");
+                        if (in == null) throw new IllegalArgumentException(t("File tidak bisa dibaca"));
                         byte[] buffer = new byte[262144]; int n;
                         while ((n = in.read(buffer)) >= 0) out.write(buffer, 0, n);
                     }
@@ -982,7 +1026,7 @@ public class MainActivity extends Activity {
                             !staged.get(1).toLowerCase(java.util.Locale.ROOT).matches(".*\\.(m4a|aac|mp3|wav|ogg|opus)$")) {
                             for (String path : staged) new File(path).delete();
                             pendingLocalPaths.clear(); selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
-                            toast("Pilih satu video MP4 dan satu audio (M4A/MP3/WAV)"); return;
+                            toast(t("Pilih satu video MP4 dan satu audio (M4A/MP3/WAV)")); return;
                         }
                         pendingLocalPaths.clear(); pendingLocalPaths.addAll(staged);
                     }
@@ -990,7 +1034,7 @@ public class MainActivity extends Activity {
                     updatePendingFileNotice();
                     if (destination.equals("gallery")) enqueue(null); else authorizeDrive(driveEmail == null);
                 });
-            } catch (Exception e) { runOnUiThread(() -> toast("File: " + e.getMessage())); }
+            } catch (Exception e) { runOnUiThread(() -> toast(t("File: ") + message(e.getMessage()))); }
         }).start();
     }
     private void enqueue(String token) {
@@ -998,7 +1042,7 @@ public class MainActivity extends Activity {
         String countText = limit.getText().toString().trim();
         if (countText.isEmpty()) count = 0;
         else try { count = Integer.parseInt(countText); if (count < 1) throw new NumberFormatException(); }
-        catch (NumberFormatException bad) { toast("Maksimum item harus angka positif atau kosong untuk tanpa batas"); return; }
+        catch (NumberFormatException bad) { toast(t("Maksimum item harus angka positif atau kosong untuk tanpa batas")); return; }
         saveSettings();
         try {
             int jobs = pendingLocalPaths.isEmpty() ? (pendingImportPath == null && pendingTorrentPath == null ? pendingUrls.size() : 1) : muxSelection ? 1 : pendingLocalPaths.size();
@@ -1026,13 +1070,13 @@ public class MainActivity extends Activity {
                 startForegroundService(job);
                 submitted++;
             }
-            toast(submitted + " tugas masuk antrean" + (submitted < jobs ? "; " + (jobs - submitted) + " sudah pernah selesai" : ""));
+            toast(submitted + t(" tugas masuk antrean") + (submitted < jobs ? "; " + (jobs - submitted) + t(" sudah pernah selesai") : ""));
             pendingImportPath = null;
             pendingTorrentPath = null;
             pendingLocalPaths.clear();
             muxSelection = false;
         }
-        catch (Exception e) { toast("Gagal memulai unduhan: " + e.getMessage()); }
+        catch (Exception e) { toast(t("Gagal memulai unduhan: ") + message(e.getMessage())); }
     }
     private void enqueueStoryBatch(String token) {
         if (selectedStoryUrls.isEmpty()) return;
@@ -1052,10 +1096,10 @@ public class MainActivity extends Activity {
             // The user chose these exact Story IDs; do not apply skip-completed to this selection.
             startForegroundService(job);
             selectedStoryUrls.clear();
-            toast(urls.size() + " Story masuk antrean");
+            toast(urls.size() + t(" Story masuk antrean"));
         } catch (Exception e) {
-            ErrorLog.record(this, "Antrean Story", e);
-            toast("Gagal memasukkan Story ke antrean. Lihat log error di Aktivitas.");
+            ErrorLog.record(this, t("Antrean Story"), e);
+            toast(t("Gagal memasukkan Story ke antrean. Lihat log error di Aktivitas."));
         }
     }
     private void openLogin(String site) { startActivity(new Intent(this, LoginActivity.class).putExtra("site", site)); }
@@ -1067,13 +1111,13 @@ public class MainActivity extends Activity {
             if (site == null) continue;
             String host = site.optString("host"), loginUrl = site.optString("url");
             if (!host.equals(WebSessions.host(loginUrl))) continue;
-            Button open = button("Buka situs · " + host, Color.rgb(65, 87, 220));
+            Button open = button(t("Buka situs · ") + host, Color.rgb(65, 87, 220));
             open.setOnClickListener(v -> startActivity(new Intent(this, LoginActivity.class)
                 .putExtra("site", "custom").putExtra("login_url", loginUrl)));
             open.setOnLongClickListener(v -> {
-                new AlertDialog.Builder(this).setMessage("Hapus tombol " + host + " dari daftar?")
-                    .setNegativeButton("Batal", null)
-                    .setPositiveButton("Hapus", (dialog, which) -> {
+                new AlertDialog.Builder(this).setMessage(t("Hapus tombol ") + host + t(" dari daftar?"))
+                    .setNegativeButton(t("Batal"), null)
+                    .setPositiveButton(t("Hapus"), (dialog, which) -> {
                         SavedSites.forget(this, host); renderSavedSites();
                     }).show();
                 return true;
@@ -1084,12 +1128,12 @@ public class MainActivity extends Activity {
     private void updateSiteStatus() {
         String ig = WebSessions.cookies(this, "instagram.com");
         if (ig == null || !ig.contains("sessionid=")) ig = WebSessions.cookies(this, "www.instagram.com");
-        siteStatus.setText("Sesi tersimpan · Instagram: " + (ig != null && ig.contains("sessionid=") ? "ada" : "belum") +
-            " · X: " + (WebSessions.hasXSession(this) ? "ada" : "belum"));
+        siteStatus.setText(t("Sesi tersimpan · Instagram: ") + (ig != null && ig.contains("sessionid=") ? t("ada") : t("belum")) +
+            " · X: " + (WebSessions.hasXSession(this) ? t("ada") : t("belum")));
     }
     private void retryLast() {
         JSONObject previous = History.lastRetryable(this);
-        if (previous == null) { toast("Tidak ada job yang bisa diulang"); return; }
+        if (previous == null) { toast(t("Tidak ada job yang bisa diulang")); return; }
         url.setText(previous.optString("url"));
         destination = previous.optString("target", "gallery");
         quality = previous.optString("quality", "best");
@@ -1106,8 +1150,8 @@ public class MainActivity extends Activity {
         profileContent = previous.optString("profile_content", "all");
         dateFrom.setText(previous.optString("date_from"));
         dateTo.setText(previous.optString("date_to"));
-        destinationLabel.setText("Tujuan · " + destinationName(destination));
-        qualityLabel.setText("Kualitas · " + qualityName(quality));
+        destinationLabel.setText(t("Tujuan · ") + destinationName(destination));
+        qualityLabel.setText(t("Kualitas · ") + qualityName(quality));
         start();
     }
     private void showHistory() {
@@ -1115,7 +1159,7 @@ public class MainActivity extends Activity {
         JSONArray jobs = History.read(this);
         historyList.removeAllViews();
         if (jobs.length() == 0) {
-            historyList.addView(label("Belum ada unduhan. Tugas yang kamu mulai akan muncul di sini.",
+            historyList.addView(label(t("Belum ada unduhan. Tugas yang kamu mulai akan muncul di sini."),
                 14, Color.rgb(101, 111, 137), false));
             return;
         }
@@ -1127,20 +1171,20 @@ public class MainActivity extends Activity {
             int color = "COMPLETED".equals(state) ? Color.rgb(20, 126, 104) :
                 ("FAILED".equals(state) || "CANCELLED".equals(state)) ? Color.rgb(151, 62, 78) :
                 Color.rgb(65, 87, 220);
-            String status = "COMPLETED".equals(state) ? "SELESAI" :
-                "FAILED".equals(state) ? "GAGAL" : "RUNNING".equals(state) ? "BERJALAN" :
-                "CANCELLED".equals(state) ? "DIBATALKAN" : "INTERRUPTED".equals(state) ? "TERHENTI" :
-                "UPLOADING".equals(state) ? "UNGGAH DRIVE" : "SAVING".equals(state) ? "MENYIMPAN" : "ANTREAN";
+            String status = "COMPLETED".equals(state) ? t("SELESAI") :
+                "FAILED".equals(state) ? t("GAGAL") : "RUNNING".equals(state) ? t("BERJALAN") :
+                "CANCELLED".equals(state) ? t("DIBATALKAN") : "INTERRUPTED".equals(state) ? t("TERHENTI") :
+                "UPLOADING".equals(state) ? t("UNGGAH DRIVE") : "SAVING".equals(state) ? t("MENYIMPAN") : t("ANTREAN");
             LinearLayout card = panel(historyList);
             card.addView(label(status + (item.optInt("progress", 0) > 0 && !"COMPLETED".equals(state) ?
                 "  ·  " + item.optInt("progress") + "%" : ""), 12, color, true));
             String[] lines = message.split("\\n");
-            String headline = lines.length == 0 ? "Tugas unduhan" : lines[0].trim();
+            String headline = lines.length == 0 ? t("Tugas unduhan") : lines[0].trim();
             if (headline.startsWith("Lokal:")) {
                 headline = headline.substring("Lokal:".length()).trim();
                 headline = headline.substring(headline.lastIndexOf('/') + 1);
-            } else if (headline.startsWith("Drive:")) headline = "File tersimpan ke Drive";
-            TextView summary = label(headline.isEmpty() ? "Tugas unduhan" : headline, 15, Color.rgb(30, 39, 65), true);
+            } else if (headline.startsWith("Drive:")) headline = t("File tersimpan ke Drive");
+            TextView summary = label(headline.isEmpty() ? t("Tugas unduhan") : (lines.length > 0 && lines[0].startsWith("Lokal:") ? headline : message(headline)), 15, Color.rgb(30, 39, 65), true);
             summary.setMaxLines(2); summary.setEllipsize(android.text.TextUtils.TruncateAt.END);
             card.addView(summary);
             int local = 0, drive = 0;
@@ -1149,35 +1193,35 @@ public class MainActivity extends Activity {
                 if (line.startsWith("Drive:")) drive++;
             }
             String count = local > 0 || drive > 0 ?
-                (local > 0 ? local + " file lokal" : "") + (local > 0 && drive > 0 ? "  ·  " : "") +
-                    (drive > 0 ? drive + " file Drive" : "") : "Ketuk untuk membaca detail";
+                (local > 0 ? local + t(" file lokal") : "") + (local > 0 && drive > 0 ? "  ·  " : "") +
+                    (drive > 0 ? drive + t(" file Drive") : "") : t("Ketuk untuk membaca detail");
             card.addView(label(count, 12, Color.rgb(101, 111, 137), false));
             card.setOnClickListener(v -> showJobDetail(status, message));
         }
     }
     private void showJobDetail(String status, String message) {
-        TextView detail = label(message, 14, Color.rgb(30, 39, 65), false);
+        TextView detail = label(message(message), 14, Color.rgb(30, 39, 65), false);
         detail.setPadding(dp(18), dp(12), dp(18), dp(16));
         detail.setTextIsSelectable(true);
         Linkify.addLinks(detail, Linkify.WEB_URLS);
         detail.setMovementMethod(LinkMovementMethod.getInstance());
         ScrollView scroll = new ScrollView(this); scroll.addView(detail);
-        new AlertDialog.Builder(this).setTitle(status).setView(scroll).setPositiveButton("Tutup", null).show();
+        new AlertDialog.Builder(this).setTitle(status).setView(scroll).setPositiveButton(t("Tutup"), null).show();
     }
     private void showErrorLog() {
         String report = ErrorLog.read(this);
-        TextView detail = label(report, 14, Color.rgb(30, 39, 65), false);
+        TextView detail = label(message(report), 14, Color.rgb(30, 39, 65), false);
         detail.setPadding(dp(18), dp(12), dp(18), dp(16));
         detail.setTextIsSelectable(true);
         ScrollView scroll = new ScrollView(this); scroll.addView(detail);
-        new AlertDialog.Builder(this).setTitle("Log error")
+        new AlertDialog.Builder(this).setTitle(t("Log error"))
             .setView(scroll)
-            .setNeutralButton("Bagikan log", (dialog, which) -> {
+            .setNeutralButton(t("Bagikan log"), (dialog, which) -> {
                 Intent share = new Intent(Intent.ACTION_SEND).setType("text/plain")
                     .putExtra(Intent.EXTRA_TEXT, report);
-                startActivity(Intent.createChooser(share, "Bagikan log The Great Drive"));
+                startActivity(Intent.createChooser(share, t("Bagikan log The Great Drive")));
             })
-            .setPositiveButton("Tutup", null).show();
+            .setPositiveButton(t("Tutup"), null).show();
     }
     private interface Select { void pick(String value); }
     private void row(LinearLayout parent, String[] names, String[] values, Select select) {
@@ -1201,7 +1245,7 @@ public class MainActivity extends Activity {
     private Button button(String text, int color) {
         Button b = new Button(this); b.setText(text); b.setAllCaps(false); b.setTextColor(Color.WHITE);
         GradientDrawable shape = new GradientDrawable(); shape.setColor(color); shape.setCornerRadius(dp(16));
-        b.setBackground(shape); LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, dp(50));
+        b.setBackground(shape); b.setMinHeight(dp(50)); b.setPadding(dp(12), dp(10), dp(12), dp(10)); LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
         lp.topMargin = dp(10); b.setLayoutParams(lp); return b;
     }
     private TextView label(String content, int size, int color, boolean bold) {
@@ -1211,5 +1255,5 @@ public class MainActivity extends Activity {
         return t;
     }
     private int dp(int value) { return Math.round(getResources().getDisplayMetrics().density * value); }
-    private void toast(String message) { Toast.makeText(this, message, Toast.LENGTH_LONG).show(); }
+    private void toast(String message) { Toast.makeText(this, message(message), Toast.LENGTH_LONG).show(); }
 }

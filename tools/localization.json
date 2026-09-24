@@ -1,0 +1,1690 @@
+{
+  "1 file dibagikan · pilih tujuan lalu mulai": {
+    "id": "1 file dibagikan · pilih tujuan lalu mulai",
+    "en": "1 shared file · choose a destination and start"
+  },
+  " file dibagikan · pilih tujuan lalu mulai": {
+    "id": " file dibagikan · pilih tujuan lalu mulai",
+    "en": " shared files · choose a destination and start"
+  },
+  "Simpan yang kamu suka.": {
+    "id": "Simpan yang kamu suka.",
+    "en": "Save what you love."
+  },
+  "Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu.": {
+    "id": "Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu.",
+    "en": "Add a link, choose a destination, and download. Everything runs on your device."
+  },
+  "Opsi unduhan": {
+    "id": "Opsi unduhan",
+    "en": "Download options"
+  },
+  "Kualitas, folder, dan filter yang kamu pilih akan tetap tersimpan.": {
+    "id": "Kualitas, folder, dan filter yang kamu pilih akan tetap tersimpan.",
+    "en": "Your quality, folder, and filter choices are saved automatically."
+  },
+  "Akun & Drive": {
+    "id": "Akun & Drive",
+    "en": "Accounts & Drive"
+  },
+  "Kelola login situs dan file di Google Drive.": {
+    "id": "Kelola login situs dan file di Google Drive.",
+    "en": "Manage website logins and files in Google Drive."
+  },
+  "Berkas & impor": {
+    "id": "Berkas & impor",
+    "en": "Files & imports"
+  },
+  "Impor data Instagram atau pilih file dari ponsel.": {
+    "id": "Impor data Instagram atau pilih file dari ponsel.",
+    "en": "Import Instagram data or choose files from your phone."
+  },
+  "Aktivitas": {
+    "id": "Aktivitas",
+    "en": "Activity"
+  },
+  "Pantau antrean dan buka detail setiap hasil unduhan.": {
+    "id": "Pantau antrean dan buka detail setiap hasil unduhan.",
+    "en": "Follow the queue and view each download’s results."
+  },
+  "Info aplikasi": {
+    "id": "Info aplikasi",
+    "en": "App info"
+  },
+  "Tentang The Great Drive, daftar fitur, dan perubahan versi.": {
+    "id": "Tentang The Great Drive, daftar fitur, dan perubahan versi.",
+    "en": "About The Great Drive, its features, and version history."
+  },
+  "TAUTAN MEDIA": {
+    "id": "TAUTAN MEDIA",
+    "en": "MEDIA LINKS"
+  },
+  "Tempel satu atau beberapa link video, post, Reel, Story…": {
+    "id": "Tempel satu atau beberapa link video, post, Reel, Story…",
+    "en": "Paste one or more video, post, Reel, or Story links…"
+  },
+  "Tujuan · Lokal": {
+    "id": "Tujuan · Lokal",
+    "en": "Destination · Local"
+  },
+  "Lokal": {
+    "id": "Lokal",
+    "en": "Local"
+  },
+  "Keduanya": {
+    "id": "Keduanya",
+    "en": "Both"
+  },
+  "Tujuan · ": {
+    "id": "Tujuan · ",
+    "en": "Destination · "
+  },
+  "Kualitas · Terbaik": {
+    "id": "Kualitas · Terbaik",
+    "en": "Quality · Best"
+  },
+  "Terbaik": {
+    "id": "Terbaik",
+    "en": "Best"
+  },
+  "Kualitas · ": {
+    "id": "Kualitas · ",
+    "en": "Quality · "
+  },
+  "Video saja": {
+    "id": "Video saja",
+    "en": "Video only"
+  },
+  "Maksimum item (profil / playlist)": {
+    "id": "Maksimum item (profil / playlist)",
+    "en": "Maximum items (profile / playlist)"
+  },
+  "Kosong = tanpa batas": {
+    "id": "Kosong = tanpa batas",
+    "en": "Leave empty for unlimited"
+  },
+  "Mulai download  ↗": {
+    "id": "Mulai unduh  ↗",
+    "en": "Start download  ↗"
+  },
+  "Pilih Story Instagram": {
+    "id": "Pilih Story Instagram",
+    "en": "Choose Instagram Stories"
+  },
+  "Atur opsi unduhan & folder  →": {
+    "id": "Atur opsi unduhan & folder  →",
+    "en": "Download options & folder  →"
+  },
+  "PILIHAN FILE": {
+    "id": "PILIHAN FILE",
+    "en": "FILE OPTIONS"
+  },
+  "Sertakan subtitle jika ada": {
+    "id": "Sertakan takarir jika tersedia",
+    "en": "Include subtitles when available"
+  },
+  "Sertakan thumbnail": {
+    "id": "Sertakan gambar mini",
+    "en": "Include thumbnails"
+  },
+  "Sertakan metadata JSON": {
+    "id": "Sertakan metadata JSON",
+    "en": "Include JSON metadata"
+  },
+  "Lewati link yang sudah berhasil diunduh": {
+    "id": "Lewati link yang sudah berhasil diunduh",
+    "en": "Skip links already downloaded successfully"
+  },
+  "Tanpa akun untuk link publik (abaikan sesi login)": {
+    "id": "Tanpa akun untuk link publik (abaikan sesi login)",
+    "en": "Use public links without an account (ignore login sessions)"
+  },
+  "Drive: lewati file dengan nama yang sama": {
+    "id": "Drive: lewati file dengan nama yang sama",
+    "en": "Drive: skip files with the same name"
+  },
+  "Drive: cocokkan checksum MD5 setelah unggah": {
+    "id": "Drive: cocokkan checksum MD5 setelah unggah",
+    "en": "Drive: verify MD5 checksum after upload"
+  },
+  "Mode profil / album (Instagram, X, Facebook; termasuk carousel)": {
+    "id": "Mode profil / album (Instagram, X, Facebook; termasuk carousel)",
+    "en": "Profile / album mode (Instagram, X, Facebook; includes carousels)"
+  },
+  "Profil Facebook · Semua": {
+    "id": "Profil Facebook · Semua",
+    "en": "Facebook profile · All"
+  },
+  "Semua": {
+    "id": "Semua",
+    "en": "All"
+  },
+  "Foto": {
+    "id": "Foto",
+    "en": "Photo"
+  },
+  "Profil Facebook · ": {
+    "id": "Profil Facebook · ",
+    "en": "Facebook profile · "
+  },
+  "ID folder Drive (opsional)": {
+    "id": "ID folder Drive (opsional)",
+    "en": "Drive folder ID (optional)"
+  },
+  "Kosong = My Drive": {
+    "id": "Kosong = My Drive",
+    "en": "Leave empty for My Drive"
+  },
+  "Rentang tanggal import / profil (opsional, YYYY-MM-DD)": {
+    "id": "Rentang tanggal impor / profil (opsional, YYYY-MM-DD)",
+    "en": "Import / profile date range (optional, YYYY-MM-DD)"
+  },
+  "Dari tanggal": {
+    "id": "Dari tanggal",
+    "en": "From date"
+  },
+  "Sampai tanggal": {
+    "id": "Sampai tanggal",
+    "en": "To date"
+  },
+  "LOGIN SITUS": {
+    "id": "LOGIN SITUS",
+    "en": "WEBSITE LOGINS"
+  },
+  "Masuk Instagram": {
+    "id": "Masuk Instagram",
+    "en": "Sign in to Instagram"
+  },
+  "Buka X / login": {
+    "id": "Buka X / login",
+    "en": "Open X / sign in"
+  },
+  "Sesi situs": {
+    "id": "Sesi situs",
+    "en": "Website sessions"
+  },
+  "Masuk situs lain (URL HTTPS)": {
+    "id": "Masuk situs lain (URL HTTPS)",
+    "en": "Sign in to another site (HTTPS URL)"
+  },
+  "https://contoh.com/login": {
+    "id": "https://contoh.com/login",
+    "en": "https://example.com/login"
+  },
+  "Alamat halaman login situs": {
+    "id": "Alamat halaman login situs",
+    "en": "Website login address"
+  },
+  "Batal": {
+    "id": "Batal",
+    "en": "Cancel"
+  },
+  "Buka": {
+    "id": "Buka",
+    "en": "Open"
+  },
+  "Masukkan URL HTTPS situs yang valid": {
+    "id": "Masukkan URL HTTPS situs yang valid",
+    "en": "Enter a valid HTTPS website URL"
+  },
+  "Impor cookies.txt untuk situs": {
+    "id": "Impor cookies.txt untuk situs",
+    "en": "Import cookies.txt for a website"
+  },
+  "https://contoh.com/": {
+    "id": "https://contoh.com/",
+    "en": "https://example.com/"
+  },
+  "Situs pemilik cookies": {
+    "id": "Situs pemilik cookies",
+    "en": "Website for these cookies"
+  },
+  "Pilih cookies.txt": {
+    "id": "Pilih cookies.txt",
+    "en": "Choose cookies.txt"
+  },
+  "Gunakan alamat HTTPS situs": {
+    "id": "Gunakan alamat HTTPS situs",
+    "en": "Use the website’s HTTPS address"
+  },
+  "Belum terhubung": {
+    "id": "Belum terhubung",
+    "en": "Not connected"
+  },
+  "Memeriksa akun ": {
+    "id": "Memeriksa akun ",
+    "en": "Checking account "
+  },
+  "Hubungkan / ganti akun Google Drive": {
+    "id": "Hubungkan / ganti akun Google Drive",
+    "en": "Connect / switch Google Drive account"
+  },
+  "Kelola file Google Drive": {
+    "id": "Kelola file Google Drive",
+    "en": "Manage Google Drive files"
+  },
+  "IMPORT INSTAGRAM JSON / ZIP · SEMUA": {
+    "id": "IMPOR INSTAGRAM JSON / ZIP · SEMUA",
+    "en": "INSTAGRAM JSON / ZIP IMPORT · ALL"
+  },
+  "Feed": {
+    "id": "Postingan",
+    "en": "Feed"
+  },
+  "Reels": {
+    "id": "Reels",
+    "en": "Reels"
+  },
+  "Stories": {
+    "id": "Cerita",
+    "en": "Stories"
+  },
+  "Tagged": {
+    "id": "Ditandai",
+    "en": "Tagged"
+  },
+  "IMPORT INSTAGRAM JSON / ZIP · ": {
+    "id": "IMPOR INSTAGRAM JSON / ZIP · ",
+    "en": "INSTAGRAM JSON / ZIP IMPORT · "
+  },
+  "Atur tanggal & opsi import  →": {
+    "id": "Atur tanggal & opsi impor  →",
+    "en": "Dates & import options  →"
+  },
+  "Hasil import · Folder": {
+    "id": "Hasil impor · Folder",
+    "en": "Import output · Folder"
+  },
+  "Satu ZIP": {
+    "id": "Satu ZIP",
+    "en": "Single ZIP"
+  },
+  "Hasil import · ": {
+    "id": "Hasil impor · ",
+    "en": "Import output · "
+  },
+  "Pilih file JSON / ZIP": {
+    "id": "Pilih file JSON / ZIP",
+    "en": "Choose JSON / ZIP file"
+  },
+  "FILE DARI PONSEL": {
+    "id": "FILE DARI PONSEL",
+    "en": "FILES FROM YOUR PHONE"
+  },
+  "Pilih file dari ponsel": {
+    "id": "Pilih file dari ponsel",
+    "en": "Choose files from your phone"
+  },
+  "Pilih file .torrent": {
+    "id": "Pilih file .torrent",
+    "en": "Choose .torrent file"
+  },
+  "Gabungkan video + audio (FFmpeg)": {
+    "id": "Gabungkan video + audio (FFmpeg)",
+    "en": "Merge video + audio (FFmpeg)"
+  },
+  "PINDAHKAN FOLDER LAMA": {
+    "id": "PINDAHKAN FOLDER LAMA",
+    "en": "MOVE OLD FOLDERS"
+  },
+  "TGDrive → The Great Drive. Pilih simpan file lama atau hapus setelah salinan terverifikasi.": {
+    "id": "TGDrive → The Great Drive. Pilih simpan file lama atau hapus setelah salinan terverifikasi.",
+    "en": "TGDrive → The Great Drive. Keep the original files or remove them after verifying the copies."
+  },
+  "Pindahkan folder Lokal": {
+    "id": "Pindahkan folder Lokal",
+    "en": "Move local folder"
+  },
+  "Pindahkan folder Google Drive": {
+    "id": "Pindahkan folder Google Drive",
+    "en": "Move Google Drive folder"
+  },
+  "KONTROL ANTREAN": {
+    "id": "KONTROL ANTREAN",
+    "en": "QUEUE CONTROLS"
+  },
+  "Batalkan job aktif": {
+    "id": "Batalkan tugas aktif",
+    "en": "Cancel active job"
+  },
+  "Ulangi job gagal / batal": {
+    "id": "Ulangi tugas gagal / batal",
+    "en": "Retry failed / cancelled job"
+  },
+  "Jeda / lanjutkan antrean": {
+    "id": "Jeda / lanjutkan antrean",
+    "en": "Pause / resume queue"
+  },
+  "Tugas berikutnya dijeda; tugas aktif tetap berjalan": {
+    "id": "Tugas berikutnya dijeda; tugas aktif tetap berjalan",
+    "en": "Upcoming jobs paused; the active job will continue"
+  },
+  "Antrean dilanjutkan": {
+    "id": "Antrean dilanjutkan",
+    "en": "Queue resumed"
+  },
+  "RIWAYAT TERBARU": {
+    "id": "RIWAYAT TERBARU",
+    "en": "RECENT HISTORY"
+  },
+  "Lihat log error": {
+    "id": "Lihat log kesalahan",
+    "en": "View error log"
+  },
+  "DATA & PERANGKAT": {
+    "id": "DATA & PERANGKAT",
+    "en": "DATA & DEVICE"
+  },
+  "Ekspor riwayat dan daftar situs": {
+    "id": "Ekspor riwayat dan daftar situs",
+    "en": "Export history and saved sites"
+  },
+  "Pulihkan riwayat dan daftar situs": {
+    "id": "Pulihkan riwayat dan daftar situs",
+    "en": "Restore history and saved sites"
+  },
+  "Tunggu antrean selesai sebelum memulihkan cadangan": {
+    "id": "Tunggu antrean selesai sebelum memulihkan cadangan",
+    "en": "Wait for the queue to finish before restoring a backup"
+  },
+  "Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini.": {
+    "id": "Cadangan memuat riwayat tautan dan alamat situs; sesi login tetap tersimpan hanya di perangkat ini.",
+    "en": "Backups contain link history and website addresses. Login sessions stay on this device."
+  },
+  "Administrasi perangkat": {
+    "id": "Administrasi perangkat",
+    "en": "Device administration"
+  },
+  "Logo The Great Drive": {
+    "id": "Logo The Great Drive",
+    "en": "The Great Drive logo"
+  },
+  "Tentang": {
+    "id": "Tentang",
+    "en": "About"
+  },
+  "Fitur": {
+    "id": "Fitur",
+    "en": "Features"
+  },
+  "Changelog": {
+    "id": "Catatan versi",
+    "en": "Changelog"
+  },
+  "Dokumen belum dapat dibuka.": {
+    "id": "Dokumen belum dapat dibuka.",
+    "en": "This document could not be opened."
+  },
+  "Unduh tautan dan simpan media ke ponsel, Google Drive, atau keduanya. ": {
+    "id": "Unduh tautan dan simpan media ke ponsel, Google Drive, atau keduanya. ",
+    "en": "Download links and save media to your phone, Google Drive, or both. "
+  },
+  "Antrean dan sesi situs dikelola di perangkat ini.": {
+    "id": "Antrean dan sesi situs dikelola di perangkat ini.",
+    "en": "Queues and website sessions are managed on this device."
+  },
+  "↓\nUnduh": {
+    "id": "↓\nUnduh",
+    "en": "↓\nDownload"
+  },
+  "⚙\nOpsi": {
+    "id": "⚙\nOpsi",
+    "en": "⚙\nOptions"
+  },
+  "○\nAkun": {
+    "id": "○\nAkun",
+    "en": "○\nAccounts"
+  },
+  "▣\nBerkas": {
+    "id": "▣\nBerkas",
+    "en": "▣\nFiles"
+  },
+  "≡\nAktivitas": {
+    "id": "≡\nAktivitas",
+    "en": "≡\nActivity"
+  },
+  "ⓘ\nInfo": {
+    "id": "ⓘ\nInfo",
+    "en": "ⓘ\nInfo"
+  },
+  "Lokal + Drive": {
+    "id": "Lokal + Drive",
+    "en": "Local + Drive"
+  },
+  " file untuk digabung": {
+    "id": " file untuk digabung",
+    "en": " files to merge"
+  },
+  " file dari ponsel": {
+    "id": " file dari ponsel",
+    "en": " files from your phone"
+  },
+  " dipilih · ketuk untuk batal": {
+    "id": " dipilih · ketuk untuk batal",
+    "en": " selected · tap to cancel"
+  },
+  "Masukkan URL http/https yang valid": {
+    "id": "Masukkan URL http/https yang valid",
+    "en": "Enter a valid HTTP/HTTPS URL"
+  },
+  "Pengaturan tersimpan tidak bisa dibaca": {
+    "id": "Pengaturan tersimpan tidak bisa dibaca",
+    "en": "Saved settings could not be read"
+  },
+  "Isi tautan profil Story: instagram.com/stories/username/": {
+    "id": "Isi tautan profil Story: instagram.com/stories/username/",
+    "en": "Enter a Story profile link: instagram.com/stories/username/"
+  },
+  "Masuk Instagram dahulu untuk melihat Story aktif": {
+    "id": "Masuk Instagram dahulu untuk melihat Story aktif",
+    "en": "Sign in to Instagram to view active Stories"
+  },
+  "Memuat daftar Story…": {
+    "id": "Memuat daftar Story…",
+    "en": "Loading Stories…"
+  },
+  "Pemilih Story Instagram": {
+    "id": "Pemilih Story Instagram",
+    "en": "Instagram Story picker"
+  },
+  "Gagal memuat Story": {
+    "id": "Gagal memuat Story",
+    "en": "Could not load Stories"
+  },
+  "Detail error tersimpan di Aktivitas → Lihat log error. Pastikan sesi Instagram masih aktif, lalu coba lagi.": {
+    "id": "Rincian kesalahan tersimpan di Aktivitas → Lihat log kesalahan. Pastikan sesi Instagram masih aktif, lalu coba lagi.",
+    "en": "Error details are saved in Activity → View error log. Check your Instagram session and try again."
+  },
+  "Buka log": {
+    "id": "Buka log",
+    "en": "Open log"
+  },
+  "Tutup": {
+    "id": "Tutup",
+    "en": "Close"
+  },
+  "Tidak ada Story aktif yang dapat dibaca": {
+    "id": "Tidak ada Story aktif yang dapat dibaca",
+    "en": "No readable active Stories"
+  },
+  "Pratinjau belum tersedia; Story tetap dapat diunduh": {
+    "id": "Pratinjau belum tersedia; Story tetap dapat diunduh",
+    "en": "Preview unavailable; you can still download this Story"
+  },
+  "Pilih Story (": {
+    "id": "Pilih Story (",
+    "en": "Choose Stories ("
+  },
+  "Unduh dipilih": {
+    "id": "Unduh dipilih",
+    "en": "Download selected"
+  },
+  "Pilih setidaknya satu Story": {
+    "id": "Pilih setidaknya satu Story",
+    "en": "Choose at least one Story"
+  },
+  "Tunggu proses koneksi Drive selesai": {
+    "id": "Tunggu proses koneksi Drive selesai",
+    "en": "Wait for Drive to finish connecting"
+  },
+  "Google Drive · Menghubungkan…": {
+    "id": "Google Drive · Menghubungkan…",
+    "en": "Google Drive · Connecting…"
+  },
+  "Login Drive: ": {
+    "id": "Login Drive: ",
+    "en": "Drive sign-in: "
+  },
+  " · ketuk Hubungkan untuk memberi izin lagi": {
+    "id": " · ketuk Hubungkan untuk memberi izin lagi",
+    "en": " · tap Connect to grant access again"
+  },
+  " · ketuk Hubungkan untuk menyambung ulang": {
+    "id": " · ketuk Hubungkan untuk menyambung ulang",
+    "en": " · tap Connect to reconnect"
+  },
+  "Berkas torrent tidak dapat dibaca": {
+    "id": "Berkas torrent tidak dapat dibaca",
+    "en": "Could not read the torrent file"
+  },
+  "Berkas torrent lebih dari 8 MB": {
+    "id": "Berkas torrent lebih dari 8 MB",
+    "en": "Torrent file exceeds 8 MB"
+  },
+  " file dipilih · pilih tujuan lalu mulai": {
+    "id": " file dipilih · pilih tujuan lalu mulai",
+    "en": " files selected · choose a destination and start"
+  },
+  "Pilih tepat dua file: satu video dan satu audio": {
+    "id": "Pilih tepat dua file: satu video dan satu audio",
+    "en": "Choose exactly two files: one video and one audio"
+  },
+  "2 file untuk digabung · pilih tujuan lalu mulai": {
+    "id": "2 file untuk digabung · pilih tujuan lalu mulai",
+    "en": "2 files to merge · choose a destination and start"
+  },
+  "Tidak bisa menulis file cadangan": {
+    "id": "Tidak bisa menulis file cadangan",
+    "en": "Could not write the backup file"
+  },
+  "Cadangan tersimpan": {
+    "id": "Cadangan tersimpan",
+    "en": "Backup saved"
+  },
+  "Ekspor: ": {
+    "id": "Ekspor: ",
+    "en": "Export: "
+  },
+  "Ganti riwayat unduhan dengan isi cadangan ini?": {
+    "id": "Ganti riwayat unduhan dengan isi cadangan ini?",
+    "en": "Replace download history with this backup?"
+  },
+  "Pulihkan": {
+    "id": "Pulihkan",
+    "en": "Restore"
+  },
+  "Tidak bisa membaca cadangan": {
+    "id": "Tidak bisa membaca cadangan",
+    "en": "Could not read the backup"
+  },
+  "Cadangan dipulihkan": {
+    "id": "Cadangan dipulihkan",
+    "en": "Backup restored"
+  },
+  "Pulihkan: ": {
+    "id": "Pulihkan: ",
+    "en": "Restore: "
+  },
+  "File cookies tidak dapat dibaca": {
+    "id": "File cookies tidak dapat dibaca",
+    "en": "Could not read the cookies file"
+  },
+  " cookie tersimpan untuk ": {
+    "id": " cookie tersimpan untuk ",
+    "en": " cookies saved for "
+  },
+  "Otorisasi Drive gagal (kode ": {
+    "id": "Otorisasi Drive gagal (kode ",
+    "en": "Drive authorization failed (code "
+  },
+  "). Periksa OAuth Android dan akun penguji.": {
+    "id": "). Periksa OAuth Android dan akun penguji.",
+    "en": "). Check Android OAuth and test users."
+  },
+  "Otorisasi Drive tidak selesai setelah memilih akun (hasil ": {
+    "id": "Otorisasi Drive tidak selesai setelah memilih akun (hasil ",
+    "en": "Drive authorization did not finish after account selection (result "
+  },
+  "). Periksa OAuth Android, SHA-1 sertifikat rilis, dan akun penguji.": {
+    "id": "). Periksa OAuth Android, SHA-1 sertifikat rilis, dan akun penguji.",
+    "en": "). Check Android OAuth, the release certificate SHA-1, and test users."
+  },
+  "Drive tidak memberikan akses. Periksa izin akun lalu coba lagi.": {
+    "id": "Drive tidak memberikan akses. Periksa izin akun lalu coba lagi.",
+    "en": "Drive did not grant access. Check account permissions and try again."
+  },
+  "Google Drive · Terhubung: ": {
+    "id": "Google Drive · Terhubung: ",
+    "en": "Google Drive · Connected: "
+  },
+  "Drive terhubung: ": {
+    "id": "Drive terhubung: ",
+    "en": "Drive connected: "
+  },
+  "Akun terakhir: ": {
+    "id": "Akun terakhir: ",
+    "en": "Last account: "
+  },
+  "Tanggal awal melewati tanggal akhir": {
+    "id": "Tanggal awal melewati tanggal akhir",
+    "en": "The start date is after the end date"
+  },
+  "Periksa tanggal (YYYY-MM-DD): ": {
+    "id": "Periksa tanggal (YYYY-MM-DD): ",
+    "en": "Check the date (YYYY-MM-DD): "
+  },
+  "Pilih file .json atau .zip": {
+    "id": "Pilih file .json atau .zip",
+    "en": "Choose a .json or .zip file"
+  },
+  "File import tidak bisa dibaca": {
+    "id": "Berkas impor tidak bisa dibaca",
+    "en": "Could not read the import file"
+  },
+  "Import: ": {
+    "id": "Impor: ",
+    "en": "Import: "
+  },
+  "File tidak bisa dibaca": {
+    "id": "File tidak bisa dibaca",
+    "en": "Could not read the file"
+  },
+  "Pilih satu video MP4 dan satu audio (M4A/MP3/WAV)": {
+    "id": "Pilih satu video MP4 dan satu audio (M4A/MP3/WAV)",
+    "en": "Choose one MP4 video and one audio file (M4A/MP3/WAV)"
+  },
+  "File: ": {
+    "id": "File: ",
+    "en": "File: "
+  },
+  "Maksimum item harus angka positif atau kosong untuk tanpa batas": {
+    "id": "Maksimum item harus angka positif atau kosong untuk tanpa batas",
+    "en": "Maximum items must be a positive number, or empty for unlimited"
+  },
+  " tugas masuk antrean": {
+    "id": " tugas masuk antrean",
+    "en": " jobs added to the queue"
+  },
+  " sudah pernah selesai": {
+    "id": " sudah pernah selesai",
+    "en": " already completed"
+  },
+  "Gagal memulai unduhan: ": {
+    "id": "Gagal memulai unduhan: ",
+    "en": "Could not start download: "
+  },
+  " Story masuk antrean": {
+    "id": " Story masuk antrean",
+    "en": " Stories added to the queue"
+  },
+  "Antrean Story": {
+    "id": "Antrean Story",
+    "en": "Story queue"
+  },
+  "Gagal memasukkan Story ke antrean. Lihat log error di Aktivitas.": {
+    "id": "Gagal memasukkan Story ke antrean. Lihat log kesalahan di Aktivitas.",
+    "en": "Could not queue Stories. View the error log in Activity."
+  },
+  "Buka situs · ": {
+    "id": "Buka situs · ",
+    "en": "Open site · "
+  },
+  "Hapus tombol ": {
+    "id": "Hapus tombol ",
+    "en": "Remove the "
+  },
+  " dari daftar?": {
+    "id": " dari daftar?",
+    "en": " button from the list?"
+  },
+  "Hapus": {
+    "id": "Hapus",
+    "en": "Remove"
+  },
+  "Sesi tersimpan · Instagram: ": {
+    "id": "Sesi tersimpan · Instagram: ",
+    "en": "Saved sessions · Instagram: "
+  },
+  "ada": {
+    "id": "ada",
+    "en": "available"
+  },
+  "belum": {
+    "id": "belum",
+    "en": "not available"
+  },
+  "Tidak ada job yang bisa diulang": {
+    "id": "Tidak ada tugas yang bisa diulang",
+    "en": "No jobs available to retry"
+  },
+  "Belum ada unduhan. Tugas yang kamu mulai akan muncul di sini.": {
+    "id": "Belum ada unduhan. Tugas yang kamu mulai akan muncul di sini.",
+    "en": "No downloads yet. Jobs you start will appear here."
+  },
+  "SELESAI": {
+    "id": "SELESAI",
+    "en": "COMPLETED"
+  },
+  "GAGAL": {
+    "id": "GAGAL",
+    "en": "FAILED"
+  },
+  "BERJALAN": {
+    "id": "BERJALAN",
+    "en": "RUNNING"
+  },
+  "DIBATALKAN": {
+    "id": "DIBATALKAN",
+    "en": "CANCELLED"
+  },
+  "TERHENTI": {
+    "id": "TERHENTI",
+    "en": "INTERRUPTED"
+  },
+  "UNGGAH DRIVE": {
+    "id": "UNGGAH DRIVE",
+    "en": "UPLOADING TO DRIVE"
+  },
+  "MENYIMPAN": {
+    "id": "MENYIMPAN",
+    "en": "SAVING"
+  },
+  "ANTREAN": {
+    "id": "ANTREAN",
+    "en": "QUEUE"
+  },
+  "Tugas unduhan": {
+    "id": "Tugas unduhan",
+    "en": "Download job"
+  },
+  "File tersimpan ke Drive": {
+    "id": "File tersimpan ke Drive",
+    "en": "File saved to Drive"
+  },
+  " file lokal": {
+    "id": " file lokal",
+    "en": " local files"
+  },
+  " file Drive": {
+    "id": " file Drive",
+    "en": " Drive files"
+  },
+  "Ketuk untuk membaca detail": {
+    "id": "Ketuk untuk membaca detail",
+    "en": "Tap to view details"
+  },
+  "Log error": {
+    "id": "Log kesalahan",
+    "en": "Error log"
+  },
+  "Bagikan log": {
+    "id": "Bagikan log",
+    "en": "Share log"
+  },
+  "Bagikan log The Great Drive": {
+    "id": "Bagikan log The Great Drive",
+    "en": "Share The Great Drive log"
+  },
+  "Gunakan URL HTTPS situs yang valid": {
+    "id": "Gunakan URL HTTPS situs yang valid",
+    "en": "Use a valid HTTPS website URL"
+  },
+  "Buka situs": {
+    "id": "Buka situs",
+    "en": "Open site"
+  },
+  "Gunakan URL HTTPS yang valid": {
+    "id": "Gunakan URL HTTPS yang valid",
+    "en": "Use a valid HTTPS URL"
+  },
+  "Selesai login / kembali": {
+    "id": "Selesai login / kembali",
+    "en": "Done / return to app"
+  },
+  "Sesi X belum terbaca. Selesaikan login hingga beranda terbuka.": {
+    "id": "Sesi X belum terbaca. Selesaikan login hingga beranda terbuka.",
+    "en": "X session not detected. Finish signing in until the home page opens."
+  },
+  "Kembali ke My Drive": {
+    "id": "Kembali ke My Drive",
+    "en": "Back to My Drive"
+  },
+  "Buat folder": {
+    "id": "Buat folder",
+    "en": "Create folder"
+  },
+  "Nama folder": {
+    "id": "Nama folder",
+    "en": "Folder name"
+  },
+  "Cari file": {
+    "id": "Cari file",
+    "en": "Search files"
+  },
+  "Nama file": {
+    "id": "Nama file",
+    "en": "File name"
+  },
+  "Folder kosong": {
+    "id": "Folder kosong",
+    "en": "Empty folder"
+  },
+  "Ganti nama": {
+    "id": "Ganti nama",
+    "en": "Rename"
+  },
+  "Link publik": {
+    "id": "Link publik",
+    "en": "Public link"
+  },
+  "Pindah ke sampah": {
+    "id": "Pindah ke sampah",
+    "en": "Move to Trash"
+  },
+  "Hapus bintang": {
+    "id": "Hapus bintang",
+    "en": "Unstar"
+  },
+  "Beri bintang": {
+    "id": "Beri bintang",
+    "en": "Star"
+  },
+  "Cabut link publik": {
+    "id": "Cabut link publik",
+    "en": "Revoke public link"
+  },
+  "Pindah ke folder…": {
+    "id": "Pindah ke folder…",
+    "en": "Move to folder…"
+  },
+  "Nama baru": {
+    "id": "Nama baru",
+    "en": "New name"
+  },
+  "Pindahkan ke sampah?": {
+    "id": "Pindahkan ke sampah?",
+    "en": "Move to Trash?"
+  },
+  "Ya": {
+    "id": "Ya",
+    "en": "Yes"
+  },
+  "Cabut akses publik untuk file/folder ini?": {
+    "id": "Cabut akses publik untuk file/folder ini?",
+    "en": "Revoke public access to this file/folder?"
+  },
+  "Cabut": {
+    "id": "Cabut",
+    "en": "Revoke"
+  },
+  "Pilih folder tujuan": {
+    "id": "Pilih folder tujuan",
+    "en": "Choose destination folder"
+  },
+  "Pindahkan ke folder ini": {
+    "id": "Pindahkan ke folder ini",
+    "en": "Move to this folder"
+  },
+  "Simpan": {
+    "id": "Simpan",
+    "en": "Save"
+  },
+  "← Kembali": {
+    "id": "← Kembali",
+    "en": "← Back"
+  },
+  "Pindahkan folder ": {
+    "id": "Pindahkan folder ",
+    "en": "Move folder · "
+  },
+  "Folder TGDrive di ": {
+    "id": "Folder TGDrive di ",
+    "en": "The TGDrive folder in "
+  },
+  "folder induk ": {
+    "id": "folder induk ",
+    "en": "parent folder "
+  },
+  " akan disalin ke The Great Drive pada induk yang sama.": {
+    "id": " akan disalin ke The Great Drive pada induk yang sama.",
+    "en": " will be copied to The Great Drive under the same parent."
+  },
+  "Periksa folder TGDrive milik aplikasi ini di Movies, Pictures, Music, dan Download. Struktur site/username/jenis tetap dipertahankan.": {
+    "id": "Periksa folder TGDrive milik aplikasi ini di Movies, Pictures, Music, dan Download. Struktur site/username/jenis tetap dipertahankan.",
+    "en": "Find app-owned TGDrive files in Movies, Pictures, Music, and Download. Site/username/type subfolders are preserved."
+  },
+  "Simpan file lama (salin)": {
+    "id": "Simpan file lama (salin)",
+    "en": "Keep original files (copy)"
+  },
+  "Hapus file lama setelah verifikasi": {
+    "id": "Hapus file lama setelah verifikasi",
+    "en": "Remove originals after verification"
+  },
+  "Mode hapus memindahkan file sumber ke Sampah Drive setelah ukuran dan checksum cocok.": {
+    "id": "Mode hapus memindahkan file sumber ke Sampah Drive setelah ukuran dan checksum cocok.",
+    "en": "Remove mode moves originals to Drive Trash after the copies match in size and checksum."
+  },
+  "Mode hapus menghapus file sumber dari ponsel setelah ukuran dan SHA-256 salinan cocok.": {
+    "id": "Mode hapus menghapus file sumber dari ponsel setelah ukuran dan SHA-256 salinan cocok.",
+    "en": "Remove mode deletes originals from your phone after the copies match in size and SHA-256."
+  },
+  "File dengan isi berbeda tidak ditimpa. Salinan yang sama dapat dipakai kembali. Folder lama yang kosong tetap ada.": {
+    "id": "File dengan isi berbeda tidak ditimpa. Salinan yang sama dapat dipakai kembali. Folder lama yang kosong tetap ada.",
+    "en": "Different content is never overwritten. Identical copies can be reused. Empty original folders are kept."
+  },
+  "Periksa folder lama": {
+    "id": "Periksa folder lama",
+    "en": "Scan old folders"
+  },
+  "Periksa folder untuk melihat jumlah file sebelum memulai.": {
+    "id": "Periksa folder untuk melihat jumlah file sebelum memulai.",
+    "en": "Scan the folders to count files before starting."
+  },
+  "Mulai pemindahan": {
+    "id": "Mulai pemindahan",
+    "en": "Start migration"
+  },
+  "Hentikan pemindahan": {
+    "id": "Hentikan pemindahan",
+    "en": "Stop migration"
+  },
+  "Hentikan setelah operasi yang sedang berjalan? File yang sudah diproses tetap tersimpan.": {
+    "id": "Hentikan setelah operasi yang sedang berjalan? File yang sudah diproses tetap tersimpan.",
+    "en": "Stop after the current operation? Files already processed will remain saved."
+  },
+  "Kembali": {
+    "id": "Kembali",
+    "en": "Back"
+  },
+  "Hentikan": {
+    "id": "Hentikan",
+    "en": "Stop"
+  },
+  "HASIL TERAKHIR": {
+    "id": "HASIL TERAKHIR",
+    "en": "LATEST RESULT"
+  },
+  "Buka Berkas → Pindahkan folder Google Drive untuk menghubungkan akun kembali.": {
+    "id": "Buka Berkas → Pindahkan folder Google Drive untuk menghubungkan akun kembali.",
+    "en": "Open Files → Move Google Drive folder to reconnect your account."
+  },
+  "Memeriksa folder…": {
+    "id": "Memeriksa folder…",
+    "en": "Scanning folders…"
+  },
+  " file · ": {
+    "id": " file · ",
+    "en": " files · "
+  },
+  "Tidak ada file lama yang dapat diakses. ": {
+    "id": "Tidak ada file lama yang dapat diakses. ",
+    "en": "No accessible old files. "
+  },
+  "Periksa ID folder induk pada Opsi.": {
+    "id": "Periksa ID folder induk pada Opsi.",
+    "en": "Check the parent folder ID in Options."
+  },
+  "Pencarian hanya mencakup file milik instalasi aplikasi ini.": {
+    "id": "Pencarian hanya mencakup file milik instalasi aplikasi ini.",
+    "en": "Only files owned by this app installation are included."
+  },
+  "Gagal memeriksa: ": {
+    "id": "Gagal memeriksa: ",
+    "en": "Scan failed: "
+  },
+  "Pindahkan dan hapus sumber?": {
+    "id": "Pindahkan dan hapus sumber?",
+    "en": "Move and remove originals?"
+  },
+  "Salin dan simpan sumber?": {
+    "id": "Salin dan simpan sumber?",
+    "en": "Copy and keep originals?"
+  },
+  " file terdeteksi. Tujuan: The Great Drive.\n\n": {
+    "id": " file terdeteksi. Tujuan: The Great Drive.\n\n",
+    "en": " files found. Destination: The Great Drive.\n\n"
+  },
+  "Sumber masuk Sampah Drive": {
+    "id": "Sumber masuk Sampah Drive",
+    "en": "Originals move to Drive Trash"
+  },
+  "Sumber dihapus dari ponsel": {
+    "id": "Sumber dihapus dari ponsel",
+    "en": "Originals are deleted from your phone"
+  },
+  " hanya setelah salinan terverifikasi.": {
+    "id": " hanya setelah salinan terverifikasi.",
+    "en": " only after the copies have been verified."
+  },
+  "Semua file sumber tetap disimpan.": {
+    "id": "Semua file sumber tetap disimpan.",
+    "en": "All original files will be kept."
+  },
+  "\n\nDaftar file diperiksa ulang saat mulai.": {
+    "id": "\n\nDaftar file diperiksa ulang saat mulai.",
+    "en": "\n\nThe file list will be scanned again when you start."
+  },
+  "Mulai": {
+    "id": "Mulai",
+    "en": "Start"
+  },
+  "Bahasa aplikasi": {
+    "id": "Bahasa aplikasi",
+    "en": "App language"
+  },
+  "Bahasa Indonesia": {
+    "id": "Bahasa Indonesia",
+    "en": "Bahasa Indonesia"
+  },
+  "English": {
+    "id": "English",
+    "en": "English"
+  },
+  "Pilihan bahasa disimpan di perangkat ini.": {
+    "id": "Pilihan bahasa disimpan di perangkat ini.",
+    "en": "Your language choice is saved on this device."
+  },
+  "Kelola antrean, penyimpanan sementara, dan riwayat perangkatmu.": {
+    "id": "Kelola antrean, penyimpanan sementara, dan riwayat perangkatmu.",
+    "en": "Manage your queue, temporary storage, and device history."
+  },
+  "RINGKASAN UNDUHAN": {
+    "id": "RINGKASAN UNDUHAN",
+    "en": "DOWNLOAD SUMMARY"
+  },
+  "Selesai": {
+    "id": "Selesai",
+    "en": "Completed"
+  },
+  "Gagal / batal": {
+    "id": "Gagal / batal",
+    "en": "Failed / cancelled"
+  },
+  "Belum selesai": {
+    "id": "Belum selesai",
+    "en": "Unfinished"
+  },
+  "Dijeda": {
+    "id": "Dijeda",
+    "en": "Paused"
+  },
+  "Berjalan": {
+    "id": "Berjalan",
+    "en": "Running"
+  },
+  "Kosong": {
+    "id": "Kosong",
+    "en": "Empty"
+  },
+  "Ada tugas aktif atau menunggu": {
+    "id": "Ada tugas aktif atau menunggu",
+    "en": "Jobs are active or waiting"
+  },
+  "Lanjutkan antrean": {
+    "id": "Lanjutkan antrean",
+    "en": "Resume queue"
+  },
+  "Jeda antrean": {
+    "id": "Jeda antrean",
+    "en": "Pause queue"
+  },
+  "Batalkan tugas aktif": {
+    "id": "Batalkan tugas aktif",
+    "en": "Cancel active job"
+  },
+  "Batalkan tugas yang sedang berjalan?": {
+    "id": "Batalkan tugas yang sedang berjalan?",
+    "en": "Cancel the active job?"
+  },
+  "AKUN & SITUS": {
+    "id": "AKUN & SITUS",
+    "en": "ACCOUNTS & SITES"
+  },
+  "Belum tersambung": {
+    "id": "Belum tersambung",
+    "en": "Not connected"
+  },
+  "Situs tersimpan": {
+    "id": "Situs tersimpan",
+    "en": "Saved websites"
+  },
+  "PENYIMPANAN": {
+    "id": "PENYIMPANAN",
+    "en": "STORAGE"
+  },
+  "Cache sementara": {
+    "id": "Cache sementara",
+    "en": "Temporary cache"
+  },
+  "Menghitung…": {
+    "id": "Menghitung…",
+    "en": "Calculating…"
+  },
+  "Bersihkan cache tugas lama": {
+    "id": "Bersihkan cache tugas lama",
+    "en": "Clear old job cache"
+  },
+  "Berkas unduhan dan sesi login tetap tersimpan.": {
+    "id": "Berkas unduhan dan sesi login tetap tersimpan.",
+    "en": "Downloaded files and login sessions are kept."
+  },
+  "Hapus berkas sementara dari job yang tidak berjalan?": {
+    "id": "Hapus berkas sementara dari tugas yang tidak berjalan?",
+    "en": "Remove temporary files from inactive jobs?"
+  },
+  "Tunggu sampai antrean kosong": {
+    "id": "Tunggu sampai antrean kosong",
+    "en": "Wait until the queue is empty"
+  },
+  "Cache job dibersihkan": {
+    "id": "Cache tugas dibersihkan",
+    "en": "Job cache cleared"
+  },
+  "Hapus riwayat unduhan": {
+    "id": "Hapus riwayat unduhan",
+    "en": "Clear download history"
+  },
+  "Hapus semua catatan riwayat di perangkat ini?": {
+    "id": "Hapus semua catatan riwayat di perangkat ini?",
+    "en": "Clear all download records on this device?"
+  },
+  "Riwayat dibersihkan": {
+    "id": "Riwayat dibersihkan",
+    "en": "History cleared"
+  },
+  "Hanya catatan riwayat yang dihapus. Berkas unduhan tetap tersimpan.": {
+    "id": "Hanya catatan riwayat yang dihapus. Berkas unduhan tetap tersimpan.",
+    "en": "Only history records are removed. Downloaded files are kept."
+  },
+  "Lanjutkan": {
+    "id": "Lanjutkan",
+    "en": "Continue"
+  },
+  "Perbarui ringkasan": {
+    "id": "Perbarui ringkasan",
+    "en": "Refresh summary"
+  },
+  "Backup lebih dari 2 MB": {
+    "id": "Backup lebih dari 2 MB",
+    "en": "Backup exceeds 2 MB"
+  },
+  "Format backup tidak dikenali": {
+    "id": "Format backup tidak dikenali",
+    "en": "Unrecognized backup format"
+  },
+  "FFmpeg tersedia untuk perangkat Android arm64; unduhan lain tetap dapat digunakan": {
+    "id": "FFmpeg tersedia untuk perangkat Android arm64; unduhan lain tetap dapat digunakan",
+    "en": "FFmpeg is available on arm64 Android devices; other downloads remain available"
+  },
+  "Video atau audio untuk digabung tidak tersedia": {
+    "id": "Video atau audio untuk digabung tidak tersedia",
+    "en": "The video or audio to merge is unavailable"
+  },
+  "FFmpeg gagal menggabungkan audio dan video: {0}": {
+    "id": "FFmpeg gagal menggabungkan audio dan video: {0}",
+    "en": "FFmpeg could not merge audio and video: {0}"
+  },
+  "Drive tidak memberikan alamat akun. Pilih akun lain lalu coba lagi.": {
+    "id": "Drive tidak memberikan alamat akun. Pilih akun lain lalu coba lagi.",
+    "en": "Drive did not return an account address. Choose another account and try again."
+  },
+  "Folder tujuan tidak valid": {
+    "id": "Folder tujuan tidak valid",
+    "en": "Invalid destination folder"
+  },
+  "Folder torrent tidak tersedia": {
+    "id": "Folder torrent tidak tersedia",
+    "en": "Torrent folder unavailable"
+  },
+  "Mencari metadata magnet dari peer…": {
+    "id": "Mencari metadata magnet dari peer…",
+    "en": "Fetching magnet metadata from peers…"
+  },
+  "Metadata magnet tidak tersedia dari peer": {
+    "id": "Metadata magnet tidak tersedia dari peer",
+    "en": "Magnet metadata unavailable from peers"
+  },
+  "Link .torrent harus HTTPS dan dapat diakses": {
+    "id": "Link .torrent harus HTTPS dan dapat diakses",
+    "en": "The .torrent link must use HTTPS and be accessible"
+  },
+  "File .torrent lebih dari 8 MB": {
+    "id": "File .torrent lebih dari 8 MB",
+    "en": "The .torrent file exceeds 8 MB"
+  },
+  "Metadata torrent tidak valid": {
+    "id": "Metadata torrent tidak valid",
+    "en": "Invalid torrent metadata"
+  },
+  "Torrent dibatalkan": {
+    "id": "Torrent dibatalkan",
+    "en": "Torrent cancelled"
+  },
+  "Torrent belum selesai dalam 24 jam": {
+    "id": "Torrent belum selesai dalam 24 jam",
+    "en": "Torrent did not finish within 24 hours"
+  },
+  "Pustaka torrent tidak cocok dengan arsitektur ponsel": {
+    "id": "Pustaka torrent tidak cocok dengan arsitektur ponsel",
+    "en": "The torrent library does not support this phone’s architecture"
+  },
+  "Torrent selesai tanpa file hasil": {
+    "id": "Torrent selesai tanpa file hasil",
+    "en": "Torrent finished without output files"
+  },
+  "Pemindahan dibatalkan; file sumber yang belum diproses tetap disimpan": {
+    "id": "Pemindahan dibatalkan; file sumber yang belum diproses tetap disimpan",
+    "en": "Migration cancelled; unprocessed source files are kept"
+  },
+  "Verifikasi salinan tidak cocok. File lama dipertahankan.": {
+    "id": "Verifikasi salinan tidak cocok. File lama dipertahankan.",
+    "en": "Copy verification failed. Original files are kept."
+  },
+  "Daftar file Lokal tidak dapat dibaca": {
+    "id": "Daftar file Lokal tidak dapat dibaca",
+    "en": "Could not read the local file list"
+  },
+  "Tidak bisa membuat salinan Lokal": {
+    "id": "Tidak bisa membuat salinan Lokal",
+    "en": "Could not create a local copy"
+  },
+  "Tidak bisa membuka file untuk disalin": {
+    "id": "Tidak bisa membuka file untuk disalin",
+    "en": "Could not open the file for copying"
+  },
+  "Salinan belum dapat diterbitkan": {
+    "id": "Salinan belum dapat diterbitkan",
+    "en": "Could not publish the copy"
+  },
+  "Catatan salinan tidak dapat disimpan; sumber dipertahankan": {
+    "id": "Catatan salinan tidak dapat disimpan; sumber dipertahankan",
+    "en": "Could not save the copy record; the original is kept"
+  },
+  "Salinan tersimpan; file lama belum dapat dihapus": {
+    "id": "Salinan tersimpan; file lama belum dapat dihapus",
+    "en": "Copy saved; the original could not be removed"
+  },
+  "Dokumen Google/pintasan dipertahankan: verifikasi checksum hanya mendukung file biasa": {
+    "id": "Dokumen Google/pintasan dipertahankan: verifikasi checksum hanya mendukung file biasa",
+    "en": "Google documents/shortcuts are kept: checksum verification only supports regular files"
+  },
+  "Checksum sumber Drive tidak tersedia; sumber dipertahankan": {
+    "id": "Checksum sumber Drive tidak tersedia; sumber dipertahankan",
+    "en": "Drive source checksum unavailable; the original is kept"
+  },
+  "Catatan salinan Drive gagal disimpan; sumber dipertahankan": {
+    "id": "Catatan salinan Drive gagal disimpan; sumber dipertahankan",
+    "en": "Could not save the Drive copy record; the original is kept"
+  },
+  "File tidak dapat dibaca untuk verifikasi": {
+    "id": "File tidak dapat dibaca untuk verifikasi",
+    "en": "Could not read the file for verification"
+  },
+  "Belum ada pemindahan folder.": {
+    "id": "Belum ada pemindahan folder.",
+    "en": "No folder migrations yet."
+  },
+  "Proses sebelumnya terhenti. Periksa folder lalu jalankan lagi untuk melanjutkan.": {
+    "id": "Proses sebelumnya terhenti. Periksa folder lalu jalankan lagi untuk melanjutkan.",
+    "en": "The previous process stopped. Scan the folders and run again to continue."
+  },
+  "Pemindahan folder": {
+    "id": "Pemindahan folder",
+    "en": "Folder migration"
+  },
+  "Memeriksa folder lama…": {
+    "id": "Memeriksa folder lama…",
+    "en": "Scanning old folders…"
+  },
+  "Memeriksa folder Drive…": {
+    "id": "Memeriksa folder Drive…",
+    "en": "Scanning Drive folders…"
+  },
+  "Memeriksa folder Lokal…": {
+    "id": "Memeriksa folder Lokal…",
+    "en": "Scanning local folders…"
+  },
+  "Hubungkan Drive kembali melalui menu Berkas": {
+    "id": "Hubungkan Drive kembali melalui menu Berkas",
+    "en": "Reconnect Drive through the Files menu"
+  },
+  "Hapus sumber setelah verifikasi": {
+    "id": "Hapus sumber setelah verifikasi",
+    "en": "Remove originals after verification"
+  },
+  "Simpan file lama": {
+    "id": "Simpan file lama",
+    "en": "Keep original files"
+  },
+  "Pemindahan: {0}": {
+    "id": "Pemindahan: {0}",
+    "en": "Migrating: {0}"
+  },
+  "Tidak ditemukan file lama yang bisa diakses.": {
+    "id": "Tidak ditemukan file lama yang bisa diakses.",
+    "en": "No accessible old files found."
+  },
+  "Selesai · {0} berhasil · {1} gagal dari {2} file.": {
+    "id": "Selesai · {0} berhasil · {1} gagal dari {2} file.",
+    "en": "Completed · {0} successful · {1} failed out of {2} files."
+  },
+  "Dibatalkan · {0} berhasil · {1} gagal dari {2} file.": {
+    "id": "Dibatalkan · {0} berhasil · {1} gagal dari {2} file.",
+    "en": "Cancelled · {0} successful · {1} failed out of {2} files."
+  },
+  "Terhenti · {0} berhasil · {1} gagal dari {2} file.": {
+    "id": "Terhenti · {0} berhasil · {1} gagal dari {2} file.",
+    "en": "Stopped · {0} successful · {1} failed out of {2} files."
+  },
+  "Sumber yang gagal diproses tetap disimpan.": {
+    "id": "Sumber yang gagal diproses tetap disimpan.",
+    "en": "Sources that failed processing are kept."
+  },
+  "File lama tetap disimpan.": {
+    "id": "File lama tetap disimpan.",
+    "en": "Original files are kept."
+  },
+  "File yang belum diproses tetap disimpan.": {
+    "id": "File yang belum diproses tetap disimpan.",
+    "en": "Unprocessed files are kept."
+  },
+  "The Great Drive · Pindahkan folder": {
+    "id": "The Great Drive · Pindahkan folder",
+    "en": "The Great Drive · Move folders"
+  },
+  "Pemindahan dihentikan Android. Jalankan lagi untuk melanjutkan; sumber yang belum diproses tetap disimpan.": {
+    "id": "Pemindahan dihentikan Android. Jalankan lagi untuk melanjutkan; sumber yang belum diproses tetap disimpan.",
+    "en": "Android stopped the migration. Run again to continue; unprocessed sources are kept."
+  },
+  "Host tidak valid": {
+    "id": "Host tidak valid",
+    "en": "Invalid host"
+  },
+  "File cookies terlalu besar": {
+    "id": "File cookies terlalu besar",
+    "en": "Cookies file is too large"
+  },
+  "Tidak ada cookies HTTPS yang cocok untuk {0}": {
+    "id": "Tidak ada cookies HTTPS yang cocok untuk {0}",
+    "en": "No matching HTTPS cookies for {0}"
+  },
+  "URL situs tidak valid": {
+    "id": "URL situs tidak valid",
+    "en": "Invalid website URL"
+  },
+  "Gagal menyimpan situs": {
+    "id": "Gagal menyimpan situs",
+    "en": "Could not save website"
+  },
+  "Riwayat belum dapat diarahkan ke salinan; sumber Drive dipertahankan": {
+    "id": "Riwayat belum dapat diarahkan ke salinan; sumber Drive dipertahankan",
+    "en": "Could not update history to the copy; the Drive source is kept"
+  },
+  "Aplikasi berhenti saat tugas berjalan. Pilih Ulangi untuk mencoba lagi.": {
+    "id": "Aplikasi berhenti saat tugas berjalan. Pilih Ulangi untuk mencoba lagi.",
+    "en": "The app stopped while a job was running. Choose Retry to try again."
+  },
+  "Unduhan The Great Drive": {
+    "id": "Unduhan The Great Drive",
+    "en": "The Great Drive downloads"
+  },
+  "Instagram JSON/ZIP import": {
+    "id": "Impor Instagram JSON/ZIP",
+    "en": "Instagram JSON/ZIP import"
+  },
+  "Local file": {
+    "id": "Berkas lokal",
+    "en": "Local file"
+  },
+  "Torrent file": {
+    "id": "Berkas torrent",
+    "en": "Torrent file"
+  },
+  "Menyiapkan antrean…": {
+    "id": "Menyiapkan antrean…",
+    "en": "Preparing queue…"
+  },
+  "Antrean Story dibatalkan": {
+    "id": "Antrean Story dibatalkan",
+    "en": "Story queue cancelled"
+  },
+  "Antrean terhenti; tugas dapat diulang": {
+    "id": "Antrean terhenti; tugas dapat diulang",
+    "en": "Queue interrupted; jobs can be retried"
+  },
+  "Mengambil media…": {
+    "id": "Mengambil media…",
+    "en": "Fetching media…"
+  },
+  "Gagal membuat folder file lokal": {
+    "id": "Gagal membuat folder file lokal",
+    "en": "Could not create the local file folder"
+  },
+  "Menggabungkan video + audio dengan FFmpeg": {
+    "id": "Menggabungkan video + audio dengan FFmpeg",
+    "en": "Merging video + audio with FFmpeg"
+  },
+  "Hasil unduhan keluar dari direktori kerja": {
+    "id": "Hasil unduhan keluar dari direktori kerja",
+    "en": "Download output is outside the working directory"
+  },
+  "Audio keluar dari direktori kerja": {
+    "id": "Audio keluar dari direktori kerja",
+    "en": "Audio is outside the working directory"
+  },
+  "Menggabungkan audio + video dengan FFmpeg": {
+    "id": "Menggabungkan audio + video dengan FFmpeg",
+    "en": "Merging audio + video with FFmpeg"
+  },
+  "Menyimpan ke lokal: {0}": {
+    "id": "Menyimpan ke lokal: {0}",
+    "en": "Saving locally: {0}"
+  },
+  "Lokal: {0}": {
+    "id": "Lokal: {0}",
+    "en": "Local: {0}"
+  },
+  "Galeri: {0}": {
+    "id": "Lokal: {0}",
+    "en": "Local: {0}"
+  },
+  "Drive sudah ada: {0}": {
+    "id": "Drive sudah ada: {0}",
+    "en": "Already in Drive: {0}"
+  },
+  "Mengunggah {0}": {
+    "id": "Mengunggah {0}",
+    "en": "Uploading {0}"
+  },
+  "Unduhan #{0}": {
+    "id": "Unduhan #{0}",
+    "en": "Download #{0}"
+  },
+  "Media mux keluar dari direktori kerja": {
+    "id": "Media mux keluar dari direktori kerja",
+    "en": "Merged media is outside the working directory"
+  },
+  "Unduhan selesai; menyiapkan penyimpanan": {
+    "id": "Unduhan selesai; menyiapkan penyimpanan",
+    "en": "Download finished; preparing to save"
+  },
+  "Belum ada error yang dicatat pada perangkat ini.": {
+    "id": "Belum ada kesalahan yang dicatat pada perangkat ini.",
+    "en": "No errors recorded on this device."
+  },
+  "Log error tidak dapat dibaca: {0}": {
+    "id": "Log error tidak dapat dibaca: {0}",
+    "en": "Could not read the error log: {0}"
+  },
+  "Error tanpa rincian": {
+    "id": "Error tanpa rincian",
+    "en": "Error without details"
+  },
+  "Gagal membuat file galeri": {
+    "id": "Gagal membuat file galeri",
+    "en": "Could not create the local file"
+  },
+  "Gagal membuka file galeri": {
+    "id": "Gagal membuka file galeri",
+    "en": "Could not open the local file"
+  },
+  "Hubungkan Google Drive dahulu": {
+    "id": "Hubungkan Google Drive dahulu",
+    "en": "Connect Google Drive first"
+  },
+  "Drive gagal memulai upload: HTTP {0}": {
+    "id": "Drive gagal memulai upload: HTTP {0}",
+    "en": "Drive could not start upload: HTTP {0}"
+  },
+  "Sesi upload Drive tidak valid": {
+    "id": "Sesi upload Drive tidak valid",
+    "en": "Invalid Drive upload session"
+  },
+  "File berubah selama upload": {
+    "id": "File berubah selama upload",
+    "en": "The file changed during upload"
+  },
+  "Checksum MD5 Drive berbeda atau belum tersedia untuk {0}": {
+    "id": "Checksum MD5 Drive berbeda atau belum tersedia untuk {0}",
+    "en": "Drive MD5 checksum differs or is unavailable for {0}"
+  },
+  "Offset upload Drive berubah; hentikan agar data tidak rusak": {
+    "id": "Offset upload Drive berubah; hentikan agar data tidak rusak",
+    "en": "Drive upload offset changed; stopping to avoid data corruption"
+  },
+  "Token Drive kedaluwarsa. Hubungkan Drive ulang lalu coba lagi.": {
+    "id": "Token Drive kedaluwarsa. Hubungkan Drive ulang lalu coba lagi.",
+    "en": "Drive token expired. Reconnect Drive and try again."
+  },
+  "Upload Drive gagal sesudah retry": {
+    "id": "Upload Drive gagal sesudah retry",
+    "en": "Drive upload failed after retrying"
+  },
+  "Drive tidak mengonfirmasi hasil upload": {
+    "id": "Drive tidak mengonfirmasi hasil upload",
+    "en": "Drive did not confirm the upload"
+  },
+  "Tanggal awal harus sebelum atau sama dengan tanggal akhir": {
+    "id": "Tanggal awal harus sebelum atau sama dengan tanggal akhir",
+    "en": "The start date must be on or before the end date"
+  },
+  "Path media keluar dari folder import": {
+    "id": "Path media keluar dari folder import",
+    "en": "The media path is outside the import folder"
+  },
+  "Media embedded tidak valid": {
+    "id": "Media embedded tidak valid",
+    "en": "Invalid embedded media"
+  },
+  "URL media import harus HTTPS": {
+    "id": "URL media import harus HTTPS",
+    "en": "Imported media URLs must use HTTPS"
+  },
+  "Jenis media tidak dikenal": {
+    "id": "Jenis media tidak dikenal",
+    "en": "Unknown media type"
+  },
+  "URL audio harus HTTPS": {
+    "id": "URL audio harus HTTPS",
+    "en": "Audio URLs must use HTTPS"
+  },
+  "Audio embedded tidak valid": {
+    "id": "Audio embedded tidak valid",
+    "en": "Invalid embedded audio"
+  },
+  "Path audio keluar dari folder import": {
+    "id": "Path audio keluar dari folder import",
+    "en": "The audio path is outside the import folder"
+  },
+  "Tidak ada media untuk kategori ini": {
+    "id": "Tidak ada media untuk kategori ini",
+    "en": "No media for this category"
+  },
+  "Pilihan output import tidak dikenal": {
+    "id": "Pilihan output import tidak dikenal",
+    "en": "Unknown import output option"
+  },
+  "Username Instagram tidak valid": {
+    "id": "Username Instagram tidak valid",
+    "en": "Invalid Instagram username"
+  },
+  "Sesi Instagram diperlukan untuk membaca Story": {
+    "id": "Sesi Instagram diperlukan untuk membaca Story",
+    "en": "An Instagram session is required to read Stories"
+  },
+  "Tidak dapat membuka Story Instagram": {
+    "id": "Tidak dapat membuka Story Instagram",
+    "en": "Could not open Instagram Stories"
+  },
+  "URL Story tidak memiliki username dan ID yang valid": {
+    "id": "URL Story tidak memiliki username dan ID yang valid",
+    "en": "The Story URL lacks a valid username and ID"
+  },
+  "Sesi Instagram diperlukan untuk mengunduh Story terpilih": {
+    "id": "Sesi Instagram diperlukan untuk mengunduh Story terpilih",
+    "en": "An Instagram session is required to download selected Stories"
+  },
+  "Tidak dapat membaca daftar Story Instagram": {
+    "id": "Tidak dapat membaca daftar Story Instagram",
+    "en": "Could not read the Instagram Story list"
+  },
+  "Mencari Story ID {0}": {
+    "id": "Mencari Story ID {0}",
+    "en": "Finding Story ID {0}"
+  },
+  "Story ID {0} tidak ditemukan atau sudah kedaluwarsa. Muat ulang daftar Story.": {
+    "id": "Story ID {0} tidak ditemukan atau sudah kedaluwarsa. Muat ulang daftar Story.",
+    "en": "Story ID {0} was not found or has expired. Reload the Story list."
+  },
+  "URL media untuk Story ID {0} tidak tersedia": {
+    "id": "URL media untuk Story ID {0} tidak tersedia",
+    "en": "Media URL unavailable for Story ID {0}"
+  },
+  "Jenis media Story ID {0} tidak didukung: {1}": {
+    "id": "Jenis media Story ID {0} tidak didukung: {1}",
+    "en": "Unsupported media type for Story ID {0}: {1}"
+  },
+  "Story ID {0} selesai": {
+    "id": "Story ID {0} selesai",
+    "en": "Story ID {0} completed"
+  },
+  "Server Instagram tidak mengirimkan file media": {
+    "id": "Server Instagram tidak mengirimkan file media",
+    "en": "Instagram did not return a media file"
+  },
+  "Jenis file Story tidak sesuai dengan ID yang dipilih": {
+    "id": "Jenis file Story tidak sesuai dengan ID yang dipilih",
+    "en": "The Story file type does not match the selected ID"
+  },
+  "File Story tidak lengkap; silakan coba lagi": {
+    "id": "File Story tidak lengkap; silakan coba lagi",
+    "en": "Incomplete Story file; please try again"
+  },
+  "Maksimum item tidak boleh negatif": {
+    "id": "Maksimum item tidak boleh negatif",
+    "en": "Maximum items cannot be negative"
+  },
+  "Mode profil/album tersedia untuk Instagram, X, dan Facebook": {
+    "id": "Mode profil/album tersedia untuk Instagram, X, dan Facebook",
+    "en": "Profile/album mode supports Instagram, X, and Facebook"
+  },
+  "Mengambil profil / album": {
+    "id": "Mengambil profil / album",
+    "en": "Fetching profile / album"
+  },
+  "gallery-dl gagal membaca profil / album; periksa URL atau sesi akun": {
+    "id": "gallery-dl gagal membaca profil / album; periksa URL atau sesi akun",
+    "en": "gallery-dl could not read the profile / album; check the URL or account session"
+  },
+  "Tidak ada media pada profil / album atau rentang tanggal ini": {
+    "id": "Tidak ada media pada profil / album atau rentang tanggal ini",
+    "en": "No media in this profile / album or date range"
+  },
+  "Sebagian item profil gagal diekstrak; coba lagi dengan jumlah lebih kecil": {
+    "id": "Sebagian item profil gagal diekstrak; coba lagi dengan jumlah lebih kecil",
+    "en": "Some profile items could not be extracted; try again with fewer items"
+  },
+  "{0} file ditemukan": {
+    "id": "{0} file ditemukan",
+    "en": "{0} files found"
+  },
+  "Ekstraktor Instagram tidak menemukan file gambar": {
+    "id": "Ekstraktor Instagram tidak menemukan file gambar",
+    "en": "The Instagram extractor found no image files"
+  },
+  "Foto Instagram gagal: {0}": {
+    "id": "Foto Instagram gagal: {0}",
+    "en": "Instagram photo failed: {0}"
+  },
+  "Ekstraktor tidak menghasilkan foto atau video. Periksa link atau sesi login.": {
+    "id": "Ekstraktor tidak menghasilkan foto atau video. Periksa link atau sesi login.",
+    "en": "The extractor returned no photos or videos. Check the link or login session."
+  },
+  "Tautan mengarah ke halaman web, bukan file. Coba login lalu ulangi.": {
+    "id": "Tautan mengarah ke halaman web, bukan file. Coba login lalu ulangi.",
+    "en": "The link points to a web page instead of a file. Sign in and try again."
+  },
+  "Mengolah file": {
+    "id": "Mengolah file",
+    "en": "Processing file"
+  },
+  "Dibatalkan": {
+    "id": "Dibatalkan",
+    "en": "Cancelled"
+  },
+  "Terhenti": {
+    "id": "Terhenti",
+    "en": "Interrupted"
+  }
+}

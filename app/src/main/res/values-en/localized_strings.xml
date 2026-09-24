@@ -1,0 +1,424 @@
+<resources>
+    <string name="text_1ac2fb3c85c87046" formatted="false">"1 shared file · choose a destination and start"</string>
+    <string name="text_1ccd1a2dc488e33f" formatted="false">" shared files · choose a destination and start"</string>
+    <string name="text_0de5a81bac0d6dc9" formatted="false">"Save what you love."</string>
+    <string name="text_d3b105100a88e022" formatted="false">"Add a link, choose a destination, and download. Everything runs on your device."</string>
+    <string name="text_b7250cdb9348a862" formatted="false">"Download options"</string>
+    <string name="text_f7396349704d5892" formatted="false">"Your quality, folder, and filter choices are saved automatically."</string>
+    <string name="text_56d5e49fc1ec339a" formatted="false">"Accounts &amp; Drive"</string>
+    <string name="text_4c16caf9157ffbb4" formatted="false">"Manage website logins and files in Google Drive."</string>
+    <string name="text_15cb94beaa989d88" formatted="false">"Files &amp; imports"</string>
+    <string name="text_1db19f791641f8bd" formatted="false">"Import Instagram data or choose files from your phone."</string>
+    <string name="text_3a4bc87a2125f8f9" formatted="false">"Activity"</string>
+    <string name="text_688a18f98ca8a72a" formatted="false">"Follow the queue and view each download’s results."</string>
+    <string name="text_0d10e2ef82299dd1" formatted="false">"App info"</string>
+    <string name="text_e1c246fd23af51d9" formatted="false">"About The Great Drive, its features, and version history."</string>
+    <string name="text_c2c98ce94d43b0d1" formatted="false">"MEDIA LINKS"</string>
+    <string name="text_51bd07108a70e2b6" formatted="false">"Paste one or more video, post, Reel, or Story links…"</string>
+    <string name="text_a3c994d2c47878a0" formatted="false">"Destination · Local"</string>
+    <string name="text_f69c25b51b80211c" formatted="false">"Local"</string>
+    <string name="text_353294e0861ac5c8" formatted="false">"Both"</string>
+    <string name="text_7f1f9e0f50769ace" formatted="false">"Destination · "</string>
+    <string name="text_76a87c65ea850f6f" formatted="false">"Quality · Best"</string>
+    <string name="text_cf76bae8ff4e9979" formatted="false">"Best"</string>
+    <string name="text_03fe325ab3efaa17" formatted="false">"Quality · "</string>
+    <string name="text_94e591ca01a0fd38" formatted="false">"Video only"</string>
+    <string name="text_a46d323f61a04f20" formatted="false">"Maximum items (profile / playlist)"</string>
+    <string name="text_202d3cdddd2fdc48" formatted="false">"Leave empty for unlimited"</string>
+    <string name="text_645807c24033c0e3" formatted="false">"Start download  ↗"</string>
+    <string name="text_61cd360677634056" formatted="false">"Choose Instagram Stories"</string>
+    <string name="text_536d81f697ae690e" formatted="false">"Download options &amp; folder  →"</string>
+    <string name="text_7926ba68b14547c8" formatted="false">"FILE OPTIONS"</string>
+    <string name="text_c29b1d35dbc1b80f" formatted="false">"Include subtitles when available"</string>
+    <string name="text_fdd80a7ce069f636" formatted="false">"Include thumbnails"</string>
+    <string name="text_1a03626d5b233420" formatted="false">"Include JSON metadata"</string>
+    <string name="text_097c05c3a30ab6f7" formatted="false">"Skip links already downloaded successfully"</string>
+    <string name="text_3873acd3686ab7c6" formatted="false">"Use public links without an account (ignore login sessions)"</string>
+    <string name="text_719e63765bef5d96" formatted="false">"Drive: skip files with the same name"</string>
+    <string name="text_d621aba3b7474192" formatted="false">"Drive: verify MD5 checksum after upload"</string>
+    <string name="text_5d58f7462229cba3" formatted="false">"Profile / album mode (Instagram, X, Facebook; includes carousels)"</string>
+    <string name="text_59da653fa716cb5b" formatted="false">"Facebook profile · All"</string>
+    <string name="text_72c349094479caae" formatted="false">"All"</string>
+    <string name="text_494e0843d958b988" formatted="false">"Photo"</string>
+    <string name="text_44a45f5ec665065f" formatted="false">"Facebook profile · "</string>
+    <string name="text_ff8887637589d897" formatted="false">"Drive folder ID (optional)"</string>
+    <string name="text_af60c65165efdd86" formatted="false">"Leave empty for My Drive"</string>
+    <string name="text_1a2dbedafb442e4b" formatted="false">"Import / profile date range (optional, YYYY-MM-DD)"</string>
+    <string name="text_7650d876eae9d1a9" formatted="false">"From date"</string>
+    <string name="text_665ce504236e32b6" formatted="false">"To date"</string>
+    <string name="text_473acfa2d6c300e9" formatted="false">"WEBSITE LOGINS"</string>
+    <string name="text_f7e3026b005eed2d" formatted="false">"Sign in to Instagram"</string>
+    <string name="text_4770b50d5a472897" formatted="false">"Open X / sign in"</string>
+    <string name="text_bbf32cd6e3fc12c6" formatted="false">"Website sessions"</string>
+    <string name="text_eb7f298f637a3885" formatted="false">"Sign in to another site (HTTPS URL)"</string>
+    <string name="text_9a64c9f4572802a3" formatted="false">"https://example.com/login"</string>
+    <string name="text_9ed0f0371c47b796" formatted="false">"Website login address"</string>
+    <string name="text_5f52f732645aeeb9" formatted="false">"Cancel"</string>
+    <string name="text_49297e5484186f4a" formatted="false">"Open"</string>
+    <string name="text_584016e908b1481b" formatted="false">"Enter a valid HTTPS website URL"</string>
+    <string name="text_c9c455787a18aaab" formatted="false">"Import cookies.txt for a website"</string>
+    <string name="text_8e9a03012a8381df" formatted="false">"https://example.com/"</string>
+    <string name="text_7715bf7898471de4" formatted="false">"Website for these cookies"</string>
+    <string name="text_9e975c9a9cf70aec" formatted="false">"Choose cookies.txt"</string>
+    <string name="text_4dd991860aa294b5" formatted="false">"Use the website’s HTTPS address"</string>
+    <string name="text_8d7f8d6d28de0aa0" formatted="false">"Not connected"</string>
+    <string name="text_009fff24e7a1d1b4" formatted="false">"Checking account "</string>
+    <string name="text_6869a14a7ec94d12" formatted="false">"Connect / switch Google Drive account"</string>
+    <string name="text_ed2c74e877fc3764" formatted="false">"Manage Google Drive files"</string>
+    <string name="text_7ac85217b814fe05" formatted="false">"INSTAGRAM JSON / ZIP IMPORT · ALL"</string>
+    <string name="text_396c3cb18f811a18" formatted="false">"Feed"</string>
+    <string name="text_d97f161575d9f74b" formatted="false">"Reels"</string>
+    <string name="text_6d09cf5748829bd2" formatted="false">"Stories"</string>
+    <string name="text_e9eda90d969f8266" formatted="false">"Tagged"</string>
+    <string name="text_7e83ad4064dc2791" formatted="false">"INSTAGRAM JSON / ZIP IMPORT · "</string>
+    <string name="text_fbaade067592d984" formatted="false">"Dates &amp; import options  →"</string>
+    <string name="text_79d364df1e4a6e38" formatted="false">"Import output · Folder"</string>
+    <string name="text_6f2d2b98fc26b7b0" formatted="false">"Single ZIP"</string>
+    <string name="text_050396426245d965" formatted="false">"Import output · "</string>
+    <string name="text_c7832b6ef2a2ec37" formatted="false">"Choose JSON / ZIP file"</string>
+    <string name="text_d7b5fdac38546a5f" formatted="false">"FILES FROM YOUR PHONE"</string>
+    <string name="text_4eca085f0b584794" formatted="false">"Choose files from your phone"</string>
+    <string name="text_67a3e0f8a138a783" formatted="false">"Choose .torrent file"</string>
+    <string name="text_763acac7824d3c8a" formatted="false">"Merge video + audio (FFmpeg)"</string>
+    <string name="text_b49fa9d8fbfa766b" formatted="false">"MOVE OLD FOLDERS"</string>
+    <string name="text_d7eefe9a2d3334f2" formatted="false">"TGDrive → The Great Drive. Keep the original files or remove them after verifying the copies."</string>
+    <string name="text_d768395a09486ea2" formatted="false">"Move local folder"</string>
+    <string name="text_78639c0702c9480a" formatted="false">"Move Google Drive folder"</string>
+    <string name="text_2781b3c396d2fec1" formatted="false">"QUEUE CONTROLS"</string>
+    <string name="text_62fe0b34747b5129" formatted="false">"Cancel active job"</string>
+    <string name="text_62ba150bd81e52e6" formatted="false">"Retry failed / cancelled job"</string>
+    <string name="text_333fae9321fdd1c2" formatted="false">"Pause / resume queue"</string>
+    <string name="text_0736a41d25f2a51a" formatted="false">"Upcoming jobs paused; the active job will continue"</string>
+    <string name="text_15027d8b780eda8f" formatted="false">"Queue resumed"</string>
+    <string name="text_335dc4737f74a5e2" formatted="false">"RECENT HISTORY"</string>
+    <string name="text_12fb6eaec1c4edd2" formatted="false">"View error log"</string>
+    <string name="text_b815ffb5951cea07" formatted="false">"DATA &amp; DEVICE"</string>
+    <string name="text_70225f9703f52422" formatted="false">"Export history and saved sites"</string>
+    <string name="text_d540e0c510030b5a" formatted="false">"Restore history and saved sites"</string>
+    <string name="text_81cad7d1dbfc6b0c" formatted="false">"Wait for the queue to finish before restoring a backup"</string>
+    <string name="text_df856246898b42b7" formatted="false">"Backups contain link history and website addresses. Login sessions stay on this device."</string>
+    <string name="text_747a303953e72a6c" formatted="false">"Device administration"</string>
+    <string name="text_ab75af39c0260260" formatted="false">"The Great Drive logo"</string>
+    <string name="text_6fc30298c3a1e345" formatted="false">"About"</string>
+    <string name="text_7f1056e7c29d1db5" formatted="false">"Features"</string>
+    <string name="text_ead07c84baac57a9" formatted="false">"Changelog"</string>
+    <string name="text_ff5c67a750710261" formatted="false">"This document could not be opened."</string>
+    <string name="text_a12b6c59e08221fa" formatted="false">"Download links and save media to your phone, Google Drive, or both. "</string>
+    <string name="text_34826ac0a442dafa" formatted="false">"Queues and website sessions are managed on this device."</string>
+    <string name="text_9a749919bb2f67e8" formatted="false">"↓\nDownload"</string>
+    <string name="text_b1d9e52f57187ff2" formatted="false">"⚙\nOptions"</string>
+    <string name="text_6df5a4a321c0bb61" formatted="false">"○\nAccounts"</string>
+    <string name="text_90b26c7ebe0df87d" formatted="false">"▣\nFiles"</string>
+    <string name="text_4f9ae418505588e6" formatted="false">"≡\nActivity"</string>
+    <string name="text_96749cf81cee09b0" formatted="false">"ⓘ\nInfo"</string>
+    <string name="text_120c5053f1cc8351" formatted="false">"Local + Drive"</string>
+    <string name="text_4cc52075443c05d8" formatted="false">" files to merge"</string>
+    <string name="text_60e518a85c2726ff" formatted="false">" files from your phone"</string>
+    <string name="text_64dadeb3e69574bf" formatted="false">" selected · tap to cancel"</string>
+    <string name="text_b79c8eead406a724" formatted="false">"Enter a valid HTTP/HTTPS URL"</string>
+    <string name="text_aabd9e595850bc9c" formatted="false">"Saved settings could not be read"</string>
+    <string name="text_21243c29cbbc80be" formatted="false">"Enter a Story profile link: instagram.com/stories/username/"</string>
+    <string name="text_0befe27156f3a619" formatted="false">"Sign in to Instagram to view active Stories"</string>
+    <string name="text_f155346fe3a6719a" formatted="false">"Loading Stories…"</string>
+    <string name="text_f74de7e81dacffee" formatted="false">"Instagram Story picker"</string>
+    <string name="text_9708455247920d7b" formatted="false">"Could not load Stories"</string>
+    <string name="text_33412269734c9641" formatted="false">"Error details are saved in Activity → View error log. Check your Instagram session and try again."</string>
+    <string name="text_1877a99f8d614a85" formatted="false">"Open log"</string>
+    <string name="text_c2321fe2ff9c12a4" formatted="false">"Close"</string>
+    <string name="text_06600d5264bf76bc" formatted="false">"No readable active Stories"</string>
+    <string name="text_820b7b86e6d94aff" formatted="false">"Preview unavailable; you can still download this Story"</string>
+    <string name="text_4063f86877f295d3" formatted="false">"Choose Stories ("</string>
+    <string name="text_94418b9758795f6d" formatted="false">"Download selected"</string>
+    <string name="text_6cb97fac5f62be0d" formatted="false">"Choose at least one Story"</string>
+    <string name="text_58c6b7111fc870ce" formatted="false">"Wait for Drive to finish connecting"</string>
+    <string name="text_fd76f8f491260821" formatted="false">"Google Drive · Connecting…"</string>
+    <string name="text_682998ff0d4c645e" formatted="false">"Drive sign-in: "</string>
+    <string name="text_61c2a41813f98728" formatted="false">" · tap Connect to grant access again"</string>
+    <string name="text_8f71800a4397c8ee" formatted="false">" · tap Connect to reconnect"</string>
+    <string name="text_4e8f9acce515b66e" formatted="false">"Could not read the torrent file"</string>
+    <string name="text_fe7804869a98ad13" formatted="false">"Torrent file exceeds 8 MB"</string>
+    <string name="text_e0667877027ba168" formatted="false">" files selected · choose a destination and start"</string>
+    <string name="text_24de8309fa92a376" formatted="false">"Choose exactly two files: one video and one audio"</string>
+    <string name="text_6d55ba000c132163" formatted="false">"2 files to merge · choose a destination and start"</string>
+    <string name="text_110fbc986b0e8e28" formatted="false">"Could not write the backup file"</string>
+    <string name="text_35338c99d9ab4034" formatted="false">"Backup saved"</string>
+    <string name="text_940ad2ede87f2b40" formatted="false">"Export: "</string>
+    <string name="text_414ba3274844d0cb" formatted="false">"Replace download history with this backup?"</string>
+    <string name="text_1b97a4e06a8b5b49" formatted="false">"Restore"</string>
+    <string name="text_649ccd78c1a3894e" formatted="false">"Could not read the backup"</string>
+    <string name="text_0979a53735f62253" formatted="false">"Backup restored"</string>
+    <string name="text_d821f2c4045dbae1" formatted="false">"Restore: "</string>
+    <string name="text_13e9b687ec4e61a8" formatted="false">"Could not read the cookies file"</string>
+    <string name="text_f7e42757e4e2a169" formatted="false">" cookies saved for "</string>
+    <string name="text_7fbf389b9c7d88d0" formatted="false">"Drive authorization failed (code "</string>
+    <string name="text_79fccd2c862f7107" formatted="false">"). Check Android OAuth and test users."</string>
+    <string name="text_fac33a369eecd9a8" formatted="false">"Drive authorization did not finish after account selection (result "</string>
+    <string name="text_5310c26de66fd9df" formatted="false">"). Check Android OAuth, the release certificate SHA-1, and test users."</string>
+    <string name="text_188d597dc2320d96" formatted="false">"Drive did not grant access. Check account permissions and try again."</string>
+    <string name="text_e569a6117af39543" formatted="false">"Google Drive · Connected: "</string>
+    <string name="text_a4873ea52bc71d75" formatted="false">"Drive connected: "</string>
+    <string name="text_8210624d0d3908cf" formatted="false">"Last account: "</string>
+    <string name="text_6bd67cc115bdbc0c" formatted="false">"The start date is after the end date"</string>
+    <string name="text_95be6af18104d3e3" formatted="false">"Check the date (YYYY-MM-DD): "</string>
+    <string name="text_fc291c29eef77cbb" formatted="false">"Choose a .json or .zip file"</string>
+    <string name="text_b58a9685a3004abd" formatted="false">"Could not read the import file"</string>
+    <string name="text_ecca1bfb9066ae0d" formatted="false">"Import: "</string>
+    <string name="text_9cdf47ec10e7e6b9" formatted="false">"Could not read the file"</string>
+    <string name="text_0597bac6300fd54b" formatted="false">"Choose one MP4 video and one audio file (M4A/MP3/WAV)"</string>
+    <string name="text_35a13f8518db386a" formatted="false">"File: "</string>
+    <string name="text_1c4299e1c09f5a7c" formatted="false">"Maximum items must be a positive number, or empty for unlimited"</string>
+    <string name="text_996b2047f784e439" formatted="false">" jobs added to the queue"</string>
+    <string name="text_9569c586b68a2e7b" formatted="false">" already completed"</string>
+    <string name="text_3957837ea46a5708" formatted="false">"Could not start download: "</string>
+    <string name="text_34b3ff853f324422" formatted="false">" Stories added to the queue"</string>
+    <string name="text_9f69af94f0808a4f" formatted="false">"Story queue"</string>
+    <string name="text_da86b28bc0ed02f9" formatted="false">"Could not queue Stories. View the error log in Activity."</string>
+    <string name="text_8f875c82aececdd9" formatted="false">"Open site · "</string>
+    <string name="text_b5ff6821fefc3631" formatted="false">"Remove the "</string>
+    <string name="text_de48842ff3a42bb1" formatted="false">" button from the list?"</string>
+    <string name="text_10725a56892ea5b3" formatted="false">"Remove"</string>
+    <string name="text_e6cefc03194df54c" formatted="false">"Saved sessions · Instagram: "</string>
+    <string name="text_fdee430d40bd57de" formatted="false">"available"</string>
+    <string name="text_980cb553717b6d47" formatted="false">"not available"</string>
+    <string name="text_8a82961d25ba1578" formatted="false">"No jobs available to retry"</string>
+    <string name="text_e79542feaaead372" formatted="false">"No downloads yet. Jobs you start will appear here."</string>
+    <string name="text_e7e29f1472e03c9a" formatted="false">"COMPLETED"</string>
+    <string name="text_e625db30aa55e278" formatted="false">"FAILED"</string>
+    <string name="text_e57ff987c034523c" formatted="false">"RUNNING"</string>
+    <string name="text_90b5772129036a78" formatted="false">"CANCELLED"</string>
+    <string name="text_46f6969c363f1eab" formatted="false">"INTERRUPTED"</string>
+    <string name="text_7d069eac6dbb7581" formatted="false">"UPLOADING TO DRIVE"</string>
+    <string name="text_0adc20ccd768ad7d" formatted="false">"SAVING"</string>
+    <string name="text_72c28125d49d5203" formatted="false">"QUEUE"</string>
+    <string name="text_aad9fd83264cc3f0" formatted="false">"Download job"</string>
+    <string name="text_5c32ff999db360f9" formatted="false">"File saved to Drive"</string>
+    <string name="text_f704eb5b5bde5958" formatted="false">" local files"</string>
+    <string name="text_c41150c362a97dd8" formatted="false">" Drive files"</string>
+    <string name="text_96e97fd0a72ff59c" formatted="false">"Tap to view details"</string>
+    <string name="text_1dcc94d58e76c81d" formatted="false">"Error log"</string>
+    <string name="text_8badeb98effc7b41" formatted="false">"Share log"</string>
+    <string name="text_6aa91e4275e8036e" formatted="false">"Share The Great Drive log"</string>
+    <string name="text_e917691fd01446fe" formatted="false">"Use a valid HTTPS website URL"</string>
+    <string name="text_6f9dcd19351f44b8" formatted="false">"Open site"</string>
+    <string name="text_e164a7c19dd311c3" formatted="false">"Use a valid HTTPS URL"</string>
+    <string name="text_82e94f1e57c53bd2" formatted="false">"Done / return to app"</string>
+    <string name="text_5657ce3500696e3b" formatted="false">"X session not detected. Finish signing in until the home page opens."</string>
+    <string name="text_14ea187872c3bda2" formatted="false">"Back to My Drive"</string>
+    <string name="text_b5d7eb2633d1837e" formatted="false">"Create folder"</string>
+    <string name="text_7a71258e77bac160" formatted="false">"Folder name"</string>
+    <string name="text_0059cf49077a7ff0" formatted="false">"Search files"</string>
+    <string name="text_8ff42dd1b45a4651" formatted="false">"File name"</string>
+    <string name="text_9738b3d6daccccb9" formatted="false">"Empty folder"</string>
+    <string name="text_21a2e0d6dbc0132d" formatted="false">"Rename"</string>
+    <string name="text_31eafd7e5599cf7a" formatted="false">"Public link"</string>
+    <string name="text_452a7dc82fc5e886" formatted="false">"Move to Trash"</string>
+    <string name="text_d0828ce15fd1151f" formatted="false">"Unstar"</string>
+    <string name="text_4fdc4dba0ef8bc5b" formatted="false">"Star"</string>
+    <string name="text_2325413bc899da87" formatted="false">"Revoke public link"</string>
+    <string name="text_cc98b3b23579500a" formatted="false">"Move to folder…"</string>
+    <string name="text_8376a426a3c98b3d" formatted="false">"New name"</string>
+    <string name="text_70f60daec854fa20" formatted="false">"Move to Trash?"</string>
+    <string name="text_3bc5f88660e4812c" formatted="false">"Yes"</string>
+    <string name="text_541d3e3b9846a093" formatted="false">"Revoke public access to this file/folder?"</string>
+    <string name="text_620fc50767c9bb82" formatted="false">"Revoke"</string>
+    <string name="text_3ffdaa7bebf04a24" formatted="false">"Choose destination folder"</string>
+    <string name="text_7d9882d7d0026d33" formatted="false">"Move to this folder"</string>
+    <string name="text_051093df9158bde0" formatted="false">"Save"</string>
+    <string name="text_4e92cdda1b90f3a2" formatted="false">"← Back"</string>
+    <string name="text_e7d1c0e22d5f9771" formatted="false">"Move folder · "</string>
+    <string name="text_522b53b1f5c39df7" formatted="false">"The TGDrive folder in "</string>
+    <string name="text_42402dad8fef6132" formatted="false">"parent folder "</string>
+    <string name="text_3178f8bc549ac82a" formatted="false">" will be copied to The Great Drive under the same parent."</string>
+    <string name="text_634419dea72a29c7" formatted="false">"Find app-owned TGDrive files in Movies, Pictures, Music, and Download. Site/username/type subfolders are preserved."</string>
+    <string name="text_828cf9918a6698ac" formatted="false">"Keep original files (copy)"</string>
+    <string name="text_190a8f79f98076e8" formatted="false">"Remove originals after verification"</string>
+    <string name="text_871df6c1e5f82c3e" formatted="false">"Remove mode moves originals to Drive Trash after the copies match in size and checksum."</string>
+    <string name="text_7632e5d3f4d5bcc4" formatted="false">"Remove mode deletes originals from your phone after the copies match in size and SHA-256."</string>
+    <string name="text_e23a79f1573a7120" formatted="false">"Different content is never overwritten. Identical copies can be reused. Empty original folders are kept."</string>
+    <string name="text_9f42771de69d3f5e" formatted="false">"Scan old folders"</string>
+    <string name="text_c28ecfaaddc4b063" formatted="false">"Scan the folders to count files before starting."</string>
+    <string name="text_eb8ab58014e1c545" formatted="false">"Start migration"</string>
+    <string name="text_63241f2bb48d9151" formatted="false">"Stop migration"</string>
+    <string name="text_297e336d594ef031" formatted="false">"Stop after the current operation? Files already processed will remain saved."</string>
+    <string name="text_6dd7d1695eae8ad5" formatted="false">"Back"</string>
+    <string name="text_9002cb355ffc5429" formatted="false">"Stop"</string>
+    <string name="text_8b9ca25108bbf568" formatted="false">"LATEST RESULT"</string>
+    <string name="text_4f3fa742277e639d" formatted="false">"Open Files → Move Google Drive folder to reconnect your account."</string>
+    <string name="text_192e7b64cfbb3db4" formatted="false">"Scanning folders…"</string>
+    <string name="text_17443abb1d279555" formatted="false">" files · "</string>
+    <string name="text_a151ee4f4b984d96" formatted="false">"No accessible old files. "</string>
+    <string name="text_24126f05f73b0b74" formatted="false">"Check the parent folder ID in Options."</string>
+    <string name="text_0dfb92ef73d91507" formatted="false">"Only files owned by this app installation are included."</string>
+    <string name="text_fae44ea23b418969" formatted="false">"Scan failed: "</string>
+    <string name="text_f0bfcf9cbfd54e84" formatted="false">"Move and remove originals?"</string>
+    <string name="text_e0e7e58fc99c8d2e" formatted="false">"Copy and keep originals?"</string>
+    <string name="text_1dce0ceed74de1a6" formatted="false">" files found. Destination: The Great Drive.\n\n"</string>
+    <string name="text_f0509f8c93075ed3" formatted="false">"Originals move to Drive Trash"</string>
+    <string name="text_75b892cacc212eb5" formatted="false">"Originals are deleted from your phone"</string>
+    <string name="text_bcd72db3cbfc8b01" formatted="false">" only after the copies have been verified."</string>
+    <string name="text_cee27f0726f38699" formatted="false">"All original files will be kept."</string>
+    <string name="text_73432eae38232b0e" formatted="false">"\n\nThe file list will be scanned again when you start."</string>
+    <string name="text_bc692f0398d9e6ef" formatted="false">"Start"</string>
+    <string name="text_31098a2bc4889681" formatted="false">"App language"</string>
+    <string name="text_11b8712670ffce5a" formatted="false">"Bahasa Indonesia"</string>
+    <string name="text_ba118bf7fc9c1aed" formatted="false">"English"</string>
+    <string name="text_0e8289bc066801b6" formatted="false">"Your language choice is saved on this device."</string>
+    <string name="text_fbdb352418970368" formatted="false">"Manage your queue, temporary storage, and device history."</string>
+    <string name="text_f3dc338681c5c67b" formatted="false">"DOWNLOAD SUMMARY"</string>
+    <string name="text_fee5c98985a57d26" formatted="false">"Completed"</string>
+    <string name="text_7c4eeec73e01c3a3" formatted="false">"Failed / cancelled"</string>
+    <string name="text_27f525d124eebc4b" formatted="false">"Unfinished"</string>
+    <string name="text_5aa225ad14b28063" formatted="false">"Paused"</string>
+    <string name="text_0436bb346d9b4c76" formatted="false">"Running"</string>
+    <string name="text_c456c88ddb4b53d7" formatted="false">"Empty"</string>
+    <string name="text_66480f969bfeb5cd" formatted="false">"Jobs are active or waiting"</string>
+    <string name="text_6194963092e247fa" formatted="false">"Resume queue"</string>
+    <string name="text_fba13bc6ac119c43" formatted="false">"Pause queue"</string>
+    <string name="text_a653bf0480cd21ee" formatted="false">"Cancel active job"</string>
+    <string name="text_e1d7b5c30523601d" formatted="false">"Cancel the active job?"</string>
+    <string name="text_40e57d6045961752" formatted="false">"ACCOUNTS &amp; SITES"</string>
+    <string name="text_92f1fe5db3de374d" formatted="false">"Not connected"</string>
+    <string name="text_2ac990927c0ae515" formatted="false">"Saved websites"</string>
+    <string name="text_712da6bd1f884756" formatted="false">"STORAGE"</string>
+    <string name="text_089d40cb6a7aa35b" formatted="false">"Temporary cache"</string>
+    <string name="text_b51f2a55e56ddb64" formatted="false">"Calculating…"</string>
+    <string name="text_689cd94348f71f3c" formatted="false">"Clear old job cache"</string>
+    <string name="text_f60a0226a9d05968" formatted="false">"Downloaded files and login sessions are kept."</string>
+    <string name="text_16502b625b4c5ac8" formatted="false">"Remove temporary files from inactive jobs?"</string>
+    <string name="text_9f7929ef8020ef21" formatted="false">"Wait until the queue is empty"</string>
+    <string name="text_88b00c90e8368806" formatted="false">"Job cache cleared"</string>
+    <string name="text_35d62a8643128979" formatted="false">"Clear download history"</string>
+    <string name="text_7826a2daec82a252" formatted="false">"Clear all download records on this device?"</string>
+    <string name="text_b3b2aab9277e0d13" formatted="false">"History cleared"</string>
+    <string name="text_b7dae482bdf38964" formatted="false">"Only history records are removed. Downloaded files are kept."</string>
+    <string name="text_bae9e3381b9043fe" formatted="false">"Continue"</string>
+    <string name="text_dcb080ea9e51d9c2" formatted="false">"Refresh summary"</string>
+    <string name="text_c0b0666f71007bf1" formatted="false">"Backup exceeds 2 MB"</string>
+    <string name="text_06c10ffa6223e76c" formatted="false">"Unrecognized backup format"</string>
+    <string name="text_7dc3ac57dff175c6" formatted="false">"FFmpeg is available on arm64 Android devices; other downloads remain available"</string>
+    <string name="text_5716e1f1ac712c99" formatted="false">"The video or audio to merge is unavailable"</string>
+    <string name="text_735d3992587df92e" formatted="false">"FFmpeg could not merge audio and video: {0}"</string>
+    <string name="text_ebc4f47d5ff772ed" formatted="false">"Drive did not return an account address. Choose another account and try again."</string>
+    <string name="text_a06581649d2a641d" formatted="false">"Invalid destination folder"</string>
+    <string name="text_7875fc04ad404c02" formatted="false">"Torrent folder unavailable"</string>
+    <string name="text_153411a7f56f5619" formatted="false">"Fetching magnet metadata from peers…"</string>
+    <string name="text_bfcb238077a75887" formatted="false">"Magnet metadata unavailable from peers"</string>
+    <string name="text_9543bb5f96841cd9" formatted="false">"The .torrent link must use HTTPS and be accessible"</string>
+    <string name="text_698978109cc0c58f" formatted="false">"The .torrent file exceeds 8 MB"</string>
+    <string name="text_01b0d6553bddd109" formatted="false">"Invalid torrent metadata"</string>
+    <string name="text_ef9e3b43bc393a2b" formatted="false">"Torrent cancelled"</string>
+    <string name="text_debad359bb44798f" formatted="false">"Torrent did not finish within 24 hours"</string>
+    <string name="text_e9d50fc23bb62d33" formatted="false">"The torrent library does not support this phone’s architecture"</string>
+    <string name="text_9ee54cd55929c2a1" formatted="false">"Torrent finished without output files"</string>
+    <string name="text_cda734ebda4966f0" formatted="false">"Migration cancelled; unprocessed source files are kept"</string>
+    <string name="text_0725d434a0fa5a37" formatted="false">"Copy verification failed. Original files are kept."</string>
+    <string name="text_8e57e6e3bdc42ee9" formatted="false">"Could not read the local file list"</string>
+    <string name="text_f6b8c99bface7945" formatted="false">"Could not create a local copy"</string>
+    <string name="text_1e4c09ced4c30096" formatted="false">"Could not open the file for copying"</string>
+    <string name="text_932adf2d4dd09269" formatted="false">"Could not publish the copy"</string>
+    <string name="text_43fd12a6755dc25f" formatted="false">"Could not save the copy record; the original is kept"</string>
+    <string name="text_a801ebe0bd1c6063" formatted="false">"Copy saved; the original could not be removed"</string>
+    <string name="text_f15e0e80a1f7dc8a" formatted="false">"Google documents/shortcuts are kept: checksum verification only supports regular files"</string>
+    <string name="text_81c364b9ef846e87" formatted="false">"Drive source checksum unavailable; the original is kept"</string>
+    <string name="text_7fba3fa9c2b6e92a" formatted="false">"Could not save the Drive copy record; the original is kept"</string>
+    <string name="text_628458c85d2aa106" formatted="false">"Could not read the file for verification"</string>
+    <string name="text_1d6a3ea41d96cba8" formatted="false">"No folder migrations yet."</string>
+    <string name="text_22feb44e099f08e3" formatted="false">"The previous process stopped. Scan the folders and run again to continue."</string>
+    <string name="text_0a0430825a4fee7d" formatted="false">"Folder migration"</string>
+    <string name="text_d9616b9d473abc89" formatted="false">"Scanning old folders…"</string>
+    <string name="text_c2e4314d3cf33e8d" formatted="false">"Scanning Drive folders…"</string>
+    <string name="text_d3189113cbb8c14e" formatted="false">"Scanning local folders…"</string>
+    <string name="text_f4911bb39fc9db7f" formatted="false">"Reconnect Drive through the Files menu"</string>
+    <string name="text_e03739e54a56cd82" formatted="false">"Remove originals after verification"</string>
+    <string name="text_dfd18b54e0dee4a1" formatted="false">"Keep original files"</string>
+    <string name="text_80ef25713b8a8e1f" formatted="false">"Migrating: {0}"</string>
+    <string name="text_c96fb44674f97efc" formatted="false">"No accessible old files found."</string>
+    <string name="text_38418fbc3677961c" formatted="false">"Completed · {0} successful · {1} failed out of {2} files."</string>
+    <string name="text_72ac8306e7d5ec38" formatted="false">"Cancelled · {0} successful · {1} failed out of {2} files."</string>
+    <string name="text_898616e242db854c" formatted="false">"Stopped · {0} successful · {1} failed out of {2} files."</string>
+    <string name="text_a85ffa01697c78cb" formatted="false">"Sources that failed processing are kept."</string>
+    <string name="text_c5a259bb5ca348ad" formatted="false">"Original files are kept."</string>
+    <string name="text_59eab62d28681098" formatted="false">"Unprocessed files are kept."</string>
+    <string name="text_372f727df2ffa0fe" formatted="false">"The Great Drive · Move folders"</string>
+    <string name="text_cf2c40868023c721" formatted="false">"Android stopped the migration. Run again to continue; unprocessed sources are kept."</string>
+    <string name="text_20016790009b5aad" formatted="false">"Invalid host"</string>
+    <string name="text_fb9419596f078ed5" formatted="false">"Cookies file is too large"</string>
+    <string name="text_7cdf263aa2e6ee0f" formatted="false">"No matching HTTPS cookies for {0}"</string>
+    <string name="text_f202d1c5318d0a64" formatted="false">"Invalid website URL"</string>
+    <string name="text_56bc53a25b4a64f0" formatted="false">"Could not save website"</string>
+    <string name="text_54bb1be330f88f13" formatted="false">"Could not update history to the copy; the Drive source is kept"</string>
+    <string name="text_858ce23c448c4a2d" formatted="false">"The app stopped while a job was running. Choose Retry to try again."</string>
+    <string name="text_453ec5964fad8394" formatted="false">"The Great Drive downloads"</string>
+    <string name="text_15dca6740fb7946d" formatted="false">"Instagram JSON/ZIP import"</string>
+    <string name="text_f6ecab8105350004" formatted="false">"Local file"</string>
+    <string name="text_4ea3c5f3cc8a91eb" formatted="false">"Torrent file"</string>
+    <string name="text_d74da93eb5dbb461" formatted="false">"Preparing queue…"</string>
+    <string name="text_82c9a9e6a95187ca" formatted="false">"Story queue cancelled"</string>
+    <string name="text_a84657af0f1f502d" formatted="false">"Queue interrupted; jobs can be retried"</string>
+    <string name="text_4ab1666545304f1d" formatted="false">"Fetching media…"</string>
+    <string name="text_c1d07ee1a94c1ea8" formatted="false">"Could not create the local file folder"</string>
+    <string name="text_61e93910ed751247" formatted="false">"Merging video + audio with FFmpeg"</string>
+    <string name="text_e46830100fbc1042" formatted="false">"Download output is outside the working directory"</string>
+    <string name="text_eb6386e1ed733ad2" formatted="false">"Audio is outside the working directory"</string>
+    <string name="text_67f83846e1089a99" formatted="false">"Merging audio + video with FFmpeg"</string>
+    <string name="text_1be0355fc15de2a2" formatted="false">"Saving locally: {0}"</string>
+    <string name="text_5d3200471ba8667a" formatted="false">"Local: {0}"</string>
+    <string name="text_6543ba1072bf5da1" formatted="false">"Local: {0}"</string>
+    <string name="text_bc0c1574239a309d" formatted="false">"Already in Drive: {0}"</string>
+    <string name="text_9a66c9956aa56526" formatted="false">"Uploading {0}"</string>
+    <string name="text_e0e70e84a25066c9" formatted="false">"Download #{0}"</string>
+    <string name="text_a2861fc5960a1144" formatted="false">"Merged media is outside the working directory"</string>
+    <string name="text_777b9548e1e44571" formatted="false">"Download finished; preparing to save"</string>
+    <string name="text_ed281032b2b07f08" formatted="false">"No errors recorded on this device."</string>
+    <string name="text_66c591e5177c7f3d" formatted="false">"Could not read the error log: {0}"</string>
+    <string name="text_2bc952e66db04ded" formatted="false">"Error without details"</string>
+    <string name="text_e87260e44668fd52" formatted="false">"Could not create the local file"</string>
+    <string name="text_03276bffb96c1cf9" formatted="false">"Could not open the local file"</string>
+    <string name="text_9791087f77ecefc8" formatted="false">"Connect Google Drive first"</string>
+    <string name="text_7111ae5d7288f228" formatted="false">"Drive could not start upload: HTTP {0}"</string>
+    <string name="text_6e4e54354841fac5" formatted="false">"Invalid Drive upload session"</string>
+    <string name="text_53129257bffad8b3" formatted="false">"The file changed during upload"</string>
+    <string name="text_d0a631e99fb3fcf3" formatted="false">"Drive MD5 checksum differs or is unavailable for {0}"</string>
+    <string name="text_7574f6626a97cdf0" formatted="false">"Drive upload offset changed; stopping to avoid data corruption"</string>
+    <string name="text_73469473bf065a5f" formatted="false">"Drive token expired. Reconnect Drive and try again."</string>
+    <string name="text_2f27486a5311c940" formatted="false">"Drive upload failed after retrying"</string>
+    <string name="text_5ac18027d7430bd5" formatted="false">"Drive did not confirm the upload"</string>
+    <string name="text_8e4ecbf965cb1657" formatted="false">"The start date must be on or before the end date"</string>
+    <string name="text_8f448cce24274be9" formatted="false">"The media path is outside the import folder"</string>
+    <string name="text_40861c21ab89159e" formatted="false">"Invalid embedded media"</string>
+    <string name="text_8aef94da183c1c82" formatted="false">"Imported media URLs must use HTTPS"</string>
+    <string name="text_33c26a94878637cb" formatted="false">"Unknown media type"</string>
+    <string name="text_0f844639359a5944" formatted="false">"Audio URLs must use HTTPS"</string>
+    <string name="text_cf0e8d84901c3319" formatted="false">"Invalid embedded audio"</string>
+    <string name="text_4add207e712408c2" formatted="false">"The audio path is outside the import folder"</string>
+    <string name="text_d7824dc9262e6247" formatted="false">"No media for this category"</string>
+    <string name="text_bb96080183f220e5" formatted="false">"Unknown import output option"</string>
+    <string name="text_f93eaee376202438" formatted="false">"Invalid Instagram username"</string>
+    <string name="text_67dd57feba6e158a" formatted="false">"An Instagram session is required to read Stories"</string>
+    <string name="text_c3b0013a874cb77e" formatted="false">"Could not open Instagram Stories"</string>
+    <string name="text_4e2bca51a27a3989" formatted="false">"The Story URL lacks a valid username and ID"</string>
+    <string name="text_8c215673663ccd81" formatted="false">"An Instagram session is required to download selected Stories"</string>
+    <string name="text_ac6e6bdbb0302caa" formatted="false">"Could not read the Instagram Story list"</string>
+    <string name="text_7641412637e09c49" formatted="false">"Finding Story ID {0}"</string>
+    <string name="text_53ec509c7b2b3273" formatted="false">"Story ID {0} was not found or has expired. Reload the Story list."</string>
+    <string name="text_5600bccdf59b359e" formatted="false">"Media URL unavailable for Story ID {0}"</string>
+    <string name="text_e6364a1fac473254" formatted="false">"Unsupported media type for Story ID {0}: {1}"</string>
+    <string name="text_ec6ace12dcb42211" formatted="false">"Story ID {0} completed"</string>
+    <string name="text_1d3de03b84fd32e0" formatted="false">"Instagram did not return a media file"</string>
+    <string name="text_bfcabdb5cb8ae9e3" formatted="false">"The Story file type does not match the selected ID"</string>
+    <string name="text_7e5ac9856ab34277" formatted="false">"Incomplete Story file; please try again"</string>
+    <string name="text_6f82baa3d94ce503" formatted="false">"Maximum items cannot be negative"</string>
+    <string name="text_3c4d9b34f045478e" formatted="false">"Profile/album mode supports Instagram, X, and Facebook"</string>
+    <string name="text_28f8dd4963aedac0" formatted="false">"Fetching profile / album"</string>
+    <string name="text_2580746cfa540f9e" formatted="false">"gallery-dl could not read the profile / album; check the URL or account session"</string>
+    <string name="text_3d229f9cffab1810" formatted="false">"No media in this profile / album or date range"</string>
+    <string name="text_78269200c0ba08e8" formatted="false">"Some profile items could not be extracted; try again with fewer items"</string>
+    <string name="text_3caa36c1b54bdbfd" formatted="false">"{0} files found"</string>
+    <string name="text_a4d0540472fad2da" formatted="false">"The Instagram extractor found no image files"</string>
+    <string name="text_b8961ed2e576340e" formatted="false">"Instagram photo failed: {0}"</string>
+    <string name="text_ccd6bc560c67666f" formatted="false">"The extractor returned no photos or videos. Check the link or login session."</string>
+    <string name="text_ed8ad5df9682f40c" formatted="false">"The link points to a web page instead of a file. Sign in and try again."</string>
+    <string name="text_279ddc4f3809b2b0" formatted="false">"Processing file"</string>
+    <string name="text_01ba5d6ac08ab708" formatted="false">"Cancelled"</string>
+    <string name="text_fd8ccb786ce43cc5" formatted="false">"Interrupted"</string>
+</resources>

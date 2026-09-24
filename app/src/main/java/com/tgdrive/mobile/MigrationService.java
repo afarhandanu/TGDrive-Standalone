@@ -31,7 +31,7 @@ public class MigrationService extends Service {
     }
     @Override public void onCreate() {
         super.onCreate(); notifications=getSystemService(NotificationManager.class);
-        notifications.createNotificationChannel(new NotificationChannel("folder_migration","Pemindahan folder",NotificationManager.IMPORTANCE_LOW));
+        notifications.createNotificationChannel(new NotificationChannel("folder_migration",L10n.text(this,"Pemindahan folder"),NotificationManager.IMPORTANCE_LOW));
     }
     @Override public int onStartCommand(Intent intent,int flags,int startId) {
         if(intent==null) { stopSelf(startId); return START_NOT_STICKY; }
@@ -65,7 +65,7 @@ public class MigrationService extends Service {
                     catch(Exception error) {
                         failed++;
                         ErrorLog.record(this,"Pemindahan: "+entry.label(),error);
-                        if(failed<=20) issues.append("\n• ").append(entry.label()).append(": ").append(error.getMessage());
+                        if(failed<=20) issues.append("\n• ").append(entry.label()).append("\n").append(error.getMessage());
                     }
                 }
                 update((total==0?"Tidak ditemukan file lama yang bisa diakses.":"Selesai · "+succeeded+" berhasil · "+failed+" gagal dari "+total+" file.")+
@@ -88,7 +88,8 @@ public class MigrationService extends Service {
         Intent open=new Intent(this,MigrationActivity.class).putExtra("drive",drive);
         PendingIntent action=PendingIntent.getActivity(this,3002,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(this,"folder_migration").setSmallIcon(android.R.drawable.stat_sys_download)
-            .setContentTitle("The Great Drive · Pindahkan folder").setContentText(text).setStyle(new Notification.BigTextStyle().bigText(text))
+            .addExtras(L10n.notificationText("The Great Drive · Pindahkan folder",text))
+            .setContentTitle(L10n.text(this,"The Great Drive · Pindahkan folder")).setContentText(L10n.message(this,text)).setStyle(new Notification.BigTextStyle().bigText(L10n.message(this,text)))
             .setContentIntent(action).setOngoing(running).setOnlyAlertOnce(true).build();
     }
     @Override public void onTimeout(int startId,int fgsType) {

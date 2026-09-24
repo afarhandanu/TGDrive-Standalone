@@ -1,35 +1,77 @@
-# The Great Drive
+<p align="center">
+  <img src="app/src/main/res/drawable-nodpi/brand_banner.jpg" alt="The Great Drive" width="640">
+</p>
 
-The Great Drive is an Android downloader inspired by the capabilities of TgDriveBot v3.6.12-r24. All downloads and uploads in this project run on the phone. The app does not connect to the Telegram bot, CT 105, or the old `/api/v1` server bridge. `Mone-v1.1.1.apk` was used only as a behavioral reference; its code and visual assets are not included.
+<h1 align="center">The Great Drive</h1>
+<p align="center">Save what you love — to your phone, Google Drive, or both.</p>
+<p align="center"><b>Android 10+</b> · <b>On-device downloads</b> · <b>English / Bahasa Indonesia</b></p>
+<p align="center">English · <a href="README.id.md">Bahasa Indonesia</a></p>
 
-## Implemented in this source
+The Great Drive is an Android app for downloading media, organizing files, and uploading them to Google Drive. Share a link from another app or paste it directly, choose where to save it, and follow the queue. Your last settings are remembered for the next download.
 
-- Android Share target for links and files, input for up to 50 URLs, and local file picker; a local foreground queue with progress, cancellation, retry of failed URL requests and recent activity.
-- `yt-dlp` media extraction inside the APK, direct file fallback, quality selection, profile or playlist item limit, optional subtitles, thumbnails and JSON metadata.
-- Local WebView sessions for Instagram and X. Cookies are exported to a private temporary Netscape file for a download, then deleted when the job ends.
-- Instagram JSON or ZIP import using the bot's parser, with All/Feed/Reels/Stories/Tagged selection and local, embedded or remote media extraction.
-- Three destinations: local storage (MediaStore), Google Drive (resumable upload), or both. Video, photo and audio appear in their corresponding media collections; other files appear in Downloads/The Great Drive.
-- The provided brand icon is the Android launcher icon. The matching banner appears on the download screen and under Info → Tentang. Info also includes Fitur and Changelog, available offline.
-- Berkas includes old-folder migration for local storage and Drive. Choose to keep originals or remove them after verified copying; progress, cancellation and error reports are available.
-- Google Drive browser for folders, search, rename, trash and public links.
-- Fixed `com.tgdrive.mobile` package ID, release signing through the existing keystore secrets, and unique GitHub Actions artifact names.
+Media extraction, torrent downloads, merging, and uploads run on your phone. You do not need to run a separate server.
 
-## Build and sign
+## What you can do
 
-Push the **contents** of this directory to a GitHub repository. Set the four repository secrets described in `docs/SIGNING.md`, then start `Build The Great Drive APK` from Actions. Download the artifact named `The-Great-Drive-v<version>-vc<code>-run<run>-<commit>`.
+| Download | Organize | Stay in control |
+| --- | --- | --- |
+| Videos, photos, audio, and supported playlists | Save locally, to Google Drive, or both | Keep your preferred quality, destination, and filters |
+| Instagram Stories with thumbnails and multi-selection | Browse, search, rename, star, and move Drive files | Pause the queue, cancel, and retry failed jobs |
+| Instagram JSON/ZIP imports with category and date filters | Merge a video and audio file with FFmpeg | Review results and share diagnostic logs |
+| Magnet links and `.torrent` files | Migrate old download folders with verified copies | Back up history and saved website addresses |
 
-Google Drive requires an Android OAuth client for package `com.tgdrive.mobile` and the **SHA-1 of the existing release signing certificate**. Enable the Drive API, configure the OAuth consent screen, and add your Google account as a test user if the app is in testing. The app requests Drive authorization when Drive is selected; do not put a web client secret in the APK.
+See the [full feature list](docs/i18n/en/FEATURES.md) and [release notes](CHANGELOG.md).
 
-The release workflow refuses to sign with a fresh key. `VERSION_CODE` must increase for an installable upgrade. `VERSION_NAME` is the displayed version. The existing release key stays private and outside this source archive.
+## Start downloading
 
-## Rebrand and existing installs
+1. Install a signed APK from your repository’s **Build The Great Drive APK** workflow artifact. Keep the same signing key when updating an existing installation.
+2. Open **Download**, paste a link, or share a link/file to The Great Drive from Android.
+3. Choose **Local**, **Drive**, or **Both**, then select quality. Leave **Maximum items** empty for no item limit.
+4. If needed, sign in to the source website under **Accounts**. Connect your Google account for Drive destinations.
+5. Start the download and open **Activity** to follow progress or inspect the result.
 
-Version 1.3.6-alpha (versionCode 14) installs as an update to the previous app when signed with the same release key. Keep the Android package `com.tgdrive.mobile`, the existing OAuth Android client and the `TGDRIVE_*` signing secrets. New downloads go into `The Great Drive/site/username/type/` inside the corresponding local media collection or under `My Drive/The Great Drive/`. Earlier files stay in their existing `TGDrive/` folders; this release does not move or delete them. Existing login sessions, saved settings, and backup files stay compatible.
+Choose **Options → App language** to switch between Bahasa Indonesia and English. The choice is saved; app pages, dialogs, status messages, and offline information use that language. Website content and raw third-party diagnostic text retain their original language.
 
-From 1.3.7-alpha (versionCode 15), use **Berkas → Pindahkan folder Lokal / Google Drive** to migrate earlier files. Scan first, then choose **Simpan file lama** to retain originals, or **Hapus file lama setelah verifikasi**. Local copies are checked by size and SHA-256; Drive copies by size and MD5. Drive originals go to Trash, while local originals are deleted. Empty source directories remain. Local migration only sees files owned by this app installation; install the update over the existing app to preserve ownership. Drive migration searches `TGDrive` under My Drive or the parent folder ID currently set under Opsi, and leaves Google documents/shortcuts in place. Conflicting content is preserved as a separate file; a verified existing copy can be reused on retry.
+## A place for everything
 
-`docs/FEATURES.md` and `CHANGELOG.md` are included in the APK by the `syncAppDocs` Gradle task. Update those documents to update the offline Info menu. The CI workflow also runs the migration deletion-safety checks before publishing the APK artifact.
+| Menu | What is inside |
+| --- | --- |
+| **Download** | Links, destination, quality, item limit, and the Story picker |
+| **Options** | Language, saved download preferences, metadata, dates, and Drive folder ID |
+| **Accounts** | Website sessions, Google Drive connection, backups, and device administration |
+| **Files** | Instagram imports, local files, torrents, media merging, and folder migration |
+| **Activity** | Queue controls, recent results, file links, and error logs |
+| **Info** | About, Features, and Changelog, available offline |
 
-## Development policy
+Local media is organized under `The Great Drive/site/username/type/` in Android’s Movies, Pictures, or Music collections. Other files go to Downloads. Drive uses the same structure beneath `The Great Drive` in My Drive or your chosen parent folder.
 
-This README changes only for a feature, setup or architecture change. Bug-fix notes belong in `CHANGELOG.md`. The current feature audit in `docs/FEATURE_PARITY.md` lists capabilities that still need Android implementations. Do not describe this source as complete feature parity until those entries have been implemented and tested on a device.
+Updating from an older version? **Files → Move local folder / Move Google Drive folder** can copy files from legacy `TGDrive` folders. Keep originals, or remove them only after verification. Local originals are deleted after size and SHA-256 checks; Drive originals go to Trash after size and MD5 checks. Empty old folders remain. Local migration only includes files owned by the current app installation; Google documents and shortcuts are skipped.
+
+## Build your APK
+
+The repository includes a GitHub Actions release workflow. Upload the **contents of this project directory** so that `.github/`, `app/`, and `version.properties` are at the repository root.
+
+1. Configure the existing release signing secrets using [Signing](docs/SIGNING.md).
+2. Configure Google Drive using [Google Drive setup](docs/GOOGLE_DRIVE_SETUP.md).
+3. Run **Actions → Build The Great Drive APK**.
+4. Download the APK and checksum from the artifact named `The-Great-Drive-v<version>-vc<code>-run<run>-<commit>`.
+
+The workflow uses JDK 17, Gradle 8.13, Android SDK 36, and Python 3.11. It builds arm64 and x86_64 APK contents; the included FFmpeg integration requires arm64. Increase `VERSION_CODE` for every upgrade.
+
+The Android package remains `com.tgdrive.mobile` for update compatibility. Keep the existing signing certificate, OAuth client, and `TGDRIVE_*` secret names. Release signing intentionally fails if the expected key is unavailable. Never commit signing keys, passwords, or account cookies.
+
+## Privacy and practical limits
+
+- Website sessions stay on the device. A private temporary cookie file is supplied to the extractor and removed when the job ends. Exported backups exclude login cookies and Google access tokens.
+- Source websites and Google Drive receive the requests needed for downloads and uploads. This is not an offline downloader.
+- Site support depends on the bundled extractors, the source website, and your account’s access. Login does not guarantee that every URL is supported.
+- Stories and preview URLs can expire. Refresh the Story list when a selected item is no longer available.
+- This is an **alpha** release. Keep originals when first trying folder migration and inspect the results on your device.
+
+## Contributing
+
+Keep changes focused and preserve working download, login, and storage flows. Include the app version, Android version, steps to reproduce, and a redacted error log when reporting an issue.
+
+App text is maintained in [`tools/localization.json`](tools/localization.json). Run `python tools/generate_localization.py` after editing translations, then `python tests/check_localization.py`. Complete offline Features and Changelog documents live in `docs/i18n/id/` and `docs/i18n/en/`; the build packages both. See [Localization](docs/LOCALIZATION.md) for the checklist.
+
+Built with [yt-dlp](https://github.com/yt-dlp/yt-dlp), [gallery-dl](https://github.com/mikf/gallery-dl), [Chaquopy](https://chaquo.com/chaquopy/), [FFmpeg](https://ffmpeg.org/), and [libtorrent4j](https://github.com/aldenml/libtorrent4j). Their respective licenses and notices apply to those dependencies.

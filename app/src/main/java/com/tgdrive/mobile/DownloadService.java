@@ -36,7 +36,7 @@ public class DownloadService extends Service {
     @Override public void onCreate() {
         super.onCreate();
         notifications = getSystemService(NotificationManager.class);
-        notifications.createNotificationChannel(new NotificationChannel("downloads", "Unduhan The Great Drive", NotificationManager.IMPORTANCE_LOW));
+        notifications.createNotificationChannel(new NotificationChannel("downloads", L10n.text(this, "Unduhan The Great Drive"), NotificationManager.IMPORTANCE_LOW));
     }
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) return START_NOT_STICKY;
@@ -265,7 +265,8 @@ public class DownloadService extends Service {
     private Notification notification(String title, String body, int progress) {
         return new Notification.Builder(this, "downloads")
             .setSmallIcon(android.R.drawable.stat_sys_download)
-            .setContentTitle(title).setContentText(body).setProgress(100, progress, progress <= 0)
+            .addExtras(L10n.notificationText(title, body))
+            .setContentTitle(L10n.state(this, title)).setContentText(L10n.message(this, body)).setProgress(100, progress, progress <= 0)
             .setOngoing(!title.equals("COMPLETED") && !title.equals("FAILED") && !title.equals("CANCELLED"))
             .build();
     }

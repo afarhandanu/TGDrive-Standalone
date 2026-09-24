@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MigrationActivity extends Activity {
+public class MigrationActivity extends LocalizedActivity {
     private final ExecutorService io=Executors.newSingleThreadExecutor();
     private final Handler handler=new Handler(Looper.getMainLooper());
     private boolean drive,scanning;
@@ -30,7 +30,7 @@ public class MigrationActivity extends Activity {
     private RadioButton remove;
     private final Runnable refresh=new Runnable() {
         public void run() {
-            status.setText(MigrationService.status(MigrationActivity.this));
+            status.setText(message(MigrationService.status(MigrationActivity.this)));
             boolean active=MigrationService.active();
             scan.setEnabled(!active && !scanning);
             start.setEnabled(!active && !scanning && count>0);
@@ -54,62 +54,62 @@ public class MigrationActivity extends Activity {
         ScrollView scroll=new ScrollView(this);
         LinearLayout page=new LinearLayout(this); page.setOrientation(1); page.setPadding(dp(20),dp(12),dp(20),dp(24));
         scroll.addView(page); shell.addView(scroll); setContentView(shell);
-        Button back=button("← Kembali"); back.setOnClickListener(v -> finish()); page.addView(back);
-        page.addView(text("Pindahkan folder "+(drive?"Drive":"Lokal"),24));
+        Button back=button(t("← Kembali")); back.setOnClickListener(v -> finish()); page.addView(back);
+        page.addView(text(t("Pindahkan folder ")+(drive?"Drive":t("Lokal")),24));
         page.addView(text("TGDrive → The Great Drive",18));
-        page.addView(text(drive ? "Folder TGDrive di "+("root".equals(parent)?"My Drive":"folder induk "+parent)+
-            " akan disalin ke The Great Drive pada induk yang sama." :
-            "Periksa folder TGDrive milik aplikasi ini di Movies, Pictures, Music, dan Download. Struktur site/username/jenis tetap dipertahankan.",14));
+        page.addView(text(drive ? t("Folder TGDrive di ")+("root".equals(parent)?"My Drive":t("folder induk ")+parent)+
+            t(" akan disalin ke The Great Drive pada induk yang sama.") :
+            t("Periksa folder TGDrive milik aplikasi ini di Movies, Pictures, Music, dan Download. Struktur site/username/jenis tetap dipertahankan."),14));
         RadioGroup modes=new RadioGroup(this);
-        RadioButton keep=new RadioButton(this); keep.setId(View.generateViewId()); keep.setText("Simpan file lama (salin)");
-        remove=new RadioButton(this); remove.setId(View.generateViewId()); remove.setText("Hapus file lama setelah verifikasi");
+        RadioButton keep=new RadioButton(this); keep.setId(View.generateViewId()); keep.setText(t("Simpan file lama (salin)"));
+        remove=new RadioButton(this); remove.setId(View.generateViewId()); remove.setText(t("Hapus file lama setelah verifikasi"));
         modes.addView(keep); modes.addView(remove); modes.check(keep.getId()); page.addView(modes);
-        page.addView(text(drive ? "Mode hapus memindahkan file sumber ke Sampah Drive setelah ukuran dan checksum cocok." :
-            "Mode hapus menghapus file sumber dari ponsel setelah ukuran dan SHA-256 salinan cocok.",13));
-        page.addView(text("File dengan isi berbeda tidak ditimpa. Salinan yang sama dapat dipakai kembali. Folder lama yang kosong tetap ada.",13));
-        scan=button("Periksa folder lama"); scan.setOnClickListener(v -> scan()); page.addView(scan);
-        summary=text("Periksa folder untuk melihat jumlah file sebelum memulai.",14); page.addView(summary);
-        start=button("Mulai pemindahan"); start.setEnabled(false); start.setOnClickListener(v -> confirm()); page.addView(start);
-        Button cancel=button("Hentikan pemindahan"); cancel.setOnClickListener(v -> {
-            if(MigrationService.active()) new AlertDialog.Builder(this).setMessage("Hentikan setelah operasi yang sedang berjalan? File yang sudah diproses tetap tersimpan.")
-                .setNegativeButton("Kembali",null).setPositiveButton("Hentikan",(d,w) -> MigrationService.cancel()).show();
+        page.addView(text(drive ? t("Mode hapus memindahkan file sumber ke Sampah Drive setelah ukuran dan checksum cocok.") :
+            t("Mode hapus menghapus file sumber dari ponsel setelah ukuran dan SHA-256 salinan cocok."),13));
+        page.addView(text(t("File dengan isi berbeda tidak ditimpa. Salinan yang sama dapat dipakai kembali. Folder lama yang kosong tetap ada."),13));
+        scan=button(t("Periksa folder lama")); scan.setOnClickListener(v -> scan()); page.addView(scan);
+        summary=text(t("Periksa folder untuk melihat jumlah file sebelum memulai."),14); page.addView(summary);
+        start=button(t("Mulai pemindahan")); start.setEnabled(false); start.setOnClickListener(v -> confirm()); page.addView(start);
+        Button cancel=button(t("Hentikan pemindahan")); cancel.setOnClickListener(v -> {
+            if(MigrationService.active()) new AlertDialog.Builder(this).setMessage(t("Hentikan setelah operasi yang sedang berjalan? File yang sudah diproses tetap tersimpan."))
+                .setNegativeButton(t("Kembali"),null).setPositiveButton(t("Hentikan"),(d,w) -> MigrationService.cancel()).show();
         }); page.addView(cancel);
-        page.addView(text("HASIL TERAKHIR",13)); status=text("",14); status.setTextIsSelectable(true); page.addView(status);
-        Button log=button("Lihat log error"); log.setOnClickListener(v -> {
-            TextView details=text(ErrorLog.read(this),13); details.setTextIsSelectable(true);
+        page.addView(text(t("HASIL TERAKHIR"),13)); status=text("",14); status.setTextIsSelectable(true); page.addView(status);
+        Button log=button(t("Lihat log error")); log.setOnClickListener(v -> {
+            TextView details=text(message(ErrorLog.read(this)),13); details.setTextIsSelectable(true);
             ScrollView logScroll=new ScrollView(this); logScroll.setPadding(dp(16),0,dp(16),0); logScroll.addView(details);
-            new AlertDialog.Builder(this).setTitle("Log error").setView(logScroll).setPositiveButton("Tutup",null).show();
+            new AlertDialog.Builder(this).setTitle(t("Log error")).setView(logScroll).setPositiveButton(t("Tutup"),null).show();
         }); page.addView(log);
     }
     private void scan() {
         if(drive && (token==null || token.isEmpty())) {
-            summary.setText("Buka Berkas → Pindahkan folder Google Drive untuk menghubungkan akun kembali."); return;
+            summary.setText(t("Buka Berkas → Pindahkan folder Google Drive untuk menghubungkan akun kembali.")); return;
         }
-        scanning=true; count=-1; start.setEnabled(false); scan.setEnabled(false); summary.setText("Memeriksa folder…");
+        scanning=true; count=-1; start.setEnabled(false); scan.setEnabled(false); summary.setText(t("Memeriksa folder…"));
         io.execute(() -> {
             try {
                 List<FolderMigration.Entry> entries=drive?FolderMigration.scanDrive(token,parent,() -> false):FolderMigration.scanLocal(this);
                 long bytes=0; for(FolderMigration.Entry entry:entries) bytes+=entry.size;
-                final String label=entries.size()+" file · "+android.text.format.Formatter.formatFileSize(this,bytes);
+                final String label=entries.size()+t(" file · ")+android.text.format.Formatter.formatFileSize(this,bytes);
                 runOnUiThread(() -> {
                     if(isDestroyed()) return;
-                    count=entries.size(); summary.setText(count==0 ? "Tidak ada file lama yang dapat diakses. "+
-                        (drive?"Periksa ID folder induk pada Opsi.":"Pencarian hanya mencakup file milik instalasi aplikasi ini.") : label);
+                    count=entries.size(); summary.setText(count==0 ? t("Tidak ada file lama yang dapat diakses. ")+
+                        (drive?t("Periksa ID folder induk pada Opsi."):t("Pencarian hanya mencakup file milik instalasi aplikasi ini.")) : label);
                     scanning=false; scan.setEnabled(true); start.setEnabled(count>0 && !MigrationService.active());
                 });
             } catch(Exception error) {
-                ErrorLog.record(this,"Periksa folder lama",error);
-                runOnUiThread(() -> { if(!isDestroyed()) { scanning=false; scan.setEnabled(true); summary.setText("Gagal memeriksa: "+error.getMessage()); } });
+                ErrorLog.record(this,t("Periksa folder lama"),error);
+                runOnUiThread(() -> { if(!isDestroyed()) { scanning=false; scan.setEnabled(true); summary.setText(t("Gagal memeriksa: ")+message(error.getMessage())); } });
             }
         });
     }
     private void confirm() {
         boolean delete=remove.isChecked();
-        new AlertDialog.Builder(this).setTitle(delete?"Pindahkan dan hapus sumber?":"Salin dan simpan sumber?")
-            .setMessage(count+" file terdeteksi. Tujuan: The Great Drive.\n\n"+
-                (delete?(drive?"Sumber masuk Sampah Drive":"Sumber dihapus dari ponsel")+" hanya setelah salinan terverifikasi.":"Semua file sumber tetap disimpan.")+
-                "\n\nDaftar file diperiksa ulang saat mulai.")
-            .setNegativeButton("Batal",null).setPositiveButton("Mulai",(d,w) -> {
+        new AlertDialog.Builder(this).setTitle(delete?t("Pindahkan dan hapus sumber?"):t("Salin dan simpan sumber?"))
+            .setMessage(count+t(" file terdeteksi. Tujuan: The Great Drive.\n\n")+
+                (delete?(drive?t("Sumber masuk Sampah Drive"):t("Sumber dihapus dari ponsel"))+t(" hanya setelah salinan terverifikasi."):t("Semua file sumber tetap disimpan."))+
+                t("\n\nDaftar file diperiksa ulang saat mulai."))
+            .setNegativeButton(t("Batal"),null).setPositiveButton(t("Mulai"),(d,w) -> {
                 start.setEnabled(false); count=-1;
                 startForegroundService(new Intent(this,MigrationService.class).putExtra("drive",drive).putExtra("token",token)
                     .putExtra("parent",parent).putExtra("remove",delete));

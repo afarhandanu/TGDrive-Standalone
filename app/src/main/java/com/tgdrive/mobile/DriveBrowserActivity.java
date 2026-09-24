@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DriveBrowserActivity extends Activity {
+public class DriveBrowserActivity extends LocalizedActivity {
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private String token, folder = "root";
     private LinearLayout list;
@@ -24,9 +24,9 @@ public class DriveBrowserActivity extends Activity {
         token = getIntent().getStringExtra("token");
         LinearLayout outer = new LinearLayout(this); outer.setOrientation(1); outer.setPadding(24, 24, 24, 24);
         TextView heading = new TextView(this); heading.setText("Google Drive · The Great Drive"); heading.setTextSize(24); outer.addView(heading);
-        Button back = new Button(this); back.setText("Kembali ke My Drive"); back.setOnClickListener(v -> { folder = "root"; load(); }); outer.addView(back);
-        Button create = new Button(this); create.setText("Buat folder"); create.setOnClickListener(v -> input("Nama folder", "", value -> action(() -> DriveFiles.createFolder(token, folder, value)))); outer.addView(create);
-        Button search = new Button(this); search.setText("Cari file"); search.setOnClickListener(v -> input("Nama file", "", value -> io.execute(() -> {
+        Button back = new Button(this); back.setText(t("Kembali ke My Drive")); back.setOnClickListener(v -> { folder = "root"; load(); }); outer.addView(back);
+        Button create = new Button(this); create.setText(t("Buat folder")); create.setOnClickListener(v -> input(t("Nama folder"), "", value -> action(() -> DriveFiles.createFolder(token, folder, value)))); outer.addView(create);
+        Button search = new Button(this); search.setText(t("Cari file")); search.setOnClickListener(v -> input(t("Nama file"), "", value -> io.execute(() -> {
             try { JSONArray found = DriveFiles.search(token, value); runOnUiThread(() -> render(found)); }
             catch (Exception e) { fail(e); }
         }))); outer.addView(search);
@@ -39,7 +39,7 @@ public class DriveBrowserActivity extends Activity {
     }); }
     private void render(JSONArray files) {
         list.removeAllViews();
-        if (files.length() == 0) { TextView empty = new TextView(this); empty.setText("Folder kosong"); list.addView(empty); }
+        if (files.length() == 0) { TextView empty = new TextView(this); empty.setText(t("Folder kosong")); list.addView(empty); }
         for (int i = 0; i < files.length(); i++) {
             JSONObject file = files.optJSONObject(i); if (file == null) continue;
             String id = file.optString("id"), name = file.optString("name");
@@ -56,22 +56,22 @@ public class DriveBrowserActivity extends Activity {
     }
     private void showActions(String id, String name, boolean starred, boolean directory) {
         new AlertDialog.Builder(this).setTitle(name)
-                    .setItems(new String[]{"Ganti nama", "Link publik", "Pindah ke sampah",
-                        starred ? "Hapus bintang" : "Beri bintang", "Cabut link publik", "Pindah ke folder…"}, (dialog, option) -> {
-                        if (option == 0) input("Nama baru", name, text -> action(() -> DriveFiles.rename(token, id, text)));
+                    .setItems(new String[]{t("Ganti nama"), t("Link publik"), t("Pindah ke sampah"),
+                        starred ? t("Hapus bintang") : t("Beri bintang"), t("Cabut link publik"), t("Pindah ke folder…")}, (dialog, option) -> {
+                        if (option == 0) input(t("Nama baru"), name, text -> action(() -> DriveFiles.rename(token, id, text)));
                         if (option == 1) io.execute(() -> {
                             try { String link = DriveFiles.publicLink(token, id);
                                 String publicUrl = directory ? "https://drive.google.com/drive/folders/" + id : link;
                                 runOnUiThread(() -> new AlertDialog.Builder(this).setMessage(publicUrl).setPositiveButton("OK", null).show()); }
                             catch (Exception e) { fail(e); }
                         });
-                        if (option == 2) new AlertDialog.Builder(this).setMessage("Pindahkan ke sampah?")
-                            .setPositiveButton("Ya", (d, w) -> action(() -> DriveFiles.trash(token, id)))
-                            .setNegativeButton("Batal", null).show();
+                        if (option == 2) new AlertDialog.Builder(this).setMessage(t("Pindahkan ke sampah?"))
+                            .setPositiveButton(t("Ya"), (d, w) -> action(() -> DriveFiles.trash(token, id)))
+                            .setNegativeButton(t("Batal"), null).show();
                         if (option == 3) action(() -> DriveFiles.star(token, id, !starred));
-                        if (option == 4) new AlertDialog.Builder(this).setMessage("Cabut akses publik untuk file/folder ini?")
-                            .setPositiveButton("Cabut", (d, w) -> action(() -> DriveFiles.revokePublicLink(token, id)))
-                            .setNegativeButton("Batal", null).show();
+                        if (option == 4) new AlertDialog.Builder(this).setMessage(t("Cabut akses publik untuk file/folder ini?"))
+                            .setPositiveButton(t("Cabut"), (d, w) -> action(() -> DriveFiles.revokePublicLink(token, id)))
+                            .setNegativeButton(t("Batal"), null).show();
                         if (option == 5) chooseFolder(id, "root");
                     }).show();
     }
@@ -88,10 +88,10 @@ public class DriveBrowserActivity extends Activity {
                         names.add("📁 " + file.optString("name")); ids.add(file.optString("id"));
                     }
                 }
-                runOnUiThread(() -> new AlertDialog.Builder(this).setTitle("Pilih folder tujuan")
+                runOnUiThread(() -> new AlertDialog.Builder(this).setTitle(t("Pilih folder tujuan"))
                     .setItems(names.toArray(new String[0]), (d, choice) -> chooseFolder(itemId, ids.get(choice)))
-                    .setPositiveButton("Pindahkan ke folder ini", (d, w) -> action(() -> DriveFiles.move(token, itemId, destination)))
-                    .setNegativeButton("Batal", null).show());
+                    .setPositiveButton(t("Pindahkan ke folder ini"), (d, w) -> action(() -> DriveFiles.move(token, itemId, destination)))
+                    .setNegativeButton(t("Batal"), null).show());
             } catch (Exception e) { fail(e); }
         });
     }
@@ -99,13 +99,13 @@ public class DriveBrowserActivity extends Activity {
     private interface Work { void run() throws Exception; }
     private void input(String title, String initial, Value callback) {
         EditText edit = new EditText(this); edit.setText(initial);
-        new AlertDialog.Builder(this).setTitle(title).setView(edit).setPositiveButton("Simpan", (d, w) -> {
+        new AlertDialog.Builder(this).setTitle(title).setView(edit).setPositiveButton(t("Simpan"), (d, w) -> {
             String value = edit.getText().toString().trim(); if (!value.isEmpty()) callback.submit(value);
-        }).setNegativeButton("Batal", null).show();
+        }).setNegativeButton(t("Batal"), null).show();
     }
     private void action(Work work) { io.execute(() -> {
         try { work.run(); load(); } catch (Exception e) { fail(e); }
     }); }
-    private void fail(Exception e) { runOnUiThread(() -> Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show()); }
+    private void fail(Exception e) { runOnUiThread(() -> Toast.makeText(this, message(e.getMessage()), Toast.LENGTH_LONG).show()); }
     @Override protected void onDestroy() { io.shutdownNow(); super.onDestroy(); }
 }

@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 /** Browser for site accounts; credentials never pass through the app UI. */
-public class LoginActivity extends Activity {
+public class LoginActivity extends LocalizedActivity {
     private WebView browser;
     private EditText address;
     private String initialHost;
@@ -22,7 +22,7 @@ public class LoginActivity extends Activity {
         String initial = "instagram".equals(site) ? "https://www.instagram.com/accounts/login/" :
             "x".equals(site) ? "https://x.com/home" : getIntent().getStringExtra("login_url");
         initialHost = WebSessions.host(initial);
-        if (initialHost == null) { Toast.makeText(this, "Gunakan URL HTTPS situs yang valid", Toast.LENGTH_LONG).show(); finish(); return; }
+        if (initialHost == null) { Toast.makeText(this, t("Gunakan URL HTTPS situs yang valid"), Toast.LENGTH_LONG).show(); finish(); return; }
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         address = new EditText(this);
@@ -30,18 +30,18 @@ public class LoginActivity extends Activity {
         address.setTextSize(13);
         address.setText(initial);
         layout.addView(address);
-        Button go = new Button(this); go.setText("Buka situs");
+        Button go = new Button(this); go.setText(t("Buka situs"));
         go.setOnClickListener(v -> {
             String target = address.getText().toString().trim();
-            if (WebSessions.host(target) == null) { Toast.makeText(this, "Gunakan URL HTTPS yang valid", Toast.LENGTH_SHORT).show(); return; }
+            if (WebSessions.host(target) == null) { Toast.makeText(this, t("Gunakan URL HTTPS yang valid"), Toast.LENGTH_SHORT).show(); return; }
             browser.loadUrl(target);
         });
         layout.addView(go);
-        Button done = new Button(this); done.setText("Selesai login / kembali");
+        Button done = new Button(this); done.setText(t("Selesai login / kembali"));
         done.setOnClickListener(v -> {
             saveCookies();
             if ("x".equals(site) && !WebSessions.hasXSession(this)) {
-                Toast.makeText(this, "Sesi X belum terbaca. Selesaikan login hingga beranda terbuka.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, t("Sesi X belum terbaca. Selesaikan login hingga beranda terbuka."), Toast.LENGTH_LONG).show();
                 return;
             }
             finish();

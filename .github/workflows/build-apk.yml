@@ -42,6 +42,9 @@ jobs:
         with:
           gradle-version: "8.13"
 
+      - name: Check translations and offline documents
+        run: python tests/check_localization.py
+
       - name: Validate signing secrets
         env:
           KS_B64: ${{ secrets.TGDRIVE_KEYSTORE_B64 || secrets.KS_B64 }}
@@ -82,6 +85,14 @@ jobs:
           mkdir -p "$RUNNER_TEMP/migration-tests"
           javac -d "$RUNNER_TEMP/migration-tests" app/src/main/java/com/tgdrive/mobile/VerifiedMigration.java tests/VerifiedMigrationTest.java
           java -cp "$RUNNER_TEMP/migration-tests" com.tgdrive.mobile.VerifiedMigrationTest
+
+      - name: Check localized messages preserve filenames
+        run: |
+          mkdir -p "$RUNNER_TEMP/locale-tests"
+          R_JAR="$(find app/build/intermediates -name R.jar -print -quit)"
+          test -n "$R_JAR"
+          javac -cp "$R_JAR" -d "$RUNNER_TEMP/locale-tests" app/src/main/java/com/tgdrive/mobile/TranslationCatalog.java app/src/main/java/com/tgdrive/mobile/DisplayMessages.java tests/DisplayMessagesTest.java
+          java -cp "$RUNNER_TEMP/locale-tests:$R_JAR" com.tgdrive.mobile.DisplayMessagesTest
 
       - name: Name artifact uniquely
         id: artifact

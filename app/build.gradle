@@ -60,11 +60,10 @@ dependencies {
     implementation 'org.libtorrent4j:libtorrent4j-android-x86_64:2.1.0-39'
 }
 
-// Package the same changelog and feature document shown in the repository.
+// Bundle both complete translations for offline Info pages.
 def generatedAppDocs = layout.buildDirectory.dir('generated/appDocs')
-def syncAppDocs = tasks.register('syncAppDocs', Copy) {
-    from rootProject.file('CHANGELOG.md')
-    from rootProject.file('docs/FEATURES.md')
+def syncAppDocs = tasks.register('syncAppDocs', Sync) {
+    from(rootProject.file('docs/i18n')) { into 'info' }
     into generatedAppDocs
 }
 android.sourceSets.main.assets.srcDir(generatedAppDocs)
