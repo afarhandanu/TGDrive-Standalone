@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.5-alpha (versionCode 13)
+
+- Memperbaiki Story video yang gagal dengan "URL media ... tidak tersedia" ketika gallery-dl mengembalikan URL DASH sintetis berawalan `ytdl:`. Khusus pemilih Story, extractor menggunakan mode video `merged` agar mengembalikan tautan MP4 langsung.
+- Jika extractor masih mengembalikan URL DASH, gunakan `video_url` langsung dari metadata milik Story dengan ID yang sama. Tetap tolak URL Story lain dan tetap gagal bila URL media ID yang dipilih tidak tersedia.
+- Tambah regresi untuk Story video dengan URL `ytdl:` dan `video_url` langsung; foto dan jalur download biasa tidak diubah.
+- Mode MP4 gabungan dapat memakai resolusi berbeda dari mode DASH yang digabung dengan FFmpeg. Pengujian hasil pada akun Instagram sungguhan masih diperlukan.
+
 ## 1.3.4-alpha (versionCode 12)
 
 - Memperbaiki pemilih Story yang menyimpan Story terakhir walaupun foto atau ID lain dipilih. Job Story kini mencari media melalui gallery-dl berdasarkan ID Story yang dipilih, lalu menyimpan hanya URL media dengan ID sama.

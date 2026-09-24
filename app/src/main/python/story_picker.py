@@ -22,6 +22,7 @@ def list_stories(username, cookie_header):
     try:
         config.set(('extractor',), 'cookies', cookies)
         config.set(('extractor', 'instagram'), 'api', 'rest')
+        config.set(('extractor', 'instagram'), 'videos', 'merged')
         url = f'https://www.instagram.com/stories/{username}/'
         source = extractor.find(url)
         if source is None:
@@ -53,7 +54,10 @@ def list_stories(username, cookie_header):
                     preview = candidates[0].get('url')
             if not preview and not video and isinstance(row[1], str):
                 preview = row[1]
-            video_preview = row[1] if video and isinstance(row[1], str) else ''
+            video_preview = (row[1] if video and _allowed_media_url(row[1]) else
+                             meta.get('video_url') if video else '')
+            if not _allowed_media_url(video_preview):
+                video_preview = ''
             result.append({'id': media_id,
                            'url': f'https://www.instagram.com/stories/{username}/{media_id}/',
                            'date': str(meta.get('date') or meta.get('post_date') or ''),
@@ -82,6 +86,7 @@ def download_story(story_url, directory, cookies_file, callback, include_thumbna
     try:
         config.set(('extractor',), 'cookies', str(cookie_path))
         config.set(('extractor', 'instagram'), 'api', 'rest')
+        config.set(('extractor', 'instagram'), 'videos', 'merged')
         source = extractor.find(f'https://www.instagram.com/stories/{username}/')
         if source is None:
             raise RuntimeError('Tidak dapat membaca daftar Story Instagram')
@@ -97,6 +102,10 @@ def download_story(story_url, directory, cookies_file, callback, include_thumbna
             raise RuntimeError('Story ID ' + wanted_id + ' tidak ditemukan atau sudah kedaluwarsa. Muat ulang daftar Story.')
 
         media_url, meta = chosen[1], chosen[2]
+        if not _allowed_media_url(media_url) and str(meta.get('extension') or '').lower() in ('mp4', 'm4v', 'mov', 'webm'):
+            # With DASH enabled gallery-dl yields a synthetic ytdl: URL. Its
+            # video_url field still points to the MP4 for this exact Story ID.
+            media_url = meta.get('video_url')
         if not _allowed_media_url(media_url):
             raise RuntimeError('URL media untuk Story ID ' + wanted_id + ' tidak tersedia')
         ext = str(meta.get('extension') or '').lower()

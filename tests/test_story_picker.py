@@ -11,11 +11,14 @@ from unittest.mock import patch
 
 
 class Config:
+    def __init__(self):
+        self.calls = []
+
     def clear(self):
         pass
 
     def set(self, *args):
-        pass
+        self.calls.append(args)
 
 
 class Source:
@@ -27,6 +30,17 @@ class Source:
              {'media_id': '3992538577756620245', 'extension': 'jpg'}),
             (3, 'https://scontent.cdninstagram.com/latest-video.mp4',
              {'media_id': '3992573950408138445', 'extension': 'mp4'}),
+        ])
+
+
+class DashSource:
+    def __iter__(self):
+        return iter([
+            (3, 'https://scontent.cdninstagram.com/photo-one.jpg',
+             {'media_id': '3992526560270256149', 'extension': 'jpg'}),
+            (3, 'ytdl:https://www.instagram.com/stories/pak_pkw/0.mp4',
+             {'media_id': '3992573950408138445', 'extension': 'mp4',
+              'video_url': 'https://scontent.cdninstagram.com/correct-video.mp4'}),
         ])
 
 
@@ -92,6 +106,31 @@ class StoryPickerTests(unittest.TestCase):
                         str(Path(temp) / 'job'), str(cookie), Callback())
                 fetch.assert_not_called()
             self.assertFalse((Path(temp) / 'job').exists())
+
+    def test_dash_video_uses_mp4_for_the_requested_id(self):
+        with tempfile.TemporaryDirectory() as temp:
+            cookie = Path(temp) / 'cookies.txt'
+            cookie.write_text('sessionid=test')
+            fetched = []
+
+            def fetch(request, timeout):
+                fetched.append(request.full_url)
+                return Response(b'video for selected id', 'video/mp4')
+
+            with patch.object(gallery_dl.extractor, 'find', return_value=DashSource()), \
+                 patch.object(picker.urllib.request, 'urlopen', side_effect=fetch):
+                items = json.loads(picker.list_stories('pak_pkw', 'sessionid=test'))
+                self.assertEqual(items[-1]['video_preview'],
+                                 'https://scontent.cdninstagram.com/correct-video.mp4')
+                outputs = json.loads(picker.download_story(
+                    'https://www.instagram.com/stories/pak_pkw/3992573950408138445/',
+                    str(Path(temp) / 'job'), str(cookie), Callback()))
+            self.assertEqual(fetched, ['https://scontent.cdninstagram.com/correct-video.mp4'])
+            self.assertEqual(len(outputs), 1)
+            self.assertIn('3992573950408138445', outputs[0]['name'])
+            self.assertEqual(Path(outputs[0]['path']).read_bytes(), b'video for selected id')
+            self.assertIn((('extractor', 'instagram'), 'videos', 'merged'),
+                          gallery_dl.config.calls)
 
     def test_wrong_media_type_does_not_finish_successfully(self):
         with tempfile.TemporaryDirectory() as temp:
