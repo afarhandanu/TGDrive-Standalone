@@ -65,6 +65,7 @@ The Android package remains `com.tgdrive.mobile` for update compatibility. Keep 
 - Website sessions stay on the device. A private temporary cookie file is supplied to the extractor and removed when the job ends. Exported backups exclude login cookies and Google access tokens.
 - Source websites and Google Drive receive the requests needed for downloads and uploads. This is not an offline downloader.
 - Site support depends on the bundled extractors, the source website, and your account’s access. Login does not guarantee that every URL is supported.
+- TikTok posts get a gallery-dl retry when yt-dlp fails, including short share links. TikTok may block both; the retry can use a different quality or omit optional JSON metadata. Read Activity → View error log for both diagnostics.
 - Stories and preview URLs can expire. Refresh the Story list when a selected item is no longer available.
 - This is an **alpha** release. Keep originals when first trying folder migration and inspect the results on your device.
 

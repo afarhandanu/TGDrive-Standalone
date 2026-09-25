@@ -12,6 +12,7 @@
 - Sign in to Instagram, X, or other HTTPS websites. Saved sites get buttons to reopen them.
 - Import cookies.txt, and use profile/album mode and date filters where supported.
 - Website support depends on the extractor and account access. Some content requires login.
+- TikTok posts use a second extractor if yt-dlp fails; TikTok may still block both methods. The fallback may select a different quality or omit optional JSON metadata.
 
 ## Files and imports
 - Import Instagram JSON/ZIP with categories, date ranges, and folder or ZIP output.

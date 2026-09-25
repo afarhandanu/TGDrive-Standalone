@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.9-alpha (17)
+
+- Replace tiny navigation symbols with six distinct vector icons. Increase icon, label, and touch target sizes without changing the existing menus.
+- When yt-dlp fails on TikTok, retry the public post with gallery-dl's own media extractor; resolve TikTok short links and use the saved site cookies when available.
+- Report both extractor failures if TikTok still blocks the request. Other sites retain their existing download paths.
+
 ## 1.3.8-alpha (16)
 
 - Add persistent Bahasa Indonesia and English selection in Options for app screens, dialogs, notifications, and app-authored status messages.
@@ -108,4 +114,3 @@
 - Add Instagram JSON/ZIP import with category selection.
 - Keep the release signing identity and use unique build artifact names.
 - Fix Android SDK setup by using action v4 and explicitly installing the required SDK packages.
-

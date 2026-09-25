@@ -421,4 +421,9 @@
     <string name="text_279ddc4f3809b2b0" formatted="false">"Mengolah file"</string>
     <string name="text_01ba5d6ac08ab708" formatted="false">"Dibatalkan"</string>
     <string name="text_fd8ccb786ce43cc5" formatted="false">"Terhenti"</string>
+    <string name="text_c04c0c856a1db2fa" formatted="false">"Mencoba ekstraktor TikTok lain"</string>
+    <string name="text_0eabc9ca0a07343d" formatted="false">"Tautan bukan dari TikTok"</string>
+    <string name="text_85116c0a00e942bc" formatted="false">"Tautan pendek TikTok mengarah ke situs lain"</string>
+    <string name="text_6594d6ff13efb3f8" formatted="false">"TikTok tidak menyediakan media melalui ekstraktor cadangan; periksa log error"</string>
+    <string name="text_fd4bb9597be37a2e" formatted="false">"TikTok gagal melalui dua ekstraktor. yt-dlp: {0}; gallery-dl: {1}"</string>
 </resources>

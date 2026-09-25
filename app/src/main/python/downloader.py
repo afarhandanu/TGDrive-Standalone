@@ -52,7 +52,18 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
             dl.download([url])
     except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError) as exc:
         video_error = exc
-        if site != 'instagram':
+        if site == 'tiktok' and isinstance(exc, yt_dlp.utils.DownloadError):
+            # TikTok can return an anti-automation webpage to yt-dlp even for
+            # public posts. gallery-dl extracts TikTok media independently.
+            try:
+                import tiktok_fallback
+                tiktok_fallback.download(url, root, max_items, cookies, callback,
+                                         quality, subtitles, thumbnail, metadata)
+            except Exception as alternate_error:
+                raise RuntimeError(
+                    f'TikTok gagal melalui dua ekstraktor. yt-dlp: {exc}; gallery-dl: {alternate_error}'
+                ) from alternate_error
+        elif site != 'instagram':
             if isinstance(exc, yt_dlp.utils.UnsupportedError):
                 _download_direct(url, root / site / 'unknown' / category, callback)
             else:

@@ -1,5 +1,11 @@
 # Catatan versi
 
+## 1.3.9-alpha (17)
+
+- Mengganti simbol navigasi kecil dengan enam ikon vektor. Memperbesar ikon, teks, dan area sentuh tanpa mengubah menu yang ada.
+- Jika yt-dlp gagal pada TikTok, mencoba ulang unggahan publik dengan ekstraktor media gallery-dl; tautan pendek TikTok dialihkan ke unggahan asal dan cookie situs tersimpan dipakai jika tersedia.
+- Menampilkan kesalahan kedua ekstraktor jika TikTok tetap menolak permintaan. Alur unduhan situs lain tetap sama.
+
 ## 1.3.8-alpha (16)
 
 - Menambahkan pilihan Bahasa Indonesia dan English di Opsi. Pilihan tersimpan dan mengganti teks antarmuka, dialog, notifikasi, serta pesan status aplikasi.
@@ -108,4 +114,3 @@
 - Menambahkan impor Instagram JSON/ZIP dengan pilihan kategori.
 - Mempertahankan identitas penandatanganan rilis dan memberi nama artefak pembangunan yang berbeda untuk setiap hasil.
 - Memperbaiki penyiapan Android SDK ke versi tindakan v4 dan memasang paket SDK yang diperlukan secara eksplisit.
-

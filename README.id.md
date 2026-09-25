@@ -65,6 +65,7 @@ Paket Android tetap `com.tgdrive.mobile` agar kompatibel dengan pembaruan. Perta
 - Sesi situs tetap berada di perangkat. Berkas cookie sementara yang privat diberikan kepada ekstraktor, lalu dihapus saat tugas berakhir. Cadangan tidak memuat cookie login atau token akses Google.
 - Situs sumber dan Google Drive menerima permintaan yang diperlukan untuk mengunduh dan mengunggah. Unduhan memerlukan koneksi internet.
 - Dukungan situs bergantung pada ekstraktor, situs sumber, dan akses akunmu. Login tidak menjamin semua tautan didukung.
+- Unggahan TikTok akan dicoba lagi dengan gallery-dl jika yt-dlp gagal, termasuk tautan pendek. TikTok tetap dapat menolak keduanya; kualitas dan metadata JSON opsional pada percobaan kedua dapat berbeda. Buka Aktivitas → Lihat log error untuk membaca kesalahan keduanya.
 - Story dan tautan pratinjau bisa kedaluwarsa. Muat ulang daftar Story jika item pilihan tidak tersedia lagi.
 - Ini adalah rilis **alfa**. Saat pertama mencoba pemindahan folder, simpan sumber dan periksa hasilnya di perangkat.
 

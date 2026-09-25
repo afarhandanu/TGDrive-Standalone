@@ -12,6 +12,7 @@
 - Masuk ke Instagram, X, atau situs HTTPS lain. Situs tersimpan mendapat tombol untuk dibuka kembali.
 - Impor cookies.txt, serta gunakan mode profil/album dan filter tanggal pada jalur yang mendukung.
 - Dukungan situs bergantung pada ekstraktor dan akses akun. Sebagian konten memerlukan login.
+- Unggahan TikTok memakai ekstraktor kedua jika yt-dlp gagal; TikTok tetap dapat menolak kedua cara. Ekstraktor cadangan bisa memakai kualitas berbeda atau tidak menyertakan metadata JSON pilihan.
 
 ## Berkas dan impor
 - Impor Instagram JSON/ZIP dengan kategori, rentang tanggal, serta hasil folder atau ZIP.

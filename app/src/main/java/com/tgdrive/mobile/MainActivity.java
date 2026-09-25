@@ -73,7 +73,9 @@ public class MainActivity extends LocalizedActivity {
     private LinearLayout historyList;
     private LinearLayout savedSites;
     private ScrollView[] tabs;
-    private TextView[] tabButtons;
+    private LinearLayout[] tabButtons;
+    private ImageView[] tabIcons;
+    private TextView[] tabLabels;
     private int currentTab;
     private String destination = "gallery", quality = "best";
     private String pendingUrl;
@@ -536,18 +538,38 @@ public class MainActivity extends LocalizedActivity {
         }
         shell.addView(holder, new LinearLayout.LayoutParams(-1, 0, 1));
         LinearLayout navigation = new LinearLayout(this);
-        navigation.setPadding(dp(6), dp(5), dp(6), dp(5));
+        navigation.setPadding(dp(4), dp(6), dp(4), dp(6));
         navigation.setBackgroundColor(Color.WHITE);
         navigation.setElevation(dp(8));
-        tabButtons = new TextView[pages.length];
+        tabButtons = new LinearLayout[pages.length];
+        tabIcons = new ImageView[pages.length];
+        tabLabels = new TextView[pages.length];
         String[] names = {t("↓\nUnduh"), t("⚙\nOpsi"), t("○\nAkun"), t("▣\nBerkas"), t("≡\nAktivitas"), t("ⓘ\nInfo")};
+        int[] icons = {R.drawable.nav_download, R.drawable.nav_options, R.drawable.nav_accounts,
+            R.drawable.nav_files, R.drawable.nav_activity, R.drawable.nav_info};
         for (int i = 0; i < pages.length; i++) {
             final int index = i;
-            TextView tab = label(names[i], 11, Color.rgb(101, 111, 137), false);
+            LinearLayout tab = new LinearLayout(this);
+            tab.setOrientation(LinearLayout.VERTICAL);
             tab.setGravity(Gravity.CENTER);
+            ImageView icon = new ImageView(this);
+            icon.setImageResource(icons[i]);
+            tab.addView(icon, new LinearLayout.LayoutParams(dp(26), dp(26)));
+            TextView title = label(names[i].substring(names[i].indexOf('\n') + 1), 12,
+                Color.rgb(101, 111, 137), false);
+            title.setGravity(Gravity.CENTER);
+            title.setSingleLine(true);
+            title.setMaxLines(1);
+            title.setAutoSizeTextTypeUniformWithConfiguration(10, 12, 1, android.util.TypedValue.COMPLEX_UNIT_SP);
+            LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-1, dp(22));
+            titleParams.topMargin = dp(4);
+            tab.addView(title, titleParams);
+            tab.setContentDescription(names[i].substring(names[i].indexOf('\n') + 1));
             tab.setOnClickListener(v -> openTab(index));
             tabButtons[i] = tab;
-            navigation.addView(tab, new LinearLayout.LayoutParams(0, dp(58), 1));
+            tabIcons[i] = icon;
+            tabLabels[i] = title;
+            navigation.addView(tab, new LinearLayout.LayoutParams(0, dp(72), 1));
         }
         shell.addView(navigation);
         setContentView(shell);
@@ -559,8 +581,10 @@ public class MainActivity extends LocalizedActivity {
         for (int i = 0; i < tabs.length; i++) {
             boolean selected = i == index;
             tabs[i].setVisibility(selected ? View.VISIBLE : View.GONE);
-            tabButtons[i].setTextColor(selected ? Color.rgb(65, 87, 220) : Color.rgb(101, 111, 137));
-            tabButtons[i].setTypeface(Typeface.DEFAULT, selected ? Typeface.BOLD : Typeface.NORMAL);
+            int color = selected ? Color.rgb(65, 87, 220) : Color.rgb(101, 111, 137);
+            tabIcons[i].setColorFilter(color);
+            tabLabels[i].setTextColor(color);
+            tabLabels[i].setTypeface(Typeface.DEFAULT, selected ? Typeface.BOLD : Typeface.NORMAL);
             GradientDrawable background = new GradientDrawable();
             background.setColor(selected ? Color.rgb(235, 240, 255) : Color.WHITE);
             background.setCornerRadius(dp(14));

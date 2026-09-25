@@ -421,4 +421,9 @@
     <string name="text_279ddc4f3809b2b0" formatted="false">"Processing file"</string>
     <string name="text_01ba5d6ac08ab708" formatted="false">"Cancelled"</string>
     <string name="text_fd8ccb786ce43cc5" formatted="false">"Interrupted"</string>
+    <string name="text_c04c0c856a1db2fa" formatted="false">"Trying another TikTok extractor"</string>
+    <string name="text_0eabc9ca0a07343d" formatted="false">"This is not a TikTok link"</string>
+    <string name="text_85116c0a00e942bc" formatted="false">"The TikTok short link redirects to another site"</string>
+    <string name="text_6594d6ff13efb3f8" formatted="false">"TikTok returned no media through the fallback extractor; check the error log"</string>
+    <string name="text_fd4bb9597be37a2e" formatted="false">"TikTok failed with both extractors. yt-dlp: {0}; gallery-dl: {1}"</string>
 </resources>

@@ -45,6 +45,9 @@ jobs:
       - name: Check translations and offline documents
         run: python tests/check_localization.py
 
+      - name: Check Story selection and TikTok fallback
+        run: python -m unittest discover -s tests -p 'test_*.py'
+
       - name: Validate signing secrets
         env:
           KS_B64: ${{ secrets.TGDRIVE_KEYSTORE_B64 || secrets.KS_B64 }}

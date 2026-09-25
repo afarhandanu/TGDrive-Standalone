@@ -426,6 +426,11 @@ final class TranslationCatalog {
         IDS.put("Mengolah file", R.string.text_279ddc4f3809b2b0);
         IDS.put("Dibatalkan", R.string.text_01ba5d6ac08ab708);
         IDS.put("Terhenti", R.string.text_fd8ccb786ce43cc5);
+        IDS.put("Mencoba ekstraktor TikTok lain", R.string.text_c04c0c856a1db2fa);
+        IDS.put("Tautan bukan dari TikTok", R.string.text_0eabc9ca0a07343d);
+        IDS.put("Tautan pendek TikTok mengarah ke situs lain", R.string.text_85116c0a00e942bc);
+        IDS.put("TikTok tidak menyediakan media melalui ekstraktor cadangan; periksa log error", R.string.text_6594d6ff13efb3f8);
+        IDS.put("TikTok gagal melalui dua ekstraktor. yt-dlp: {0}; gallery-dl: {1}", R.string.text_fd4bb9597be37a2e);
     }
     private TranslationCatalog() { }
 }

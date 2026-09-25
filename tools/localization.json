@@ -1686,5 +1686,25 @@
   "Terhenti": {
     "id": "Terhenti",
     "en": "Interrupted"
+  },
+  "Mencoba ekstraktor TikTok lain": {
+    "id": "Mencoba ekstraktor TikTok lain",
+    "en": "Trying another TikTok extractor"
+  },
+  "Tautan bukan dari TikTok": {
+    "id": "Tautan bukan dari TikTok",
+    "en": "This is not a TikTok link"
+  },
+  "Tautan pendek TikTok mengarah ke situs lain": {
+    "id": "Tautan pendek TikTok mengarah ke situs lain",
+    "en": "The TikTok short link redirects to another site"
+  },
+  "TikTok tidak menyediakan media melalui ekstraktor cadangan; periksa log error": {
+    "id": "TikTok tidak menyediakan media melalui ekstraktor cadangan; periksa log error",
+    "en": "TikTok returned no media through the fallback extractor; check the error log"
+  },
+  "TikTok gagal melalui dua ekstraktor. yt-dlp: {0}; gallery-dl: {1}": {
+    "id": "TikTok gagal melalui dua ekstraktor. yt-dlp: {0}; gallery-dl: {1}",
+    "en": "TikTok failed with both extractors. yt-dlp: {0}; gallery-dl: {1}"
   }
 }
