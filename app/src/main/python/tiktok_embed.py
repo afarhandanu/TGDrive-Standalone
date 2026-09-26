@@ -6,6 +6,7 @@ scrape feeds or profiles and does not rely on an external download service.
 import html as html_module
 import http.cookiejar
 import json
+import media_retry
 import mimetypes
 import re
 import urllib.parse
@@ -281,36 +282,42 @@ def _download_media(opener, url, dest_base, kind, referer, callback, progress_ba
         raise RuntimeError('URL media TikTok tidak valid')
     errors = []
     for ua in _UAS:
-        try:
-            request = urllib.request.Request(url, headers={
-                'User-Agent': ua,
-                'Referer': referer,
-                'Accept': '*/*',
-            })
-            with opener.open(request, timeout=45) as response:
-                if response.status >= 400:
-                    raise RuntimeError(f'HTTP {response.status}')
-                ext = _extension(response.headers.get('Content-Type'), response.geturl(), kind)
-                output = dest_base.with_suffix(ext)
-                total = int(response.headers.get('Content-Length') or 0)
-                done = 0
-                with output.open('wb') as target:
-                    while True:
-                        chunk = response.read(262144)
-                        if not chunk:
-                            break
-                        target.write(chunk)
-                        done += len(chunk)
-                        if total:
-                            callback.onProgress(
-                                min(99, progress_base + int(progress_span * done / total)),
-                                'Mengunduh media TikTok',
-                            )
-                if output.stat().st_size == 0:
-                    output.unlink(missing_ok=True)
-                    raise RuntimeError('file kosong')
+        def transfer():
+            partial = None
+            try:
+                request = urllib.request.Request(url, headers={
+                    'User-Agent': ua, 'Referer': referer, 'Accept': '*/*', 'Connection': 'close',
+                })
+                with opener.open(request, timeout=45) as response:
+                    if response.status >= 400:
+                        raise RuntimeError(f'HTTP {response.status}')
+                    ext = _extension(response.headers.get('Content-Type'), response.geturl(), kind)
+                    output = dest_base.with_suffix(ext)
+                    partial = output.with_name(output.name + '.part')
+                    total = int(response.headers.get('Content-Length') or 0)
+                    done = 0
+                    with partial.open('wb') as target:
+                        while True:
+                            chunk = response.read(262144)
+                            if not chunk:
+                                break
+                            target.write(chunk)
+                            done += len(chunk)
+                            callback.onProgress(min(99, progress_base + int(progress_span * done / total)) if total else 0,
+                                                'Mengunduh media TikTok')
+                    if not done or (total and done != total):
+                        raise media_retry.IncompleteMediaError('File media tidak lengkap')
+                partial.replace(output)
                 return output
+            finally:
+                if partial is not None:
+                    partial.unlink(missing_ok=True)
+        try:
+            return media_retry.run(transfer, callback, dest_base.name)
         except Exception as exc:
+            callback.onProgress(-1, 'Memeriksa media TikTok')  # Surface cancellation immediately.
+            if media_retry.transient(exc):
+                raise
             errors.append(str(exc))
     raise RuntimeError(f'gagal mengunduh media TikTok: {errors[-1] if errors else "unknown"}')
 

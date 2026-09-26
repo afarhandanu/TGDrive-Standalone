@@ -99,6 +99,16 @@ public class MainActivity extends LocalizedActivity {
     private BroadcastReceiver receiver;
     private boolean restoringSettings;
     private boolean driveConnected;
+    private CheckBox automaticRetry;
+    private TextView driveIndicator;
+    private Button disconnectDrive;
+    private int driveGeneration;
+    private int driveResolutionGeneration = -1;
+    private boolean silentDriveCheck;
+    private android.net.ConnectivityManager connectivity;
+    private android.net.ConnectivityManager.NetworkCallback networkCallback;
+    private final ArrayList<Intent> pendingRetries = new ArrayList<>();
+
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -111,7 +121,9 @@ public class MainActivity extends LocalizedActivity {
         render();
         restoreSettings();
         acceptShare(getIntent());
-        if (driveEmail != null) restoreDriveSession();
+        watchNetwork();
+        if (driveEmail != null && networkOnline()) restoreDriveSession();
+        else updateDriveIndicator();
         receiver = new BroadcastReceiver() {
             @Override public void onReceive(Context context, Intent intent) { showHistory(); }
         };
@@ -131,7 +143,10 @@ public class MainActivity extends LocalizedActivity {
     }
     @Override protected void onPause() { saveSettings(); super.onPause(); }
     @Override protected void onDestroy() {
-        unregisterReceiver(receiver); driveIo.shutdownNow(); storyPreviewIo.shutdownNow(); super.onDestroy();
+        driveGeneration++;
+        if (receiver != null) unregisterReceiver(receiver);
+        if (networkCallback != null) connectivity.unregisterNetworkCallback(networkCallback);
+        driveIo.shutdownNow(); storyPreviewIo.shutdownNow(); super.onDestroy();
     }
     private void acceptShare(Intent intent) {
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
@@ -166,6 +181,12 @@ public class MainActivity extends LocalizedActivity {
         LinearLayout activity = page();
         LinearLayout info = page();
         outer.addView(brandBanner(112));
+        LinearLayout statusRow = new LinearLayout(this); statusRow.setGravity(Gravity.END);
+        driveIndicator = label("", 12, navy, true);
+        driveIndicator.setPadding(dp(12), dp(8), dp(12), dp(8));
+        driveIndicator.setMinHeight(dp(40));
+        driveIndicator.setOnClickListener(v -> openTab(2));
+        statusRow.addView(driveIndicator); outer.addView(statusRow);
         TextView title = label(t("Simpan yang kamu suka."), 30, navy, true); outer.addView(title);
         TextView sub = label(t("Tautan masuk, pilih tujuan, lalu unduh. Semua proses berjalan di perangkatmu."), 15, muted, false);
         outer.addView(sub);
@@ -226,6 +247,13 @@ public class MainActivity extends LocalizedActivity {
             choice.setOnClickListener(v -> changeLanguage(code));
         }
         languageCard.addView(languages);
+        LinearLayout retryCard = panel(options);
+        retryCard.addView(label(t("KONEKSI & RETRY"), 12, muted, true));
+        automaticRetry = new CheckBox(this); automaticRetry.setText(t("Retry otomatis saat koneksi media terputus"));
+        automaticRetry.setChecked(true); retryCard.addView(automaticRetry);
+        retryCard.addView(label(t("Maksimal 3 percobaan ulang per media. Pilih pengaturan per tautan atau Story; retry manual tersedia di Aktivitas."), 13, muted, false));
+        Button retryChoices = button(t("Atur retry per tautan"), navy);
+        retryChoices.setOnClickListener(v -> chooseAutomaticLinks()); retryCard.addView(retryChoices);
         LinearLayout optionCard = panel(options);
         optionCard.addView(label(t("PILIHAN FILE"), 12, muted, true));
         subtitles = new CheckBox(this); subtitles.setText(t("Sertakan subtitle jika ada")); optionCard.addView(subtitles);
@@ -337,6 +365,10 @@ public class MainActivity extends LocalizedActivity {
         connect.setOnClickListener(v -> { driveAction = "connect"; authorizeDrive(true); }); driveCard.addView(connect);
         Button files = button(t("Kelola file Google Drive"), Color.rgb(65, 87, 220));
         files.setOnClickListener(v -> { driveAction = "browse"; authorizeDrive(driveEmail == null); }); driveCard.addView(files);
+        disconnectDrive = button(t("Putuskan koneksi Drive"), Color.rgb(151, 62, 78));
+        disconnectDrive.setOnClickListener(v -> disconnectDriveAccount()); driveCard.addView(disconnectDrive);
+        driveCard.addView(label(t("Koneksi Drive di aplikasi ini diputus. File tetap tersimpan; unggahan yang belum selesai dapat diulang setelah terhubung kembali."), 12, muted, false));
+        updateDriveIndicator();
         LinearLayout importCard = panel(filesPage);
         importCategoryLabel = label(t("IMPORT INSTAGRAM JSON / ZIP · SEMUA"), 13, muted, true);
         importCard.addView(importCategoryLabel);
@@ -439,9 +471,7 @@ public class MainActivity extends LocalizedActivity {
         L10n.refreshNotifications(this);
         render(); restoreSettings();
         url.setText(enteredUrl); updatePendingFileNotice();
-        if (authorizingDrive) driveStatus.setText(t("Google Drive · Menghubungkan…"));
-        else if (driveConnected) driveStatus.setText(t("Google Drive · Terhubung: ") + driveEmail);
-        else if (driveEmail != null) driveStatus.setText(t("Akun terakhir: ") + driveEmail + t(" · ketuk Hubungkan untuk menyambung ulang"));
+        updateDriveIndicator();
         updateSiteStatus(); renderSavedSites(); openTab(previousTab);
     }
     private String categoryName(String category) {
@@ -665,7 +695,7 @@ public class MainActivity extends LocalizedActivity {
         if (restoringSettings || limit == null || dateFrom == null) return;
         try {
             JSONObject data = new JSONObject()
-                .put("destination", destination).put("quality", quality)
+                .put("destination", destination).put("quality", quality).put("auto_retry", automaticRetry.isChecked())
                 .put("limit", limit.getText().toString()).put("folder", folder.getText().toString())
                 .put("subtitles", subtitles.isChecked()).put("thumbnail", thumbnail.isChecked())
                 .put("metadata", metadata.isChecked()).put("skip_completed", skipCompleted.isChecked())
@@ -684,6 +714,7 @@ public class MainActivity extends LocalizedActivity {
             String saved = getSharedPreferences("download_settings", MODE_PRIVATE).getString("current", null);
             if (saved == null) return;
             JSONObject data = new JSONObject(saved);
+            automaticRetry.setChecked(data.optBoolean("auto_retry", true));
             destination = data.optString("destination", "gallery");
             if (!destination.equals("gallery") && !destination.equals("drive") && !destination.equals("both")) destination = "gallery";
             quality = data.optString("quality", "best");
@@ -766,7 +797,16 @@ public class MainActivity extends LocalizedActivity {
                 (item.optBoolean("video") ? "Video" : t("Foto")) + " · " + item.optString("date") +
                 "\nID " + item.optString("id");
             TextView title = label(labelText, 14, Color.rgb(30, 39, 65), false);
-            row.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
+            LinearLayout storyText = new LinearLayout(this); storyText.setOrientation(LinearLayout.VERTICAL);
+            storyText.addView(title);
+            if (item != null) {
+                CheckBox auto = new CheckBox(this); auto.setText(t("Retry otomatis")); auto.setTextSize(12);
+                auto.setChecked(autoRetryFor(item.optString("url")));
+                auto.setOnCheckedChangeListener((view, value) -> getSharedPreferences("media_retry", MODE_PRIVATE)
+                    .edit().putBoolean(item.optString("url"), value).apply());
+                storyText.addView(auto);
+            }
+            row.addView(storyText, new LinearLayout.LayoutParams(0, -2, 1));
             row.setOnClickListener(v -> check.setChecked(!check.isChecked()));
             if (item != null) {
                 String previewUrl = item.optString("preview");
@@ -856,35 +896,91 @@ public class MainActivity extends LocalizedActivity {
         else { driveAction = "download"; authorizeDrive(driveEmail == null); }
     }
     private void authorizeDrive(boolean chooseAccount) {
-        if (authorizingDrive) { toast(t("Tunggu proses koneksi Drive selesai")); return; }
+        if (authorizingDrive) { updateDriveIndicator(); return; }
+        if (!networkOnline()) { updateDriveIndicator(); return; }
+        final int generation = ++driveGeneration;
+        silentDriveCheck = false;
         authorizingDrive = true;
-        driveStatus.setText(t("Google Drive · Menghubungkan…"));
+        updateDriveIndicator();
         AuthorizationRequest.Builder builder = AuthorizationRequest.builder()
             .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive")));
         if (chooseAccount) builder.setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT);
         else if (driveEmail != null) builder.setAccount(new Account(driveEmail, "com.google"));
         AuthorizationRequest request = builder.build();
         Identity.getAuthorizationClient(this).authorize(request).addOnSuccessListener(result -> {
+            if (generation != driveGeneration || isDestroyed()) return;
             if (result.hasResolution()) {
-                try { startIntentSenderForResult(result.getPendingIntent().getIntentSender(), DRIVE_AUTH, null, 0, 0, 0); }
+                try { driveResolutionGeneration = generation; startIntentSenderForResult(result.getPendingIntent().getIntentSender(), DRIVE_AUTH, null, 0, 0, 0); }
                 catch (Exception e) { driveFailed(t("Login Drive: ") + message(e.getMessage())); }
             } else authorized(result.getAccessToken());
-        }).addOnFailureListener(e -> driveFailed("Drive: " + message(e.getMessage())));
+        }).addOnFailureListener(e -> { if (generation == driveGeneration && !isDestroyed()) driveFailed("Drive: " + message(e.getMessage())); });
     }
     private void restoreDriveSession() {
-        authorizingDrive = true;
+        if (driveEmail == null || authorizingDrive || !networkOnline()) { updateDriveIndicator(); return; }
+        final int generation = ++driveGeneration;
+        silentDriveCheck = true; driveAction = "restore";
+        authorizingDrive = true; updateDriveIndicator();
         AuthorizationRequest request = AuthorizationRequest.builder()
             .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive")))
             .setAccount(new Account(driveEmail, "com.google")).build();
         Identity.getAuthorizationClient(this).authorize(request).addOnSuccessListener(result -> {
+            if (generation != driveGeneration || isDestroyed()) return;
             if (result.hasResolution() || result.getAccessToken() == null) {
-                authorizingDrive = false;
-                driveStatus.setText("Google Drive · " + driveEmail + t(" · ketuk Hubungkan untuk memberi izin lagi"));
+                authorizingDrive = false; driveConnected = false; updateDriveIndicator();
             } else authorized(result.getAccessToken());
         }).addOnFailureListener(e -> {
-            authorizingDrive = false;
-            driveStatus.setText("Google Drive · " + driveEmail + t(" · ketuk Hubungkan untuk menyambung ulang"));
+            if (generation != driveGeneration || isDestroyed()) return;
+            authorizingDrive = false; driveConnected = false; updateDriveIndicator();
         });
+    }
+    private boolean networkOnline() {
+        android.net.ConnectivityManager manager = getSystemService(android.net.ConnectivityManager.class);
+        android.net.NetworkCapabilities caps = manager.getNetworkCapabilities(manager.getActiveNetwork());
+        return caps != null && caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+    }
+    private void watchNetwork() {
+        connectivity = getSystemService(android.net.ConnectivityManager.class);
+        networkCallback = new android.net.ConnectivityManager.NetworkCallback() {
+            @Override public void onCapabilitiesChanged(android.net.Network network, android.net.NetworkCapabilities caps) {
+                runOnUiThread(() -> {
+                    if (isDestroyed()) return;
+                    if (!networkOnline()) driveConnected = false;
+                    updateDriveIndicator();
+                    if (networkOnline() && driveEmail != null && !driveConnected && !authorizingDrive) restoreDriveSession();
+                });
+            }
+            @Override public void onLost(android.net.Network network) {
+                runOnUiThread(() -> { if (!isDestroyed()) {
+                    // Read the new default: losing an old Wi-Fi network may be a mobile handover.
+                    if (!networkOnline()) driveConnected = false;
+                    updateDriveIndicator();
+                } });
+            }
+        };
+        connectivity.registerDefaultNetworkCallback(networkCallback);
+    }
+    private void updateDriveIndicator() {
+        if (driveIndicator == null) return;
+        boolean online = networkOnline();
+        String state = !online ? t("Offline") : authorizingDrive ? t("Menghubungkan…") :
+            driveConnected ? t("Terhubung") : t("Terputus");
+        int color = !online ? Color.rgb(157, 49, 62) : authorizingDrive ? Color.rgb(151, 106, 0) :
+            driveConnected ? Color.rgb(22, 119, 83) : Color.rgb(157, 49, 62);
+        int background = !online ? 0xFFFCECEF : authorizingDrive ? 0xFFFFF4D1 :
+            driveConnected ? 0xFFE7F5EE : 0xFFFCECEF;
+        driveIndicator.setText("●  Drive · " + state); driveIndicator.setTextColor(color);
+        GradientDrawable shape = new GradientDrawable(); shape.setColor(background); shape.setCornerRadius(dp(18));
+        driveIndicator.setBackground(shape);
+        driveIndicator.setContentDescription("Google Drive · " + state);
+        if (driveStatus != null) driveStatus.setText("Google Drive · " + state + (driveEmail == null ? "" : "\n" + driveEmail));
+        if (disconnectDrive != null) disconnectDrive.setEnabled(driveEmail != null || authorizingDrive);
+    }
+    private void disconnectDriveAccount() {
+        driveGeneration++;
+        driveEmail = null; driveConnected = false; authorizingDrive = false; driveAction = "connect";
+        pendingRetries.clear(); selectedStoryUrls.clear();
+        getSharedPreferences("drive_account", MODE_PRIVATE).edit().remove("email").putBoolean("disconnected", true).commit();
+        updateDriveIndicator();
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
@@ -974,6 +1070,8 @@ public class MainActivity extends LocalizedActivity {
             return;
         }
         if (request == DRIVE_AUTH) {
+            if (!authorizingDrive || driveResolutionGeneration != driveGeneration) return;
+            driveResolutionGeneration = -1;
             // The authorization result itself is authoritative: some Google flows do not
             // return RESULT_OK even when an Intent with a valid token is provided.
             if (data != null) {
@@ -996,15 +1094,17 @@ public class MainActivity extends LocalizedActivity {
     private void authorized(String token) {
         if (token == null || token.isEmpty()) { driveFailed(t("Drive tidak memberikan akses. Periksa izin akun lalu coba lagi.")); return; }
         String action = driveAction;
+        final int generation = driveGeneration;
         driveIo.execute(() -> {
             try {
                 String email = DriveFiles.accountLabel(token);
                 runOnUiThread(() -> {
+                    if (generation != driveGeneration || isDestroyed()) return;
                     authorizingDrive = false;
                     driveEmail = email; driveConnected = true;
-                    getSharedPreferences("drive_account", MODE_PRIVATE).edit().putString("email", email).apply();
-                    driveStatus.setText(t("Google Drive · Terhubung: ") + email);
-                    toast(t("Drive terhubung: ") + email);
+                    getSharedPreferences("drive_account", MODE_PRIVATE).edit().putString("email", email).putBoolean("disconnected", false).apply();
+                    updateDriveIndicator();
+                    if ("retry".equals(action)) { enqueueRetries(token); return; }
                     if ("browse".equals(action))
                         startActivity(new Intent(this, DriveBrowserActivity.class).putExtra("token", token));
                     else if ("migrate".equals(action))
@@ -1015,13 +1115,16 @@ public class MainActivity extends LocalizedActivity {
                         else enqueueStoryBatch(token);
                     }
                 });
-            } catch (Exception e) { runOnUiThread(() -> driveFailed("Drive: " + message(e.getMessage()))); }
+            } catch (Exception e) { runOnUiThread(() -> {
+                if (generation == driveGeneration && !isDestroyed()) driveFailed("Drive: " + message(e.getMessage()));
+            }); }
         });
     }
     private void driveFailed(String message) {
         authorizingDrive = false; driveConnected = false;
-        driveStatus.setText("Google Drive · " + (driveEmail == null ? t("Belum terhubung") : t("Akun terakhir: ") + driveEmail));
-        toast(message);
+        updateDriveIndicator();
+        if (!silentDriveCheck) new AlertDialog.Builder(this).setTitle(t("Google Drive"))
+            .setMessage(message).setPositiveButton(t("Tutup"), null).show();
     }
     private boolean validDates() {
         String from = dateFrom.getText().toString().trim(), to = dateTo.getText().toString().trim();
@@ -1141,6 +1244,8 @@ public class MainActivity extends LocalizedActivity {
                     (pendingLocalPaths.isEmpty() && pendingImportPath == null && pendingTorrentPath == null ? pendingUrls.get(i) : "");
                 if (!link.isEmpty() && skipCompleted.isChecked() && History.alreadyCompleted(this, link)) continue;
                 Intent job = new Intent(this, DownloadService.class).putExtra("url", link)
+                    .putExtra("auto_retry", autoRetryFor(link))
+                    .putExtra("selected_story", isExactStory(link))
                     .putExtra("target", destination).putExtra("quality", quality).putExtra("count", count)
                     .putExtra("subtitles", subtitles.isChecked()).putExtra("thumbnail", thumbnail.isChecked())
                     .putExtra("metadata", metadata.isChecked())
@@ -1179,9 +1284,12 @@ public class MainActivity extends LocalizedActivity {
         if (selectedStoryUrls.isEmpty()) return;
         saveSettings();
         ArrayList<String> urls = new ArrayList<>(selectedStoryUrls);
+        ArrayList<String> manual = new ArrayList<>();
+        for (String story : urls) if (!autoRetryFor(story)) manual.add(story);
         try {
             Intent job = new Intent(this, DownloadService.class)
                 .putStringArrayListExtra("story_urls", urls)
+                .putStringArrayListExtra("manual_story_urls", manual).putExtra("auto_retry", true)
                 .putExtra("target", destination).putExtra("quality", quality).putExtra("count", 1)
                 .putExtra("subtitles", subtitles.isChecked()).putExtra("thumbnail", thumbnail.isChecked())
                 .putExtra("metadata", metadata.isChecked()).putExtra("anonymous", anonymous.isChecked())
@@ -1230,34 +1338,120 @@ public class MainActivity extends LocalizedActivity {
         siteStatus.setText(t("Sesi tersimpan · Instagram: ") + (ig != null && ig.contains("sessionid=") ? t("ada") : t("belum")) +
             " · X: " + (WebSessions.hasXSession(this) ? t("ada") : t("belum")));
     }
+    private boolean autoRetryFor(String link) {
+        return getSharedPreferences("media_retry", MODE_PRIVATE).getBoolean(link, automaticRetry.isChecked());
+    }
+    private boolean isExactStory(String link) {
+        return link != null && link.matches("^https://www\\.instagram\\.com/stories/[A-Za-z0-9._]+/[0-9]+/$");
+    }
+    private void chooseAutomaticLinks() {
+        Matcher matches = Pattern.compile("https?://[^\\s<>]+", Pattern.CASE_INSENSITIVE).matcher(url.getText().toString());
+        java.util.LinkedHashSet<String> links = new java.util.LinkedHashSet<>();
+        while (matches.find() && links.size() < 50) links.add(matches.group().replaceAll("[.,;]+$", ""));
+        if (links.isEmpty()) { toast(t("Masukkan URL http/https yang valid")); return; }
+        String[] addresses = links.toArray(new String[0]); boolean[] enabled = new boolean[addresses.length];
+        for (int i = 0; i < addresses.length; i++) enabled[i] = autoRetryFor(addresses[i]);
+        new AlertDialog.Builder(this).setTitle(t("Pilih media untuk retry otomatis"))
+            .setMultiChoiceItems(addresses, enabled, (dialog, which, value) -> enabled[which] = value)
+            .setNegativeButton(t("Batal"), null).setPositiveButton(t("Simpan"), (dialog, which) -> {
+                var edit = getSharedPreferences("media_retry", MODE_PRIVATE).edit();
+                for (int i = 0; i < addresses.length; i++) edit.putBoolean(addresses[i], enabled[i]);
+                edit.apply();
+            }).show();
+    }
+    private Intent retryIntent(JSONObject previous, boolean automatic) {
+        Intent intent = new Intent(this, DownloadService.class)
+            .putExtra("retry_id", previous.optLong("id"))
+            .putExtra("url", previous.optString("url"))
+            .putExtra("auto_retry", automatic)
+            .putExtra("selected_story", previous.optBoolean("selected_story") || isExactStory(previous.optString("url")))
+            .putExtra("target", previous.optString("target", "gallery"))
+            .putExtra("quality", previous.optString("quality", "best"))
+            .putExtra("count", previous.optInt("count", 1))
+            .putExtra("folder_id", previous.optString("folder"));
+        for (String key : new String[]{"subtitles", "thumbnail", "metadata", "anonymous", "skip_drive", "album_mode", "verify_drive"})
+            intent.putExtra(key, previous.optBoolean(key));
+        for (String key : new String[]{"profile_content", "date_from", "date_to", "tiktok_photo_mode", "tiktok_watermark"})
+            intent.putExtra(key, previous.optString(key));
+        return intent;
+    }
+    private boolean canRetry(JSONObject item) {
+        if (!History.retryable(item)) return false;
+        String link = item.optString("url");
+        return link.startsWith("https://") || link.startsWith("http://") || link.startsWith("magnet:?") ||
+            RetryFiles.read(this, item.optLong("id")) != null;
+    }
     private void retryLast() {
-        JSONObject previous = History.lastRetryable(this);
-        if (previous == null) { toast(t("Tidak ada job yang bisa diulang")); return; }
-        url.setText(previous.optString("url"));
-        destination = previous.optString("target", "gallery");
-        quality = previous.optString("quality", "best");
-        int oldCount = previous.optInt("count", 1);
-        limit.setText(oldCount == 0 ? "" : String.valueOf(oldCount));
-        folder.setText(previous.optString("folder"));
-        subtitles.setChecked(previous.optBoolean("subtitles"));
-        thumbnail.setChecked(previous.optBoolean("thumbnail"));
-        metadata.setChecked(previous.optBoolean("metadata"));
-        anonymous.setChecked(previous.optBoolean("anonymous"));
-        skipDrive.setChecked(previous.optBoolean("skip_drive"));
-        verifyDrive.setChecked(previous.optBoolean("verify_drive"));
-        albumMode.setChecked(previous.optBoolean("album_mode"));
-        profileContent = previous.optString("profile_content", "all");
-        dateFrom.setText(previous.optString("date_from"));
-        dateTo.setText(previous.optString("date_to"));
-        tiktokPhotoMode = previous.optString("tiktok_photo_mode", tiktokPhotoMode);
-        tiktokWatermark = previous.optString("tiktok_watermark", tiktokWatermark);
-        tiktokPhotoModeLabel.setText(t("Foto / carousel · ") +
-            (tiktokPhotoMode.equals("combine") ? t("Gabungkan jadi video") : t("Simpan terpisah")));
-        tiktokWatermarkLabel.setText(t("Video TikTok · ") +
-            (tiktokWatermark.equals("with") ? t("Dengan watermark") : t("Tanpa watermark")));
-        destinationLabel.setText(t("Tujuan · ") + destinationName(destination));
-        qualityLabel.setText(t("Kualitas · ") + qualityName(quality));
-        start();
+        JSONArray history = History.read(this);
+        ArrayList<JSONObject> jobs = new ArrayList<>();
+        for (int i = 0; i < history.length(); i++) if (canRetry(history.optJSONObject(i))) jobs.add(history.optJSONObject(i));
+        if (jobs.isEmpty()) { toast(t("Tidak ada job yang bisa diulang")); return; }
+        LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
+        list.setPadding(dp(16), dp(8), dp(16), dp(8));
+        list.addView(label(t("Pilih media yang ingin diulang. Aktifkan otomatis untuk mencoba ulang bila koneksi kembali terputus."), 14, Color.DKGRAY, false));
+        ArrayList<CheckBox> selections = new ArrayList<>(), policies = new ArrayList<>();
+        for (JSONObject item : jobs) {
+            CheckBox selected = new CheckBox(this); selected.setText(item.optString("url"));
+            list.addView(selected); selections.add(selected);
+            CheckBox automatic = new CheckBox(this); automatic.setText(t("Retry otomatis"));
+            automatic.setChecked(item.optBoolean("auto_retry", true)); list.addView(automatic); policies.add(automatic);
+        }
+        ScrollView scroll = new ScrollView(this); scroll.addView(list);
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(t("Retry media terpilih"))
+            .setView(scroll).setNegativeButton(t("Batal"), null).setPositiveButton(t("Ulangi dipilih"), null).create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            pendingRetries.clear();
+            for (int i = 0; i < jobs.size(); i++) if (selections.get(i).isChecked())
+                pendingRetries.add(retryIntent(jobs.get(i), policies.get(i).isChecked()));
+            if (pendingRetries.isEmpty()) { toast(t("Pilih setidaknya satu media")); return; }
+            dialog.dismiss(); authorizeRetries();
+        })); dialog.show();
+    }
+    private void retryMedia(JSONObject item) {
+        JSONArray files = RetryFiles.read(this, item.optLong("id"));
+        ArrayList<Integer> indices = new ArrayList<>(); ArrayList<String> names = new ArrayList<>();
+        if (files != null) for (int i = 0; i < files.length(); i++) {
+            JSONObject file = files.optJSONObject(i);
+            if (file != null && !RetryFiles.complete(file, item.optString("target"))) {
+                indices.add(i); names.add(file.optString("name", file.optString("path")));
+            }
+        }
+        if (names.isEmpty()) { indices.add(-1); names.add(item.optString("url")); }
+        LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
+        list.setPadding(dp(16), dp(8), dp(16), dp(8));
+        list.addView(label(t("Pilih media yang ingin diulang. Aktifkan otomatis untuk mencoba ulang bila koneksi kembali terputus."), 14, Color.DKGRAY, false));
+        ArrayList<CheckBox> selected = new ArrayList<>(), automatic = new ArrayList<>();
+        for (int row = 0; row < names.size(); row++) {
+            String name = names.get(row);
+            CheckBox choose = new CheckBox(this); choose.setText(name); choose.setChecked(true); list.addView(choose); selected.add(choose);
+            CheckBox auto = new CheckBox(this); auto.setText(t("Retry otomatis")); auto.setChecked(files != null && indices.get(row) >= 0 ?
+                files.optJSONObject(indices.get(row)).optBoolean("auto_retry", item.optBoolean("auto_retry", true)) : item.optBoolean("auto_retry", true));
+            list.addView(auto); automatic.add(auto);
+        }
+        ScrollView scroll = new ScrollView(this); scroll.addView(list);
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(t("Retry media terpilih")).setView(scroll)
+            .setNegativeButton(t("Batal"), null).setPositiveButton(t("Ulangi dipilih"), null).create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            ArrayList<Integer> chosen = new ArrayList<>(), manual = new ArrayList<>();
+            for (int i = 0; i < indices.size(); i++) if (selected.get(i).isChecked()) {
+                chosen.add(indices.get(i)); if (!automatic.get(i).isChecked()) manual.add(indices.get(i));
+            }
+            if (chosen.isEmpty()) { toast(t("Pilih setidaknya satu media")); return; }
+            Intent retry = retryIntent(item, !manual.contains(-1));
+            if (!chosen.contains(-1)) retry.putExtra("retry_files", chosen.stream().mapToInt(Integer::intValue).toArray())
+                .putExtra("manual_files", manual.stream().mapToInt(Integer::intValue).toArray());
+            pendingRetries.clear(); pendingRetries.add(retry); dialog.dismiss(); authorizeRetries();
+        })); dialog.show();
+    }
+    private void authorizeRetries() {
+        boolean drive = false;
+        for (Intent intent : pendingRetries) if (!"gallery".equals(intent.getStringExtra("target"))) drive = true;
+        if (drive) { driveAction = "retry"; authorizeDrive(driveEmail == null); }
+        else enqueueRetries(null);
+    }
+    private void enqueueRetries(String token) {
+        for (Intent intent : pendingRetries) { intent.putExtra("drive_token", token); startForegroundService(intent); }
+        pendingRetries.clear(); openTab(4);
     }
     private void showHistory() {
         if (historyList == null || currentTab != 4) return;
@@ -1301,17 +1495,19 @@ public class MainActivity extends LocalizedActivity {
                 (local > 0 ? local + t(" file lokal") : "") + (local > 0 && drive > 0 ? "  ·  " : "") +
                     (drive > 0 ? drive + t(" file Drive") : "") : t("Ketuk untuk membaca detail");
             card.addView(label(count, 12, Color.rgb(101, 111, 137), false));
-            card.setOnClickListener(v -> showJobDetail(status, message));
+            card.setOnClickListener(v -> showJobDetail(status, message, item));
         }
     }
-    private void showJobDetail(String status, String message) {
+    private void showJobDetail(String status, String message, JSONObject job) {
         TextView detail = label(message(message), 14, Color.rgb(30, 39, 65), false);
         detail.setPadding(dp(18), dp(12), dp(18), dp(16));
         detail.setTextIsSelectable(true);
         Linkify.addLinks(detail, Linkify.WEB_URLS);
         detail.setMovementMethod(LinkMovementMethod.getInstance());
         ScrollView scroll = new ScrollView(this); scroll.addView(detail);
-        new AlertDialog.Builder(this).setTitle(status).setView(scroll).setPositiveButton(t("Tutup"), null).show();
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle(status).setView(scroll).setPositiveButton(t("Tutup"), null);
+        if (canRetry(job)) dialog.setNeutralButton(t("Retry media terpilih"), (d, which) -> retryMedia(job));
+        dialog.show();
     }
     private void showErrorLog() {
         String report = ErrorLog.read(this);

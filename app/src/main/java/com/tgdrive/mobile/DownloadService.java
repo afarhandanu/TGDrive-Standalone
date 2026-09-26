@@ -31,6 +31,7 @@ public class DownloadService extends Service {
     public static boolean isPaused() { return paused; }
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private volatile boolean canceled;
+    private static final java.util.Set<Long> ACTIVE = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private NotificationManager notifications;
 
     @Override public void onCreate() {
@@ -61,7 +62,15 @@ public class DownloadService extends Service {
         String folder = intent.getStringExtra("folder_id");
         String quality = intent.getStringExtra("quality");
         int count = intent.getIntExtra("count", 1);
-        long id = NEXT_ID.updateAndGet(last -> Math.max(System.currentTimeMillis(), last + 1));
+        long requestedRetry = intent.getLongExtra("retry_id", 0);
+        JSONObject prior = requestedRetry > 0 ? findJob(requestedRetry) : null;
+        if (requestedRetry > 0 && (!History.retryable(prior) || ACTIVE.contains(requestedRetry))) return START_NOT_STICKY;
+        long id = requestedRetry > 0 ? requestedRetry : NEXT_ID.updateAndGet(last -> Math.max(System.currentTimeMillis(), last + 1));
+        boolean autoRetry = intent.getBooleanExtra("auto_retry", true);
+        boolean exactStory = intent.getBooleanExtra("selected_story", false);
+        int[] retryFiles = intent.getIntArrayExtra("retry_files");
+        int[] manualFiles = intent.getIntArrayExtra("manual_files");
+        ArrayList<String> manualStories = intent.getStringArrayListExtra("manual_story_urls");
         boolean subtitles = intent.getBooleanExtra("subtitles", false);
         boolean thumbnail = intent.getBooleanExtra("thumbnail", false);
         boolean metadata = intent.getBooleanExtra("metadata", false);
@@ -99,6 +108,14 @@ public class DownloadService extends Service {
             target, quality, count, folder, subtitles, thumbnail, metadata, anonymous, skipDrive,
             albumMode, profileContent == null ? "all" : profileContent, dateFrom, dateTo, verifyDrive,
             tiktokPhotoMode, tiktokWatermark);
+        if (storyIds.isEmpty()) {
+            ACTIVE.add(id);
+            History.retryPolicy(this, id, autoRetry, exactStory);
+        } else for (int i = 0; i < storyIds.size(); i++) {
+            ACTIVE.add(storyIds.get(i));
+            History.retryPolicy(this, storyIds.get(i), autoRetry &&
+                (manualStories == null || !manualStories.contains(storyUrls.get(i))), true);
+        }
         startForeground(3001, notification("The Great Drive", "Menyiapkan antrean…", 0));
         PENDING.incrementAndGet();
         final ArrayList<String> selectedStories = storyUrls;
@@ -114,14 +131,15 @@ public class DownloadService extends Service {
                         runJob(storyId, selectedStories.get(i), null, null, null, null, null, null, target,
                             token, folder, quality, 1, subtitles, thumbnail, metadata, "", "", "folder",
                             anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, true,
-                            tiktokPhotoMode, tiktokWatermark);
+                            tiktokPhotoMode, tiktokWatermark,
+                            autoRetry && (manualStories == null || !manualStories.contains(selectedStories.get(i))), null, null);
                     }
                 } else {
                     synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
                     runJob(id, url, importPath, localPath, muxAudioPath, muxImagePaths, torrentPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
                         dateFrom == null ? "" : dateFrom, dateTo == null ? "" : dateTo, importOutput == null ? "folder" : importOutput,
-                        anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, false,
-                        tiktokPhotoMode, tiktokWatermark);
+                        anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, exactStory,
+                        tiktokPhotoMode, tiktokWatermark, autoRetry, retryFiles, manualFiles);
                 }
             } catch (InterruptedException e) {
                 if (storyIds.isEmpty()) event(id, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0);
@@ -131,7 +149,10 @@ public class DownloadService extends Service {
                         event(storyId, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0);
                 }
             }
-            finally { PENDING.decrementAndGet(); stopSelf(startId); }
+            finally {
+                ACTIVE.remove(id); for (long storyId : storyIds) ACTIVE.remove(storyId);
+                PENDING.decrementAndGet(); stopSelf(startId);
+            }
         });
         return START_NOT_STICKY;
     }
@@ -147,7 +168,7 @@ public class DownloadService extends Service {
                         boolean subtitles, boolean thumbnail, boolean metadata, String dateFrom, String dateTo,
                         String importOutput, boolean anonymous, boolean skipDrive, boolean albumMode,
                         String profileContent, boolean verifyDrive, boolean selectedStory,
-                        String tiktokPhotoMode, String tiktokWatermark) {
+                        String tiktokPhotoMode, String tiktokWatermark, boolean autoRetry, int[] retryFiles, int[] manualFiles) {
         canceled = false;
         File jobDir = new File(getCacheDir(), "job-" + id);
         jobDir.mkdirs();
@@ -156,9 +177,13 @@ public class DownloadService extends Service {
         boolean drive = "drive".equals(target) || "both".equals(target);
         try {
             event(id, "RUNNING", "Mengambil media…", 0);
-            Callback callback = new Callback(id);
+            Callback callback = new Callback(id, autoRetry);
+            JSONArray checkpoint = RetryFiles.read(this, id);
+            if (checkpoint == null && RetryFiles.manifest(this, id).exists())
+                throw new IllegalStateException("Catatan retry tidak dapat dibaca; unduh ulang tautan sumber");
             String raw;
-            if (torrentPath != null || (url != null && (url.startsWith("magnet:?") || url.toLowerCase(java.util.Locale.ROOT).matches("^https://[^?#]+\\.torrent(?:\\?.*)?$")))) {
+            if (checkpoint != null) raw = checkpoint.toString();
+            else if (torrentPath != null || (url != null && (url.startsWith("magnet:?") || url.toLowerCase(java.util.Locale.ROOT).matches("^https://[^?#]+\\.torrent(?:\\?.*)?$")))) {
                 raw = TorrentEngine.download(url, torrentPath, jobDir, callback, () -> canceled).toString();
             } else if (muxImagePaths != null && !muxImagePaths.isEmpty()) {
                 if (muxAudioPath == null) throw new IllegalArgumentException("Audio untuk slideshow tidak tersedia");
@@ -212,16 +237,27 @@ public class DownloadService extends Service {
                         tiktokPhotoMode, tiktokWatermark).toString();
             }
             JSONArray files = new JSONArray(raw);
+            RetryFiles.save(this, id, files);
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < files.length(); i++) {
                 if (canceled) throw new InterruptedException("Dibatalkan");
                 JSONObject fileInfo = files.getJSONObject(i);
+                if (RetryFiles.complete(fileInfo, target)) continue;
+                if (retryFiles != null) {
+                    boolean selected = false;
+                    for (int value : retryFiles) if (value == i) selected = true;
+                    if (!selected) continue;
+                }
+                boolean automaticFile = autoRetry;
+                if (manualFiles != null) for (int value : manualFiles) if (value == i) automaticFile = false;
+                fileInfo.put("auto_retry", automaticFile);
+                try {
                 File media = new File(fileInfo.getString("path"));
                 if (!media.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
                     throw new SecurityException("Hasil unduhan keluar dari direktori kerja");
                 JSONArray slideshowPaths = fileInfo.optJSONArray("slideshow_images");
                 String audioPath = fileInfo.optString("audio_path", "");
-                if (slideshowPaths != null && slideshowPaths.length() > 0) {
+                if (!fileInfo.optBoolean("processed") && slideshowPaths != null && slideshowPaths.length() > 0) {
                     if (audioPath.isEmpty()) throw new IllegalStateException("Audio slideshow TikTok tidak tersedia");
                     ArrayList<File> images = new ArrayList<>();
                     for (int j = 0; j < slideshowPaths.length(); j++) {
@@ -235,35 +271,65 @@ public class DownloadService extends Service {
                         throw new SecurityException("Audio slideshow keluar dari direktori kerja");
                     event(id, "RUNNING", "Membuat slideshow TikTok + audio dengan FFmpeg", 98);
                     MediaMux.slideshow(images, audio, media);
-                } else if (!audioPath.isEmpty()) {
+                } else if (!fileInfo.optBoolean("processed") && !audioPath.isEmpty()) {
                     File audio = new File(audioPath);
                     if (!audio.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
                         throw new SecurityException("Audio keluar dari direktori kerja");
                     event(id, "RUNNING", "Menggabungkan audio + video dengan FFmpeg", 98);
                     MediaMux.merge(media, audio);
                 }
+                fileInfo.put("processed", true);
+                RetryFiles.save(this, id, files);
+                if (!media.isFile() || media.length() == 0) throw new IllegalStateException("Cache media tidak tersedia; unduh ulang tautan sumber");
                 String relative = jobDir.toPath().relativize(media.toPath()).toString();
-                if (gallery) {
+                if (gallery && !fileInfo.optBoolean("local_done")) {
                     event(id, "SAVING", "Menyimpan ke lokal: " + media.getName(), 99);
                     MediaDestination.publish(this, media, relative);
-                    result.append("Lokal: ").append(relative).append("\n");
+                    fileInfo.put("local_done", true).put("local_result", "Lokal: " + relative);
+                    RetryFiles.save(this, id, files);
                 }
-                if (drive) {
+                if (drive && !fileInfo.optBoolean("drive_done")) {
+                    if (getSharedPreferences("drive_account", MODE_PRIVATE).getBoolean("disconnected", false))
+                        throw new IllegalStateException("Drive terputus; hubungkan lalu ulangi media ini");
                     String parent = DriveFiles.ensurePath(token, folder, relative);
                     if (skipDrive && DriveFiles.hasFile(token, parent, media.getName())) {
-                        result.append("Drive sudah ada: ").append(relative).append("\n");
+                        fileInfo.put("drive_done", true).put("drive_result", "Drive sudah ada: " + relative);
+                        RetryFiles.save(this, id, files);
                         continue;
                     }
                     event(id, "UPLOADING", "Mengunggah " + media.getName(), 0);
                     String link = DriveUploader.upload(media, token, parent,
-                        percent -> event(id, "UPLOADING", "Drive " + percent + "%", Math.min(percent, 99)), verifyDrive);
-                    result.append("Drive: ").append(link).append("\n");
+                        percent -> {
+                            if (percent < 100 && canceled) throw new IllegalStateException("Dibatalkan");
+                            if (percent < 100 && getSharedPreferences("drive_account", MODE_PRIVATE).getBoolean("disconnected", false))
+                                throw new IllegalStateException("Drive terputus; hubungkan lalu ulangi media ini");
+                            event(id, "UPLOADING", "Drive " + percent + "%", Math.min(percent, 99));
+                        }, verifyDrive, automaticFile);
+                    fileInfo.put("drive_done", true).put("drive_result", "Drive: " + link);
+                    RetryFiles.save(this, id, files);
+                }
+                fileInfo.remove("error");
+                } catch (Exception mediaError) {
+                    if (canceled) throw mediaError;
+                    fileInfo.put("error", mediaError.getMessage() == null ? mediaError.toString() : mediaError.getMessage());
+                    ErrorLog.record(this, "Media #" + id + "/" + i, mediaError);
+                }
+                RetryFiles.save(this, id, files);
+            }
+            int remaining = 0;
+            for (int i = 0; i < files.length(); i++) {
+                JSONObject item = files.getJSONObject(i);
+                for (String key : new String[]{"local_result", "drive_result"})
+                    if (item.has(key)) result.append(item.getString(key)).append("\n");
+                if (!RetryFiles.complete(item, target)) {
+                    remaining++;
+                    result.append(item.optString("name")).append(": ").append(item.optString("error", "Menunggu retry manual")).append("\n");
                 }
             }
-            event(id, "COMPLETED", result.toString(), 100);
-            deleteTree(jobDir);
+            event(id, remaining == 0 ? "COMPLETED" : "FAILED", result.toString(), remaining == 0 ? 100 : 0);
+            if (remaining == 0) deleteTree(jobDir);
         } catch (Exception ex) {
-            // Keep downloaded files in private cache after a Drive failure so a retry can be added later.
+            // Keep the output checkpoint and cache for a selective retry with fresh authorization.
             if (!canceled) ErrorLog.record(this, "Unduhan #" + id, ex);
             event(id, canceled ? "CANCELLED" : "FAILED", ex.getMessage() == null ? ex.toString() : ex.getMessage(), 0);
         } finally {
@@ -341,7 +407,9 @@ public class DownloadService extends Service {
     @Override public IBinder onBind(Intent intent) { return null; }
     public class Callback {
         private final long id;
-        public Callback(long id) { this.id = id; }
+        private final boolean automatic;
+        public Callback(long id, boolean automatic) { this.id = id; this.automatic = automatic; }
+        public boolean isAutoRetry() { return automatic; }
         public void onMux(String videoPath, String audioPath) throws Exception {
             File root = new File(getCacheDir(), "job-" + id).getCanonicalFile();
             File video = new File(videoPath).getCanonicalFile(), audio = new File(audioPath).getCanonicalFile();

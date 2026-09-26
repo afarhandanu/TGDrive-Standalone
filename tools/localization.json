@@ -348,8 +348,8 @@
     "en": "Cancel active job"
   },
   "Ulangi job gagal / batal": {
-    "id": "Ulangi tugas gagal / batal",
-    "en": "Retry failed / cancelled job"
+    "id": "Pilih media untuk diulang",
+    "en": "Choose media to retry"
   },
   "Jeda / lanjutkan antrean": {
     "id": "Jeda / lanjutkan antrean",
@@ -1850,5 +1850,133 @@
   "TikTok tidak menghasilkan gambar/video. embed: {0}; gallery-dl: {1}": {
     "id": "TikTok tidak menghasilkan gambar/video. embed: {0}; gallery-dl: {1}",
     "en": "TikTok did not return an image/video. embed: {0}; gallery-dl: {1}"
+  },
+  "KONEKSI & RETRY": {
+    "id": "KONEKSI & RETRY",
+    "en": "CONNECTION & RETRY"
+  },
+  "Retry otomatis saat koneksi media terputus": {
+    "id": "Retry otomatis saat koneksi media terputus",
+    "en": "Automatically retry interrupted media connections"
+  },
+  "Maksimal 3 percobaan ulang per media. Pilih pengaturan per tautan atau Story; retry manual tersedia di Aktivitas.": {
+    "id": "Maksimal 3 percobaan ulang per media. Pilih pengaturan per tautan atau Story; retry manual tersedia di Aktivitas.",
+    "en": "Up to 3 retries per media transfer. Choose settings for each link or Story; manual retry is available in Activity."
+  },
+  "Atur retry per tautan": {
+    "id": "Atur retry per tautan",
+    "en": "Set retry for each link"
+  },
+  "Retry otomatis": {
+    "id": "Retry otomatis",
+    "en": "Automatic retry"
+  },
+  "Putuskan koneksi Drive": {
+    "id": "Putuskan koneksi Drive",
+    "en": "Disconnect Drive"
+  },
+  "Offline": {
+    "id": "Offline",
+    "en": "Offline"
+  },
+  "Menghubungkan…": {
+    "id": "Menghubungkan…",
+    "en": "Connecting…"
+  },
+  "Terhubung": {
+    "id": "Terhubung",
+    "en": "Connected"
+  },
+  "Terputus": {
+    "id": "Terputus",
+    "en": "Disconnected"
+  },
+  "Google Drive": {
+    "id": "Google Drive",
+    "en": "Google Drive"
+  },
+  "Pilih media untuk retry otomatis": {
+    "id": "Pilih media untuk retry otomatis",
+    "en": "Choose media for automatic retry"
+  },
+  "Pilih media yang ingin diulang. Aktifkan otomatis untuk mencoba ulang bila koneksi kembali terputus.": {
+    "id": "Pilih media yang ingin diulang. Aktifkan otomatis untuk mencoba ulang bila koneksi kembali terputus.",
+    "en": "Select media to retry. Enable automatic retry to try again if its connection drops."
+  },
+  "Retry media terpilih": {
+    "id": "Retry media terpilih",
+    "en": "Retry selected media"
+  },
+  "Ulangi dipilih": {
+    "id": "Ulangi dipilih",
+    "en": "Retry selected"
+  },
+  "Pilih setidaknya satu media": {
+    "id": "Pilih setidaknya satu media",
+    "en": "Select at least one media item"
+  },
+  "Mengunduh media: {0}": {
+    "id": "Mengunduh media: {0}",
+    "en": "Downloading media: {0}"
+  },
+  "Menyambung ulang media ({0}/{1}): {2}": {
+    "id": "Menyambung ulang media ({0}/{1}): {2}",
+    "en": "Reconnecting media ({0}/{1}): {2}"
+  },
+  "Thumbnail tidak tersedia": {
+    "id": "Thumbnail tidak tersedia",
+    "en": "Thumbnail unavailable"
+  },
+  "File media tidak lengkap": {
+    "id": "File media tidak lengkap",
+    "en": "Incomplete media file"
+  },
+  "Memeriksa media TikTok": {
+    "id": "Memeriksa media TikTok",
+    "en": "Checking TikTok media"
+  },
+  "Memeriksa koneksi media": {
+    "id": "Memeriksa koneksi media",
+    "en": "Checking media connection"
+  },
+  "Drive terputus; hubungkan lalu ulangi media ini": {
+    "id": "Drive terputus; hubungkan lalu ulangi media ini",
+    "en": "Drive disconnected; connect and retry this media"
+  },
+  "Menunggu retry manual": {
+    "id": "Menunggu retry manual",
+    "en": "Waiting for manual retry"
+  },
+  "Cache media tidak tersedia; unduh ulang tautan sumber": {
+    "id": "Cache media tidak tersedia; unduh ulang tautan sumber",
+    "en": "Media cache unavailable; download the source link again"
+  },
+  "Catatan retry tidak dapat dibaca; unduh ulang tautan sumber": {
+    "id": "Catatan retry tidak dapat dibaca; unduh ulang tautan sumber",
+    "en": "Retry checkpoint cannot be read; download the source link again"
+  },
+  "Media #{0}/{1}": {
+    "id": "Media #{0}/{1}",
+    "en": "Media #{0}/{1}"
+  },
+  "Koneksi Drive di aplikasi ini diputus. File tetap tersimpan; unggahan yang belum selesai dapat diulang setelah terhubung kembali.": {
+    "id": "Koneksi Drive di aplikasi ini diputus. File tetap tersimpan; unggahan yang belum selesai dapat diulang setelah terhubung kembali.",
+    "en": "Disconnects Drive in this app. Saved files remain; unfinished uploads can be retried after reconnecting."
+  },
+  "Upload Drive belum maju": {
+    "id": "Upload Drive belum maju",
+    "en": "Drive upload has not advanced"
+  },
+  "Drive belum mengonfirmasi hasil upload": {
+    "id": "Drive belum mengonfirmasi hasil upload",
+    "en": "Drive has not confirmed the upload"
+  },
+  "Rentang upload Drive tidak valid": {
+    "id": "Rentang upload Drive tidak valid",
+    "en": "Invalid Drive upload range"
+  },
+  "Drive HTTP {0}": {
+    "id": "Drive HTTP {0}",
+    "en": "Drive HTTP {0}"
   }
 }

@@ -44,3 +44,13 @@
 - Halaman, dialog, notifikasi, dan pesan status buatan aplikasi mengikuti bahasa pilihan.
 - Info berisi Tentang, Fitur, dan Catatan versi lengkap dalam dua bahasa, tersedia luring.
 - Isi situs, nama berkas, URL, serta diagnostik mentah penyedia mempertahankan teks aslinya.
+
+## Koneksi dan percobaan ulang
+
+- **Opsi → Koneksi & retry:** pemulihan otomatis aktif secara bawaan. Untuk tautan yang ditempel, gunakan **Atur retry per tautan**; tautan dicentang mendapat pemulihan otomatis dan yang tidak dicentang memakai pengulangan manual. Setiap Story juga memiliki kotak pengaturan sendiri pada pemilih.
+- **Aktivitas → Pilih media untuk diulang:** pilih sumber yang gagal, dibatalkan, atau terhenti, lalu atur pemulihan otomatis masing-masing. Buka detail tugas → **Retry media terpilih** untuk memilih berkas belum selesai setelah ekstraksi menghasilkan daftar keluaran. Sebelum ekstraksi selesai, pengulangan berlaku pada tautan/Story sumber; item carousel atau daftar putar yang belum ditemukan belum bisa dipilih satu per satu.
+- Transfer Story, berkas langsung, dan pemutar TikTok mencoba ulang gangguan koneksi sementara hingga tiga kali, memakai koneksi baru dan jeda 1/2/4 detik. Unduhan yang dikelola ekstraktor memakai pengaturan percobaan per berkas/bagian. Metode ekstraktor cadangan tetap tersedia. Masalah izin yang menetap, Story kedaluwarsa, dan kegagalan sertifikat perlu ditangani alih-alih diulang terus.
+- Tujuan keluaran yang sudah selesai dicatat. Pengulangan unggahan Drive memakai media dalam cache dan tidak membuat salinan lokal yang sudah berhasil lagi. Membersihkan cache menghapus data pemulihan ini; unduh kembali tautan sumber bila diperlukan.
+- **Status Drive:** indikator di bawah banner berwarna hijau saat akun terverifikasi dan jaringan online, kuning saat menghubungkan, merah saat terputus/offline. Ketuk untuk membuka Akun. Indikator menunjukkan status akun/jaringan, bukan pemeriksaan server Drive terus-menerus.
+- **Akun → Putuskan koneksi Drive:** menghapus koneksi tersimpan dari aplikasi tanpa menghapus berkas atau mencabut izin akun Google. Bagian unggahan yang sudah diterima Drive dapat selesai; bagian berikutnya dihentikan. Hubungkan kembali sebelum mengulang unggahan belum selesai.
+

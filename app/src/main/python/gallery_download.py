@@ -1,5 +1,6 @@
 """Opt-in profile/carousel extractor; the normal yt-dlp download path stays intact."""
 import json
+import media_retry
 import re
 import os
 import tempfile
@@ -38,7 +39,8 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
     try:
         config.set(('extractor',), 'base-directory', str(root))
         if limit: config.set(('extractor',), 'post-range', f'1-{limit}')
-        config.set(('extractor',), 'retries', 2)
+        config.set(('extractor',), 'retries', media_retry.retry_count(callback))
+        config.set(('downloader',), 'retries', media_retry.retry_count(callback))
         config.set(('extractor',), 'sleep-request', '2.0-4.0')
         config.set(('extractor',), 'cookies-update', False)
         config.set(('extractor',), 'path-restrict', 'windows')
@@ -76,6 +78,7 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
                         f'best[height<={int(quality)}][ext=mp4]/best[height<={int(quality)}]/best')
         config.set(('downloader', 'ytdl'), 'raw-options', {
             'quiet': True, 'no_warnings': True, 'format': video_format,
+            'retries': media_retry.retry_count(callback), 'fragment_retries': media_retry.retry_count(callback),
             'check_formats': False, 'paths': {'temp': str(temp_root)}, 'cachedir': False,
             'writesubtitles': bool(subtitles), 'writeautomaticsub': bool(subtitles),
             'writethumbnail': bool(thumbnail), 'writeinfojson': bool(metadata),

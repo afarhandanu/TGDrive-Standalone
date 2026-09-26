@@ -1,5 +1,15 @@
 # Catatan versi
 
+## 1.3.16-alpha (24)
+
+- Menambahkan percobaan ulang otomatis untuk koneksi media Story, berkas langsung, dan pemutar TikTok yang terputus, termasuk gangguan SSL bad-record-MAC, batas waktu, dan isi berkas yang terpotong. Setiap percobaan membuka koneksi baru; unduhan belum lengkap memakai berkas `.part` dan tidak disimpan sebagai media selesai.
+- Menambahkan pengaturan otomatis bawaan di Opsi, pilihan per tautan, dan kotak otomatis pada setiap Story. Aktivitas menyediakan daftar media yang dapat dipilih untuk diulang serta pemilih per berkas untuk hasil Lokal/Drive yang belum selesai.
+- Mempertahankan tujuan, format, dan ID Story asli saat mencoba ulang. Catatan di cache mengingat tujuan Lokal/Drive yang sudah selesai dan hasil FFmpeg; pengulangan melanjutkan hasil yang belum selesai selama cache masih tersedia.
+- Pemulihan unggahan Drive memeriksa sesi unggah yang sama setelah respons terputus sebelum mengirimkan byte lagi. Percobaan otomatis dibatasi; mode manual berhenti setelah percobaan gagal. Pemeriksaan sertifikat tetap aktif.
+- Mengganti toast koneksi Drive saat membuka aplikasi dengan indikator ringkas di bawah banner dan status akun: hijau terhubung, kuning menghubungkan, merah terputus/offline. Indikator mengikuti perubahan jaringan; pemulihan akun tersimpan tidak membuka layar login.
+- Menambahkan Putuskan koneksi Drive di Akun. Tindakan ini menghapus akun tersimpan dari aplikasi dan menghentikan pengiriman bagian unggahan berikutnya ketika pemutusan terdeteksi. Berkas yang sudah tersimpan tetap ada; media belum selesai dapat diulang setelah terhubung kembali. Izin Google pada akun tidak dicabut.
+- Menyertakan teks antarmuka, fitur offline, dan catatan perubahan dalam bahasa Indonesia/Inggris. Paket aplikasi, pengaturan tanda tangan rilis, dan pola nama artefak tetap dipertahankan.
+
 ## 1.3.15-alpha (23)
 
 - Menambahkan akhiran `_with_watermark` atau `_without_watermark` pada nama file video untuk situs yang menyediakan pilihan watermark di aplikasi (saat ini TikTok).

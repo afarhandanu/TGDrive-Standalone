@@ -11,6 +11,16 @@ The Great Drive is an Android app for downloading media, organizing files, and u
 
 Media extraction, torrent downloads, merging, and uploads run on your phone. You do not need to run a separate server.
 
+## Connection and retry
+
+- **Options → Connection & retry:** automatic recovery is on by default. For pasted links, use **Set retry for each link**; checked links get automatic recovery and unchecked links use manual retry. Each Story also has its own toggle in the picker.
+- **Activity → Choose media to retry:** choose failed, cancelled or interrupted source items and set automatic recovery for each. Open a job's details → **Retry selected media** to choose individual unfinished files once extraction has produced an output list. Before extraction finishes, retry operates on the source link/Story; it cannot select undiscovered carousel or playlist entries.
+- Story, direct-file and TikTok embed transfers retry temporary connection failures up to three times, using a new connection and 1/2/4-second delays. Extractor-managed downloads use their per-file/fragment retry settings. Provider fallback methods remain available. Persistent permission errors, expired Stories and certificate failures need attention instead of repeated retries.
+- Completed output destinations are checkpointed. Retrying a failed Drive upload reuses cached media and does not republish a completed local copy. Clearing the app's cache removes this recovery data; download the source link again if needed.
+- **Drive status:** the chip below the banner is green when the account is verified and the network is online, amber while connecting, and red when disconnected/offline. Tap it to open Accounts. It indicates account/network state, not a continuous Drive-server health probe.
+- **Accounts → Disconnect Drive:** removes the saved connection from this app without deleting files or revoking Google account permissions. A chunk already accepted by Drive may finish; later chunks stop. Reconnect before retrying unfinished uploads.
+
+
 ## What you can do
 
 | Download | Organize | Stay in control |

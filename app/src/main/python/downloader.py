@@ -1,5 +1,6 @@
 """Media extraction runs inside the Android process. No bot or server is contacted."""
 import json
+import media_retry
 import os
 import urllib.request
 import urllib.parse
@@ -50,8 +51,8 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
         'restrictfilenames': True,
         'windowsfilenames': True,
         'socket_timeout': 30,
-        'retries': 5,
-        'fragment_retries': 5,
+        'retries': media_retry.retry_count(callback),
+        'fragment_retries': media_retry.retry_count(callback),
         'continuedl': True,
         'progress_hooks': [lambda state: _progress(state, callback)],
         'quiet': True,
@@ -70,7 +71,7 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
             'User-Agent': _TIKTOK_WEB_UAS[0],
             'Referer': 'https://www.tiktok.com/',
         }
-        options['extractor_retries'] = 2
+        options['extractor_retries'] = media_retry.retry_count(callback)
     if cookies and os.path.isfile(cookies):
         options['cookiefile'] = cookies
     video_error = None
@@ -78,6 +79,7 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
         with yt_dlp.YoutubeDL(options) as dl:
             dl.download([url])
     except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError, OSError) as exc:
+        callback.onProgress(-1, "Memeriksa koneksi media")
         # A read-only-root tempfile failure is an Android runtime/environment
         # problem, not a media error. TikTok has independent embed/gallery
         # fallbacks, so allow those to run instead of terminating the job.
@@ -462,24 +464,34 @@ def _resolve_username(path, root, url):
 
 def _download_direct(url, root, callback):
     root.mkdir(parents=True, exist_ok=True)
-    request = urllib.request.Request(url, headers={'User-Agent': 'TheGreatDrive/1.3'})
-    with urllib.request.urlopen(request, timeout=30) as response:
-        mime = response.headers.get_content_type()
-        if mime in {'text/html', 'application/xhtml+xml'}:
-            raise RuntimeError('Tautan mengarah ke halaman web, bukan file. Coba login lalu ulangi.')
-        candidate = urllib.parse.unquote(urllib.parse.urlparse(response.url).path.rsplit('/', 1)[-1])
-        name = ''.join(ch if ch.isalnum() or ch in '._- ' else '_' for ch in candidate)[:160]
-        if not name: name = 'download' + (mimetypes.guess_extension(mime) or '.bin')
-        length = int(response.headers.get('Content-Length') or 0)
-        output = root / name
-        with output.open('wb') as target:
-            done = 0
-            while True:
-                data = response.read(262144)
-                if not data: break
-                target.write(data)
-                done += len(data)
-                callback.onProgress(int(done * 100 / length) if length else -1, 'Direct')
+    def transfer():
+        partial = None
+        try:
+            request = urllib.request.Request(url, headers={'User-Agent': 'TheGreatDrive/1.3', 'Connection': 'close'})
+            with urllib.request.urlopen(request, timeout=30) as response:
+                mime = response.headers.get_content_type()
+                if mime in {'text/html', 'application/xhtml+xml'}:
+                    raise RuntimeError('Tautan mengarah ke halaman web, bukan file. Coba login lalu ulangi.')
+                candidate = urllib.parse.unquote(urllib.parse.urlparse(response.url).path.rsplit('/', 1)[-1])
+                name = ''.join(ch if ch.isalnum() or ch in '._- ' else '_' for ch in candidate)[:160]
+                if not name or name in ('.', '..'): name = 'download' + (mimetypes.guess_extension(mime) or '.bin')
+                length = int(response.headers.get('Content-Length') or 0)
+                output = root / name
+                partial = output.with_name(output.name + '.part')
+                with partial.open('wb') as target:
+                    done = 0
+                    while True:
+                        data = response.read(262144)
+                        if not data: break
+                        target.write(data)
+                        done += len(data)
+                        callback.onProgress(min(99, int(done * 100 / length)) if length else -1, 'Direct')
+                if not done or (length and done != length):
+                    raise media_retry.IncompleteMediaError('File media tidak lengkap')
+            partial.replace(output)
+        finally:
+            if partial is not None: partial.unlink(missing_ok=True)
+    media_retry.run(transfer, callback, root.name)
 
 
 def _progress(state, callback):

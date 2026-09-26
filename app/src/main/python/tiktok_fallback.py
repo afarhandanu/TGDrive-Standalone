@@ -1,6 +1,7 @@
 """TikTok-only fallback; never route other websites through this extractor."""
 import urllib.parse
 import re
+import media_retry
 import urllib.request
 from pathlib import Path
 
@@ -51,7 +52,8 @@ def download(url, root, max_items, cookies, callback, quality='best',
     config.clear()
     try:
         config.set(('extractor',), 'base-directory', str(root))
-        config.set(('extractor',), 'retries', 2)
+        config.set(('extractor',), 'retries', media_retry.retry_count(callback))
+        config.set(('downloader',), 'retries', media_retry.retry_count(callback))
         config.set(('extractor',), 'user-agent', _TIKTOK_BROWSER_UA)
         config.set(('extractor',), 'headers', {'Referer': 'https://www.tiktok.com/'})
         config.set(('extractor',), 'path-restrict', 'windows')

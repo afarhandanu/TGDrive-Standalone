@@ -86,7 +86,7 @@
     <string name="text_78639c0702c9480a" formatted="false">"Pindahkan folder Google Drive"</string>
     <string name="text_2781b3c396d2fec1" formatted="false">"KONTROL ANTREAN"</string>
     <string name="text_62fe0b34747b5129" formatted="false">"Batalkan tugas aktif"</string>
-    <string name="text_62ba150bd81e52e6" formatted="false">"Ulangi tugas gagal / batal"</string>
+    <string name="text_62ba150bd81e52e6" formatted="false">"Pilih media untuk diulang"</string>
     <string name="text_333fae9321fdd1c2" formatted="false">"Jeda / lanjutkan antrean"</string>
     <string name="text_0736a41d25f2a51a" formatted="false">"Tugas berikutnya dijeda; tugas aktif tetap berjalan"</string>
     <string name="text_15027d8b780eda8f" formatted="false">"Antrean dilanjutkan"</string>
@@ -462,4 +462,36 @@
     <string name="text_5227a8bdd0c196df" formatted="false">"Mengunduh media TikTok"</string>
     <string name="text_40e542b5b2c2a788" formatted="false">"TikTok gagal di semua metode. yt-dlp: {0}; retry-UA: {1}; embed: {2}; gallery-dl: {3}"</string>
     <string name="text_5d2bebc741a81c05" formatted="false">"TikTok tidak menghasilkan gambar/video. embed: {0}; gallery-dl: {1}"</string>
+    <string name="text_f6da4d4a7e3eca90" formatted="false">"KONEKSI &amp; RETRY"</string>
+    <string name="text_9197fa7c9f22f14c" formatted="false">"Retry otomatis saat koneksi media terputus"</string>
+    <string name="text_f98ed2d677d9eb2d" formatted="false">"Maksimal 3 percobaan ulang per media. Pilih pengaturan per tautan atau Story; retry manual tersedia di Aktivitas."</string>
+    <string name="text_64d81aa1939bef92" formatted="false">"Atur retry per tautan"</string>
+    <string name="text_5daa509297c18deb" formatted="false">"Retry otomatis"</string>
+    <string name="text_317ba6132a9c3c84" formatted="false">"Putuskan koneksi Drive"</string>
+    <string name="text_a1794783aab72d20" formatted="false">"Offline"</string>
+    <string name="text_96671607636172e7" formatted="false">"Menghubungkan…"</string>
+    <string name="text_9f88a59d365bc208" formatted="false">"Terhubung"</string>
+    <string name="text_68f78f7424fcb4aa" formatted="false">"Terputus"</string>
+    <string name="text_915ef4bad59a1329" formatted="false">"Google Drive"</string>
+    <string name="text_44ed4abc274c77bf" formatted="false">"Pilih media untuk retry otomatis"</string>
+    <string name="text_69e9685e3c5b4088" formatted="false">"Pilih media yang ingin diulang. Aktifkan otomatis untuk mencoba ulang bila koneksi kembali terputus."</string>
+    <string name="text_0095e3ef1e99c249" formatted="false">"Retry media terpilih"</string>
+    <string name="text_c77864dd3ff32cc4" formatted="false">"Ulangi dipilih"</string>
+    <string name="text_92eb50c75ca8f107" formatted="false">"Pilih setidaknya satu media"</string>
+    <string name="text_9768c1807fe27165" formatted="false">"Mengunduh media: {0}"</string>
+    <string name="text_baac3b40be71d022" formatted="false">"Menyambung ulang media ({0}/{1}): {2}"</string>
+    <string name="text_f658f1b214a472d3" formatted="false">"Thumbnail tidak tersedia"</string>
+    <string name="text_e613f8706bda1a7f" formatted="false">"File media tidak lengkap"</string>
+    <string name="text_23def2067f083119" formatted="false">"Memeriksa media TikTok"</string>
+    <string name="text_2eefcf7d5c1988e7" formatted="false">"Memeriksa koneksi media"</string>
+    <string name="text_6675da26a0e37f64" formatted="false">"Drive terputus; hubungkan lalu ulangi media ini"</string>
+    <string name="text_cf9edd4e78528c49" formatted="false">"Menunggu retry manual"</string>
+    <string name="text_8eb35d8beed96d5d" formatted="false">"Cache media tidak tersedia; unduh ulang tautan sumber"</string>
+    <string name="text_93e73734654805a4" formatted="false">"Catatan retry tidak dapat dibaca; unduh ulang tautan sumber"</string>
+    <string name="text_af2799fc525ee7c1" formatted="false">"Media #{0}/{1}"</string>
+    <string name="text_80b518703567577c" formatted="false">"Koneksi Drive di aplikasi ini diputus. File tetap tersimpan; unggahan yang belum selesai dapat diulang setelah terhubung kembali."</string>
+    <string name="text_669165ed6aaa3066" formatted="false">"Upload Drive belum maju"</string>
+    <string name="text_0be4327f5d34494f" formatted="false">"Drive belum mengonfirmasi hasil upload"</string>
+    <string name="text_a8054f3290d57b02" formatted="false">"Rentang upload Drive tidak valid"</string>
+    <string name="text_2b938500b11b12d1" formatted="false">"Drive HTTP {0}"</string>
 </resources>

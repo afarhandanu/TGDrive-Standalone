@@ -467,6 +467,38 @@ final class TranslationCatalog {
         IDS.put("Mengunduh media TikTok", R.string.text_5227a8bdd0c196df);
         IDS.put("TikTok gagal di semua metode. yt-dlp: {0}; retry-UA: {1}; embed: {2}; gallery-dl: {3}", R.string.text_40e542b5b2c2a788);
         IDS.put("TikTok tidak menghasilkan gambar/video. embed: {0}; gallery-dl: {1}", R.string.text_5d2bebc741a81c05);
+        IDS.put("KONEKSI & RETRY", R.string.text_f6da4d4a7e3eca90);
+        IDS.put("Retry otomatis saat koneksi media terputus", R.string.text_9197fa7c9f22f14c);
+        IDS.put("Maksimal 3 percobaan ulang per media. Pilih pengaturan per tautan atau Story; retry manual tersedia di Aktivitas.", R.string.text_f98ed2d677d9eb2d);
+        IDS.put("Atur retry per tautan", R.string.text_64d81aa1939bef92);
+        IDS.put("Retry otomatis", R.string.text_5daa509297c18deb);
+        IDS.put("Putuskan koneksi Drive", R.string.text_317ba6132a9c3c84);
+        IDS.put("Offline", R.string.text_a1794783aab72d20);
+        IDS.put("Menghubungkan…", R.string.text_96671607636172e7);
+        IDS.put("Terhubung", R.string.text_9f88a59d365bc208);
+        IDS.put("Terputus", R.string.text_68f78f7424fcb4aa);
+        IDS.put("Google Drive", R.string.text_915ef4bad59a1329);
+        IDS.put("Pilih media untuk retry otomatis", R.string.text_44ed4abc274c77bf);
+        IDS.put("Pilih media yang ingin diulang. Aktifkan otomatis untuk mencoba ulang bila koneksi kembali terputus.", R.string.text_69e9685e3c5b4088);
+        IDS.put("Retry media terpilih", R.string.text_0095e3ef1e99c249);
+        IDS.put("Ulangi dipilih", R.string.text_c77864dd3ff32cc4);
+        IDS.put("Pilih setidaknya satu media", R.string.text_92eb50c75ca8f107);
+        IDS.put("Mengunduh media: {0}", R.string.text_9768c1807fe27165);
+        IDS.put("Menyambung ulang media ({0}/{1}): {2}", R.string.text_baac3b40be71d022);
+        IDS.put("Thumbnail tidak tersedia", R.string.text_f658f1b214a472d3);
+        IDS.put("File media tidak lengkap", R.string.text_e613f8706bda1a7f);
+        IDS.put("Memeriksa media TikTok", R.string.text_23def2067f083119);
+        IDS.put("Memeriksa koneksi media", R.string.text_2eefcf7d5c1988e7);
+        IDS.put("Drive terputus; hubungkan lalu ulangi media ini", R.string.text_6675da26a0e37f64);
+        IDS.put("Menunggu retry manual", R.string.text_cf9edd4e78528c49);
+        IDS.put("Cache media tidak tersedia; unduh ulang tautan sumber", R.string.text_8eb35d8beed96d5d);
+        IDS.put("Catatan retry tidak dapat dibaca; unduh ulang tautan sumber", R.string.text_93e73734654805a4);
+        IDS.put("Media #{0}/{1}", R.string.text_af2799fc525ee7c1);
+        IDS.put("Koneksi Drive di aplikasi ini diputus. File tetap tersimpan; unggahan yang belum selesai dapat diulang setelah terhubung kembali.", R.string.text_80b518703567577c);
+        IDS.put("Upload Drive belum maju", R.string.text_669165ed6aaa3066);
+        IDS.put("Drive belum mengonfirmasi hasil upload", R.string.text_0be4327f5d34494f);
+        IDS.put("Rentang upload Drive tidak valid", R.string.text_a8054f3290d57b02);
+        IDS.put("Drive HTTP {0}", R.string.text_2b938500b11b12d1);
     }
     private TranslationCatalog() { }
 }

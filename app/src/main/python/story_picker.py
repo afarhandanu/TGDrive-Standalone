@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from gallery_dl import config, extractor
+import media_retry
 
 
 def list_stories(username, cookie_header):
@@ -129,6 +130,7 @@ def download_story(story_url, directory, cookies_file, callback, include_thumbna
                     outputs.append(thumb)
                 except Exception:
                     thumb.unlink(missing_ok=True)  # An expired thumbnail cannot invalidate the media.
+                    callback.onProgress(-1, 'Thumbnail tidak tersedia')  # Propagate cancellation.
 
         if include_metadata:
             info = folder / f'{stem}.info.json'
@@ -159,30 +161,35 @@ def _allowed_media_url(value):
 
 
 def _save_media(url, target, callback):
-    request = urllib.request.Request(url, headers={
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/130.0 Safari/537.36',
-        'Referer': 'https://www.instagram.com/'})
-    try:
-        with urllib.request.urlopen(request, timeout=45) as response:
-            content_type = response.headers.get_content_type()
-            if content_type in ('text/html', 'application/json'):
-                raise RuntimeError('Server Instagram tidak mengirimkan file media')
-            expected = 'video/' if target.suffix.lower() in ('.mp4', '.m4v', '.mov', '.webm') else 'image/'
-            if not (content_type.startswith(expected) or content_type == 'application/octet-stream'):
-                raise RuntimeError('Jenis file Story tidak sesuai dengan ID yang dipilih')
-            length = int(response.headers.get('Content-Length') or 0)
-            written = 0
-            with target.open('wb') as output:
-                while True:
-                    chunk = response.read(262144)
-                    if not chunk:
-                        break
-                    output.write(chunk)
-                    written += len(chunk)
-                    callback.onProgress(min(99, int(written * 100 / length)) if length else 0,
-                                        'Mengunduh Story')
-            if written == 0 or (length and written != length):
-                raise RuntimeError('File Story tidak lengkap; silakan coba lagi')
-    except Exception:
-        target.unlink(missing_ok=True)
-        raise
+    target = Path(target)
+    partial = target.with_name(target.name + '.part')
+    def transfer():
+        request = urllib.request.Request(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/130.0 Safari/537.36',
+            'Referer': 'https://www.instagram.com/', 'Connection': 'close'})
+        try:
+            # A new request/connection on every attempt, never reuse a broken TLS stream.
+            with urllib.request.urlopen(request, timeout=45) as response:
+                content_type = response.headers.get_content_type()
+                if content_type in ('text/html', 'application/json'):
+                    raise RuntimeError('Server Instagram tidak mengirimkan file media')
+                expected = 'video/' if target.suffix.lower() in ('.mp4', '.m4v', '.mov', '.webm') else 'image/'
+                if not (content_type.startswith(expected) or content_type == 'application/octet-stream'):
+                    raise RuntimeError('Jenis file Story tidak sesuai dengan ID yang dipilih')
+                length = int(response.headers.get('Content-Length') or 0)
+                written = 0
+                with partial.open('wb') as output:
+                    while True:
+                        chunk = response.read(262144)
+                        if not chunk:
+                            break
+                        output.write(chunk)
+                        written += len(chunk)
+                        callback.onProgress(min(99, int(written * 100 / length)) if length else 0,
+                                            'Mengunduh Story')
+                if written == 0 or (length and written != length):
+                    raise media_retry.IncompleteMediaError('File Story tidak lengkap; silakan coba lagi')
+            partial.replace(target)
+        finally:
+            partial.unlink(missing_ok=True)
+    media_retry.run(transfer, callback, target.name)

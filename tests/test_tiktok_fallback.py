@@ -90,7 +90,7 @@ class FallbackTests(unittest.TestCase):
         self.assertIn('OPR/118.0.0.0', first['http_headers']['User-Agent'])
         self.assertIn('Chrome/140.0.0.0', second['http_headers']['User-Agent'])
         self.assertEqual(first['http_headers']['Referer'], 'https://www.tiktok.com/')
-        self.assertEqual(first['extractor_retries'], 2)
+        self.assertEqual(first['extractor_retries'], 3)
         self.assertIs(first['check_formats'], False)
         self.assertEqual(Path(first['paths']['temp']), self.root.resolve().parent / '.python-tmp')
         self.assertIs(first['cachedir'], False)

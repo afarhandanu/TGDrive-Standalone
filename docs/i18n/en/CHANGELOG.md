@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.16-alpha (24)
+
+- Add automatic retry for interrupted Story, direct-file and TikTok embed media transfers, including SSL bad-record-MAC, timeout and incomplete-body failures. Each retry opens a fresh connection; incomplete downloads stay in `.part` files and are never published as complete media.
+- Add a saved automatic-retry default in Options, per-link overrides and a retry toggle beside each Story. Activity now offers a selectable retry list and a per-file retry picker for unfinished Local/Drive outputs.
+- Preserve each retry's original destination, format and exact Story ID. Cache checkpoints remember completed Local/Drive destinations and processed FFmpeg outputs; retries resume unfinished outputs while the cache remains available.
+- Drive upload recovery queries the existing resumable session after a lost response before sending more bytes. Automatic recovery is bounded; manual mode stops after the failed attempt. Certificate checks remain enabled.
+- Replace startup Drive connection toasts with a compact status chip below the home banner and matching account status: green connected, amber connecting, red disconnected/offline. Network changes update the indicator; restoring a saved account does not open a sign-in prompt.
+- Add Disconnect Drive under Accounts. It clears this app's saved account and stops further upload chunks when the disconnect is observed. Existing files remain; unfinished media can be retried after reconnecting. It does not revoke the account's Google permissions.
+- Include Indonesian/English interface text, offline feature notes and release notes. Keep the package, release signing configuration and artifact naming scheme.
+
 ## 1.3.15-alpha (23)
 
 - Append `_with_watermark` or `_without_watermark` to downloaded video filenames on sites where the app exposes a watermark choice (currently TikTok).

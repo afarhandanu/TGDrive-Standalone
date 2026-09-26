@@ -33,7 +33,7 @@ public final class History {
             for (int i = 0; i < prior.length(); i++) {
                 JSONObject old = prior.optJSONObject(i);
                 if (old != null && old.optLong("id") == id) {
-                    for (String field : new String[]{"url", "target", "quality", "count", "folder", "subtitles", "thumbnail", "metadata", "anonymous", "skip_drive", "album_mode", "profile_content", "date_from", "date_to", "verify_drive", "tiktok_photo_mode", "tiktok_watermark"})
+                    for (String field : new String[]{"url", "target", "quality", "count", "folder", "subtitles", "thumbnail", "metadata", "anonymous", "skip_drive", "album_mode", "profile_content", "date_from", "date_to", "verify_drive", "tiktok_photo_mode", "tiktok_watermark", "auto_retry", "selected_story"})
                         if (old.has(field)) item.put(field, old.get(field));
                     break;
                 }
@@ -45,6 +45,22 @@ public final class History {
             }
             prefs.edit().putString("history", next.toString()).apply();
         } catch (Exception ignored) { }
+    }
+    public static synchronized void retryPolicy(Context context, long id, boolean automatic, boolean story) {
+        try {
+            JSONArray jobs = read(context);
+            for (int i = 0; i < jobs.length(); i++) {
+                JSONObject item = jobs.optJSONObject(i);
+                if (item != null && item.optLong("id") == id)
+                    item.put("auto_retry", automatic).put("selected_story", story);
+            }
+            context.getSharedPreferences("jobs", Context.MODE_PRIVATE).edit().putString("history", jobs.toString()).commit();
+        } catch (Exception ignored) { }
+    }
+    public static boolean retryable(JSONObject job) {
+        if (job == null) return false;
+        String state = job.optString("state");
+        return "FAILED".equals(state) || "CANCELLED".equals(state) || "INTERRUPTED".equals(state);
     }
     public static JSONArray read(Context context) {
         try { return new JSONArray(context.getSharedPreferences("jobs", Context.MODE_PRIVATE).getString("history", "[]")); }
