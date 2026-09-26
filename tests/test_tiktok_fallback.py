@@ -43,6 +43,7 @@ yt_dlp = types.ModuleType('yt_dlp')
 yt_dlp.YoutubeDL = YoutubeDL
 yt_dlp.utils = types.SimpleNamespace(DownloadError=DownloadError, UnsupportedError=UnsupportedError)
 sys.modules['yt_dlp'] = yt_dlp
+sys.modules.pop('downloader', None)
 downloader = importlib.import_module('downloader')
 
 
