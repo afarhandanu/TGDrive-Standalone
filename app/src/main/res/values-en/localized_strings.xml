@@ -457,4 +457,9 @@
     <string name="text_7e9619cfe1362a06" formatted="false">"TikTok returned audio only, without an image/video. Retry or change the watermark option."</string>
     <string name="text_bb8a4ad7ae2d7525" formatted="false">"TikTok slideshow output location is invalid"</string>
     <string name="text_b11295ff38dfed97" formatted="false">"Local FFmpeg slideshow"</string>
+    <string name="text_8274718a8eab56c7" formatted="false">"Trying another TikTok browser identity"</string>
+    <string name="text_1a8f6b7b4565c5a0" formatted="false">"Trying the official TikTok player"</string>
+    <string name="text_5227a8bdd0c196df" formatted="false">"Downloading TikTok media"</string>
+    <string name="text_40e542b5b2c2a788" formatted="false">"TikTok failed with every method. yt-dlp: {0}; retry-UA: {1}; embed: {2}; gallery-dl: {3}"</string>
+    <string name="text_5d2bebc741a81c05" formatted="false">"TikTok did not return an image/video. embed: {0}; gallery-dl: {1}"</string>
 </resources>

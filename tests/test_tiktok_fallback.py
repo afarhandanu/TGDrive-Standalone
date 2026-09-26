@@ -22,10 +22,12 @@ class UnsupportedError(Exception):
 
 class YoutubeDL:
     last_options = None
+    all_options = []
 
     def __init__(self, options):
         self.options = options
         YoutubeDL.last_options = options
+        YoutubeDL.all_options.append(options)
 
     def __enter__(self):
         return self
@@ -51,6 +53,7 @@ class Callback:
 
 class FallbackTests(unittest.TestCase):
     def setUp(self):
+        YoutubeDL.all_options = []
         self.work = tempfile.TemporaryDirectory()
         self.addCleanup(self.work.cleanup)
         self.root = Path(self.work.name)
@@ -66,29 +69,33 @@ class FallbackTests(unittest.TestCase):
             media.parent.mkdir(parents=True)
             media.write_bytes(b'video')
 
-        with patch.dict(sys.modules, {'tiktok_fallback': types.SimpleNamespace(download=download)}):
+        embed = types.SimpleNamespace(download=lambda *args: (_ for _ in ()).throw(RuntimeError('embed blocked')))
+        with patch.dict(sys.modules, {'tiktok_embed': embed, 'tiktok_fallback': types.SimpleNamespace(download=download)}):
             result = json.loads(self.invoke('https://vt.tiktok.com/ZSb85NbpU/'))
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['name'], 'clip.mp4')
 
-    def test_tiktok_prefers_app_api_before_webpage(self):
-        def download(url, root, *args):
+    def test_tiktok_rotates_browser_user_agent_before_fallback(self):
+        def embed_download(url, root, *args):
             media = root / 'tiktok' / 'creator' / 'videos' / 'clip.mp4'
             media.parent.mkdir(parents=True)
             media.write_bytes(b'video')
 
-        with patch.dict(sys.modules, {'tiktok_fallback': types.SimpleNamespace(download=download)}):
+        with patch.dict(sys.modules, {'tiktok_embed': types.SimpleNamespace(download=embed_download)}):
             self.invoke('https://www.tiktok.com/@creator/video/123')
-        options = YoutubeDL.last_options
-        self.assertEqual(options['extractor_args']['tiktok']['app_info'], [''])
-        self.assertIn('Chrome/145.0.0.0', options['http_headers']['User-Agent'])
-        self.assertEqual(options['http_headers']['Referer'], 'https://www.tiktok.com/')
-        self.assertEqual(options['extractor_retries'], 3)
+        self.assertEqual(len(YoutubeDL.all_options), 2)
+        first, second = YoutubeDL.all_options
+        self.assertNotIn('extractor_args', first)
+        self.assertIn('OPR/118.0.0.0', first['http_headers']['User-Agent'])
+        self.assertIn('Chrome/140.0.0.0', second['http_headers']['User-Agent'])
+        self.assertEqual(first['http_headers']['Referer'], 'https://www.tiktok.com/')
+        self.assertEqual(first['extractor_retries'], 2)
 
-    def test_fallback_error_reports_both_extractors(self):
-        alternate = types.SimpleNamespace(download=lambda *args: (_ for _ in ()).throw(RuntimeError('blocked')))
-        with patch.dict(sys.modules, {'tiktok_fallback': alternate}):
-            with self.assertRaisesRegex(RuntimeError, 'yt-dlp:.*gallery-dl: blocked'):
+    def test_fallback_error_reports_all_extractors(self):
+        embed = types.SimpleNamespace(download=lambda *args: (_ for _ in ()).throw(RuntimeError('embed blocked')))
+        alternate = types.SimpleNamespace(download=lambda *args: (_ for _ in ()).throw(RuntimeError('gallery blocked')))
+        with patch.dict(sys.modules, {'tiktok_embed': embed, 'tiktok_fallback': alternate}):
+            with self.assertRaisesRegex(RuntimeError, 'retry-UA:.*embed: embed blocked.*gallery-dl: gallery blocked'):
                 self.invoke('https://www.tiktok.com/@creator/video/123')
 
     def test_other_sites_do_not_use_tiktok_fallback(self):
@@ -189,6 +196,8 @@ class FallbackTests(unittest.TestCase):
         self.assertEqual([file.name for file in files], ['123.mp4'])
         self.assertIs(settings[(('extractor', 'tiktok'), 'videos')], True)
         self.assertIs(settings[(('extractor', 'tiktok', 'posts'), 'ytdl')], False)
+        self.assertIn('OPR/118.0.0.0', settings[(('extractor',), 'user-agent')])
+        self.assertEqual(settings[(('extractor',), 'headers')]['Referer'], 'https://www.tiktok.com/')
 
     def test_photo_carousel_combine_emits_slideshow_job(self):
         media_dir = self.root / 'tiktok' / 'creator' / 'videos'

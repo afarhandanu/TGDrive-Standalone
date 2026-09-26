@@ -1,4 +1,4 @@
-# Peta tampilan 1.3.11-alpha
+# Peta tampilan 1.3.12-alpha
 
 Enam menu memakai ikon vektor 26 dp dan tombol setinggi 72 dp. Label tetap mengikuti bahasa aplikasi; urutan dan fungsi menu tidak berubah.
 

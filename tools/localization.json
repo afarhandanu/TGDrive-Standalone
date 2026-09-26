@@ -1830,5 +1830,25 @@
   "Local FFmpeg slideshow": {
     "id": "Slideshow FFmpeg lokal",
     "en": "Local FFmpeg slideshow"
+  },
+  "Mencoba identitas browser TikTok lain": {
+    "id": "Mencoba identitas browser TikTok lain",
+    "en": "Trying another TikTok browser identity"
+  },
+  "Mencoba pemutar resmi TikTok": {
+    "id": "Mencoba pemutar resmi TikTok",
+    "en": "Trying the official TikTok player"
+  },
+  "Mengunduh media TikTok": {
+    "id": "Mengunduh media TikTok",
+    "en": "Downloading TikTok media"
+  },
+  "TikTok gagal di semua metode. yt-dlp: {0}; retry-UA: {1}; embed: {2}; gallery-dl: {3}": {
+    "id": "TikTok gagal di semua metode. yt-dlp: {0}; retry-UA: {1}; embed: {2}; gallery-dl: {3}",
+    "en": "TikTok failed with every method. yt-dlp: {0}; retry-UA: {1}; embed: {2}; gallery-dl: {3}"
+  },
+  "TikTok tidak menghasilkan gambar/video. embed: {0}; gallery-dl: {1}": {
+    "id": "TikTok tidak menghasilkan gambar/video. embed: {0}; gallery-dl: {1}",
+    "en": "TikTok did not return an image/video. embed: {0}; gallery-dl: {1}"
   }
 }

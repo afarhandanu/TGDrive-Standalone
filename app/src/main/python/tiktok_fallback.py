@@ -6,6 +6,12 @@ from pathlib import Path
 from gallery_dl import config, job
 
 
+_TIKTOK_BROWSER_UA = (
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+    '(KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 OPR/118.0.0.0'
+)
+
+
 def _tiktok_host(url):
     host = (urllib.parse.urlparse(url).hostname or '').lower()
     return host == 'tiktok.com' or host.endswith('.tiktok.com')
@@ -42,6 +48,8 @@ def download(url, root, max_items, cookies, callback, quality='best',
     try:
         config.set(('extractor',), 'base-directory', str(root))
         config.set(('extractor',), 'retries', 2)
+        config.set(('extractor',), 'user-agent', _TIKTOK_BROWSER_UA)
+        config.set(('extractor',), 'headers', {'Referer': 'https://www.tiktok.com/'})
         config.set(('extractor',), 'path-restrict', 'windows')
         config.set(('extractor',), 'cookies-update', False)
         if limit:

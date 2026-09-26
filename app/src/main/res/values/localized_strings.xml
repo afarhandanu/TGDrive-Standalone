@@ -457,4 +457,9 @@
     <string name="text_7e9619cfe1362a06" formatted="false">"TikTok hanya mengembalikan audio tanpa gambar/video. Coba ulangi atau ganti opsi watermark."</string>
     <string name="text_bb8a4ad7ae2d7525" formatted="false">"Lokasi slideshow TikTok tidak valid"</string>
     <string name="text_b11295ff38dfed97" formatted="false">"Slideshow FFmpeg lokal"</string>
+    <string name="text_8274718a8eab56c7" formatted="false">"Mencoba identitas browser TikTok lain"</string>
+    <string name="text_1a8f6b7b4565c5a0" formatted="false">"Mencoba pemutar resmi TikTok"</string>
+    <string name="text_5227a8bdd0c196df" formatted="false">"Mengunduh media TikTok"</string>
+    <string name="text_40e542b5b2c2a788" formatted="false">"TikTok gagal di semua metode. yt-dlp: {0}; retry-UA: {1}; embed: {2}; gallery-dl: {3}"</string>
+    <string name="text_5d2bebc741a81c05" formatted="false">"TikTok tidak menghasilkan gambar/video. embed: {0}; gallery-dl: {1}"</string>
 </resources>

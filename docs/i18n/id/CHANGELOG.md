@@ -1,5 +1,11 @@
 # Catatan versi
 
+## 1.3.12-alpha (20)
+- Menghapus workaround TikTok `app_info` kosong yang tidak valid. TikTok kini mencoba yt-dlp dengan dua identitas browser untuk regresi halaman web September 2026, lalu beralih ke metadata player/embed publik TikTok sebelum gallery-dl.
+- Menambahkan fallback post TikTok di perangkat yang mengambil video/foto carousel publik beserta soundtrack dari metadata server-rendered milik TikTok sendiri; tidak memakai layanan downloader pihak ketiga.
+- Memperbarui yt-dlp ke nightly `2026.9.16.232951.dev0` dan memberi fallback gallery-dl User-Agent serta Referer TikTok yang kompatibel.
+- Mempertahankan perilaku combine/separate, watermark, dan FFmpeg picker dari 1.3.10. Workflow GitHub Actions tetap tidak diubah.
+
 ## 1.3.11-alpha (19)
 - Memperbaiki kegagalan TikTok `Unexpected response from webpage request`: yt-dlp diperbarui ke 2026.08.19 dan jalur API aplikasi TikTok dicoba sebelum halaman web.
 - Fallback TikTok tidak lagi dianggap gagal bila gallery-dl sudah berhasil menyimpan media tetapi status side-item non-zero.

@@ -45,7 +45,7 @@ chaquopy {
     defaultConfig {
         version '3.11'
         pip {
-            install 'yt-dlp==2026.8.19'
+            install 'yt-dlp==2026.9.16.232951.dev0'
             install 'gallery-dl==1.32.13'
             install 'tzdata'
         }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.12-alpha (20)
+- Replace the invalid blank TikTok `app_info` workaround. TikTok now retries yt-dlp with two browser identities used for the September 2026 webpage regression, then falls back to TikTok's public player/embed metadata before gallery-dl.
+- Add an on-device TikTok post fallback which extracts public video/photo-carousel media and soundtrack from TikTok's own server-rendered metadata; it does not use a third-party download service.
+- Update yt-dlp to nightly `2026.9.16.232951.dev0` and give the gallery-dl fallback the compatible TikTok User-Agent and Referer.
+- Preserve the 1.3.10 combine/separate, watermark, and FFmpeg picker behavior. GitHub Actions workflow remains unchanged.
+
 ## 1.3.11-alpha (19)
 - Fixed TikTok `Unexpected response from webpage request`: updated yt-dlp to 2026.08.19 and try TikTok's app API path before the webpage path.
 - TikTok fallback now accepts successfully downloaded media even when gallery-dl reports a non-zero side-item status.

@@ -462,6 +462,11 @@ final class TranslationCatalog {
         IDS.put("TikTok hanya mengembalikan audio tanpa gambar/video. Coba ulangi atau ganti opsi watermark.", R.string.text_7e9619cfe1362a06);
         IDS.put("Lokasi slideshow TikTok tidak valid", R.string.text_bb8a4ad7ae2d7525);
         IDS.put("Local FFmpeg slideshow", R.string.text_b11295ff38dfed97);
+        IDS.put("Mencoba identitas browser TikTok lain", R.string.text_8274718a8eab56c7);
+        IDS.put("Mencoba pemutar resmi TikTok", R.string.text_1a8f6b7b4565c5a0);
+        IDS.put("Mengunduh media TikTok", R.string.text_5227a8bdd0c196df);
+        IDS.put("TikTok gagal di semua metode. yt-dlp: {0}; retry-UA: {1}; embed: {2}; gallery-dl: {3}", R.string.text_40e542b5b2c2a788);
+        IDS.put("TikTok tidak menghasilkan gambar/video. embed: {0}; gallery-dl: {1}", R.string.text_5d2bebc741a81c05);
     }
     private TranslationCatalog() { }
 }

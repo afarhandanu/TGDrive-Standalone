@@ -10,13 +10,14 @@ from pathlib import Path
 import yt_dlp
 
 
-# TikTok currently changes its web anti-bot challenge frequently. yt-dlp's TikTok
-# extractor has an Android app API path, but it is opt-in unless app_info/device_id
-# is provided. Prefer that path, then let yt-dlp fall back to the webpage.
-_TIKTOK_WEB_UA = (
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-    'AppleWebKit/537.36 (KHTML, like Gecko) '
-    'Chrome/145.0.0.0 Safari/537.36'
+# TikTok changes its web anti-bot challenge frequently. Keep two browser identities
+# which have recently worked around the webpage regression, then fall back to the
+# public TikTok player/embed metadata if yt-dlp is rejected.
+_TIKTOK_WEB_UAS = (
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+    '(KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 OPR/118.0.0.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+    '(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
 )
 
 
@@ -49,14 +50,15 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
         'writeinfojson': bool(metadata),
     }
     if site == 'tiktok':
-        # app_info=[''] tells yt-dlp to use its maintained default TikTok Android
-        # app identity first. This avoids depending solely on the web challenge path.
-        options['extractor_args'] = {'tiktok': {'app_info': ['']}}
+        # TikTok's mobile API needs a genuine install ID (iid) or device ID. Passing
+        # an empty app_info forces an invalid mobile request and then falls back to
+        # the same blocked webpage path. Prefer the browser UAs currently accepted
+        # by TikTok and rotate once before using the dedicated embed fallback.
         options['http_headers'] = {
-            'User-Agent': _TIKTOK_WEB_UA,
+            'User-Agent': _TIKTOK_WEB_UAS[0],
             'Referer': 'https://www.tiktok.com/',
         }
-        options['extractor_retries'] = 3
+        options['extractor_retries'] = 2
     if cookies and os.path.isfile(cookies):
         options['cookiefile'] = cookies
     video_error = None
@@ -66,16 +68,42 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError) as exc:
         video_error = exc
         if site == 'tiktok' and isinstance(exc, yt_dlp.utils.DownloadError):
-            # TikTok can return an anti-automation webpage to yt-dlp even for
-            # public posts. gallery-dl extracts TikTok photos/audio independently.
+            # September 2026: TikTok intermittently rejects one browser signature
+            # while accepting another. Retry yt-dlp once with the second known-good
+            # UA, then use TikTok's official embed/player page, then gallery-dl.
+            retry_error = None
+            retry_options = dict(options)
+            retry_options['http_headers'] = dict(options.get('http_headers') or {})
+            retry_options['http_headers']['User-Agent'] = _TIKTOK_WEB_UAS[1]
             try:
-                import tiktok_fallback
-                tiktok_fallback.download(url, root, max_items, cookies, callback,
-                                         quality, subtitles, thumbnail, metadata, tiktok_watermark)
-            except Exception as alternate_error:
-                raise RuntimeError(
-                    f'TikTok gagal melalui dua ekstraktor. yt-dlp: {exc}; gallery-dl: {alternate_error}'
-                ) from alternate_error
+                callback.onProgress(0, 'Mencoba identitas browser TikTok lain')
+                with yt_dlp.YoutubeDL(retry_options) as dl:
+                    dl.download([url])
+                video_error = None
+            except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError) as retry_exc:
+                retry_error = retry_exc
+
+            if video_error is not None:
+                embed_error = None
+                try:
+                    import tiktok_embed
+                    tiktok_embed.download(url, root, cookies, callback, tiktok_watermark)
+                    video_error = None
+                except Exception as embed_exc:
+                    embed_error = embed_exc
+
+                if video_error is not None:
+                    try:
+                        import tiktok_fallback
+                        tiktok_fallback.download(url, root, max_items, cookies, callback,
+                                                 quality, subtitles, thumbnail, metadata, tiktok_watermark)
+                        video_error = None
+                    except Exception as alternate_error:
+                        raise RuntimeError(
+                            'TikTok gagal di semua metode. '
+                            f'yt-dlp: {exc}; retry-UA: {retry_error}; '
+                            f'embed: {embed_error}; gallery-dl: {alternate_error}'
+                        ) from alternate_error
         elif site != 'instagram':
             if isinstance(exc, yt_dlp.utils.UnsupportedError):
                 _download_direct(url, root / site / 'unknown' / category, callback)
@@ -86,13 +114,24 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     if site == 'tiktok':
         current_media = [p for p in root.rglob('*') if p.is_file() and _media_kind(p) in ('image', 'video')]
         if not current_media:
+            embed_error = None
             try:
-                import tiktok_fallback
-                tiktok_fallback.download(url, root, max_items, cookies, callback,
-                                         quality, subtitles, thumbnail, metadata, tiktok_watermark)
-            except Exception as alternate_error:
-                if video_error is None:
-                    raise RuntimeError(f'TikTok tidak menghasilkan gambar/video: {alternate_error}') from alternate_error
+                import tiktok_embed
+                tiktok_embed.download(url, root, cookies, callback, tiktok_watermark)
+            except Exception as exc:
+                embed_error = exc
+            current_media = [p for p in root.rglob('*') if p.is_file() and _media_kind(p) in ('image', 'video')]
+            if not current_media:
+                try:
+                    import tiktok_fallback
+                    tiktok_fallback.download(url, root, max_items, cookies, callback,
+                                             quality, subtitles, thumbnail, metadata, tiktok_watermark)
+                except Exception as alternate_error:
+                    if video_error is None:
+                        raise RuntimeError(
+                            f'TikTok tidak menghasilkan gambar/video. embed: {embed_error}; '
+                            f'gallery-dl: {alternate_error}'
+                        ) from alternate_error
 
     # A post can be a photo, video, or mixed carousel. Keep the existing video
     # extractor, then fetch images with gallery-dl without replacing video files.
