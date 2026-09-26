@@ -19,7 +19,7 @@ def _canonical_url(url):
         return url
     # gallery-dl needs the destination post URL rather than the share redirect.
     request = urllib.request.Request(url, headers={
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36',
+        'User-Agent': 'facebookexternalhit/1.1',
     })
     with urllib.request.urlopen(request, timeout=20) as response:
         resolved = response.url
@@ -65,9 +65,13 @@ def download(url, root, max_items, cookies, callback, quality='best',
         media = [p for p in files if p.suffix.lower() in {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif',
                                                           '.mp3', '.m4a', '.aac', '.ogg', '.opus', '.wav',
                                                           '.mp4', '.m4v', '.mov', '.webm', '.mkv'}]
-        if result not in (None, 0) or not media:
-            raise RuntimeError('TikTok tidak menyediakan media melalui ekstraktor cadangan; periksa log error')
-        callback.onProgress(100, f'{len(files)} file ditemukan')
+        # gallery-dl's status is a bitmask. A non-zero status can mean a side item
+        # (cover/audio/metadata) failed even though the requested media was saved.
+        # Do not throw away usable media in that case; only fail when no media exists.
+        if not media:
+            status = 'unknown' if result is None else str(result)
+            raise RuntimeError(f'TikTok tidak menyediakan media melalui ekstraktor cadangan (status {status})')
+        callback.onProgress(100, f'{len(media)} media ditemukan')
         return files
     finally:
         config.clear()

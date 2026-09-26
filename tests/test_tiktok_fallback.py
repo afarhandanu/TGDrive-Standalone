@@ -21,8 +21,11 @@ class UnsupportedError(Exception):
 
 
 class YoutubeDL:
+    last_options = None
+
     def __init__(self, options):
         self.options = options
+        YoutubeDL.last_options = options
 
     def __enter__(self):
         return self
@@ -68,6 +71,20 @@ class FallbackTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['name'], 'clip.mp4')
 
+    def test_tiktok_prefers_app_api_before_webpage(self):
+        def download(url, root, *args):
+            media = root / 'tiktok' / 'creator' / 'videos' / 'clip.mp4'
+            media.parent.mkdir(parents=True)
+            media.write_bytes(b'video')
+
+        with patch.dict(sys.modules, {'tiktok_fallback': types.SimpleNamespace(download=download)}):
+            self.invoke('https://www.tiktok.com/@creator/video/123')
+        options = YoutubeDL.last_options
+        self.assertEqual(options['extractor_args']['tiktok']['app_info'], [''])
+        self.assertIn('Chrome/145.0.0.0', options['http_headers']['User-Agent'])
+        self.assertEqual(options['http_headers']['Referer'], 'https://www.tiktok.com/')
+        self.assertEqual(options['extractor_retries'], 3)
+
     def test_fallback_error_reports_both_extractors(self):
         alternate = types.SimpleNamespace(download=lambda *args: (_ for _ in ()).throw(RuntimeError('blocked')))
         with patch.dict(sys.modules, {'tiktok_fallback': alternate}):
@@ -104,6 +121,47 @@ class FallbackTests(unittest.TestCase):
             Response.url = 'https://example.org/video/123'
             with self.assertRaisesRegex(RuntimeError, 'situs lain'):
                 fallback._canonical_url('https://vt.tiktok.com/ZSb85NbpU/')
+
+    def test_short_url_uses_tiktok_redirect_user_agent(self):
+        fake_config = types.SimpleNamespace(clear=lambda: None, set=lambda *args: None)
+        fake_job = types.SimpleNamespace(DownloadJob=lambda *args: None)
+        fake_gallery = types.ModuleType('gallery_dl')
+        fake_gallery.config, fake_gallery.job = fake_config, fake_job
+        with patch.dict(sys.modules, {'gallery_dl': fake_gallery}):
+            fallback = importlib.reload(importlib.import_module('tiktok_fallback'))
+
+        class Response:
+            url = 'https://www.tiktok.com/@creator/video/123'
+            def __enter__(self): return self
+            def __exit__(self, *args): pass
+
+        def open_request(request, timeout=0):
+            self.assertEqual(request.get_header('User-agent'), 'facebookexternalhit/1.1')
+            return Response()
+
+        with patch.object(fallback.urllib.request, 'urlopen', side_effect=open_request):
+            self.assertEqual(fallback._canonical_url('https://vm.tiktok.com/ABC123/'), Response.url)
+
+    def test_gallery_nonzero_status_keeps_downloaded_media(self):
+        fake_config = types.SimpleNamespace(clear=lambda: None, set=lambda *args: None)
+
+        class Job:
+            def __init__(self, url): self.url = url
+            def run(self):
+                media = self_root / 'tiktok' / 'creator' / 'videos' / '123.mp4'
+                media.parent.mkdir(parents=True)
+                media.write_bytes(b'video')
+                return 8
+
+        self_root = self.root
+        fake_gallery = types.ModuleType('gallery_dl')
+        fake_gallery.config = fake_config
+        fake_gallery.job = types.SimpleNamespace(DownloadJob=Job)
+        with patch.dict(sys.modules, {'gallery_dl': fake_gallery}):
+            fallback = importlib.reload(importlib.import_module('tiktok_fallback'))
+            files = fallback.download('https://www.tiktok.com/@creator/video/123', self.root,
+                                      0, '', Callback())
+        self.assertEqual([file.name for file in files], ['123.mp4'])
 
     def test_gallery_download_uses_direct_video_extractor(self):
         settings = {}

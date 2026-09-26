@@ -1,5 +1,12 @@
 # Catatan versi
 
+## 1.3.11-alpha (19)
+- Memperbaiki kegagalan TikTok `Unexpected response from webpage request`: yt-dlp diperbarui ke 2026.08.19 dan jalur API aplikasi TikTok dicoba sebelum halaman web.
+- Fallback TikTok tidak lagi dianggap gagal bila gallery-dl sudah berhasil menyimpan media tetapi status side-item non-zero.
+- Link pendek `vt.tiktok.com` / `vm.tiktok.com` memakai resolusi redirect yang lebih kompatibel dan cookie sesi parent-domain TikTok ikut diekspor.
+- Workflow GitHub Actions tidak diubah. Fitur combine/separate, watermark, dan FFmpeg picker dari 1.3.10 tetap dipertahankan.
+
+
 ## 1.3.10-alpha (18)
 
 - Menambahkan pilihan hasil post foto/carousel TikTok: gabungkan seluruh gambar hasil unduhan dengan audio menjadi satu MP4, atau simpan gambar dan audio asli secara terpisah.

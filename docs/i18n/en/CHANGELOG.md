@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.11-alpha (19)
+- Fixed TikTok `Unexpected response from webpage request`: updated yt-dlp to 2026.08.19 and try TikTok's app API path before the webpage path.
+- TikTok fallback now accepts successfully downloaded media even when gallery-dl reports a non-zero side-item status.
+- `vt.tiktok.com` / `vm.tiktok.com` short links use a more compatible redirect user-agent and parent-domain TikTok session cookies are exported.
+- GitHub Actions workflow is unchanged. The 1.3.10 combine/separate, watermark, and FFmpeg picker features are preserved.
+
+
 ## 1.3.10-alpha (18)
 
 - Add TikTok photo/carousel output controls: combine all downloaded images with the soundtrack into one MP4, or keep the original images and audio as separate files.

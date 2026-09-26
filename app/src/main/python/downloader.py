@@ -10,6 +10,16 @@ from pathlib import Path
 import yt_dlp
 
 
+# TikTok currently changes its web anti-bot challenge frequently. yt-dlp's TikTok
+# extractor has an Android app API path, but it is opt-in unless app_info/device_id
+# is provided. Prefer that path, then let yt-dlp fall back to the webpage.
+_TIKTOK_WEB_UA = (
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+    'AppleWebKit/537.36 (KHTML, like Gecko) '
+    'Chrome/145.0.0.0 Safari/537.36'
+)
+
+
 def download(url, directory, quality, max_items, subtitles, thumbnail, metadata, cookies, callback,
              tiktok_photo_mode='combine', tiktok_watermark='without'):
     root = Path(directory)
@@ -38,6 +48,15 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
         'writethumbnail': bool(thumbnail),
         'writeinfojson': bool(metadata),
     }
+    if site == 'tiktok':
+        # app_info=[''] tells yt-dlp to use its maintained default TikTok Android
+        # app identity first. This avoids depending solely on the web challenge path.
+        options['extractor_args'] = {'tiktok': {'app_info': ['']}}
+        options['http_headers'] = {
+            'User-Agent': _TIKTOK_WEB_UA,
+            'Referer': 'https://www.tiktok.com/',
+        }
+        options['extractor_retries'] = 3
     if cookies and os.path.isfile(cookies):
         options['cookiefile'] = cookies
     video_error = None

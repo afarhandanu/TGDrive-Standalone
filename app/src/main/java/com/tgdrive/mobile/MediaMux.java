@@ -61,7 +61,7 @@ public final class MediaMux {
         }
         // concat demuxer needs the last image repeated for its duration to be honored.
         list.append("file '").append(ffconcatPath(images.get(images.size() - 1))).append("'\n");
-        Files.writeString(concat.toPath(), list.toString(), StandardCharsets.UTF_8);
+        Files.write(concat.toPath(), list.toString().getBytes(StandardCharsets.UTF_8));
 
         String filter = "scale=1080:1920:force_original_aspect_ratio=decrease," +
             "pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p";

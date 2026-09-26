@@ -295,6 +295,11 @@ public class DownloadService extends Service {
             domains.add("twitter.com"); domains.add("www.twitter.com");
         } else if (host.equals("instagram.com") || host.endsWith(".instagram.com")) {
             domains.add("instagram.com"); domains.add("www.instagram.com");
+        } else if (host.equals("tiktok.com") || host.endsWith(".tiktok.com")) {
+            // A shared URL is usually vt.tiktok.com/vm.tiktok.com while the useful
+            // session cookies live on the parent/www TikTok domains.
+            domains.add("tiktok.com"); domains.add("www.tiktok.com");
+            domains.add("m.tiktok.com");
         }
         StringBuilder text = new StringBuilder("# Netscape HTTP Cookie File\n");
         for (String domain : domains) {
