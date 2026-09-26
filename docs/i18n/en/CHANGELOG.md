@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.13-alpha (21)
+
+- Fixed Android/Chaquopy temporary-file handling so yt-dlp never writes format-check temp files to the read-only `/` filesystem.
+- Standardized website media paths for Local and Google Drive as `site/username/category/item-id/media`.
+- Added the item-ID directory to yt-dlp, Instagram Stories/imports, TikTok embed/fallback, X, Instagram, and Facebook album downloads.
+
 ## 1.3.12-alpha (20)
 - Replace the invalid blank TikTok `app_info` workaround. TikTok now retries yt-dlp with two browser identities used for the September 2026 webpage regression, then falls back to TikTok's public player/embed metadata before gallery-dl.
 - Add an on-device TikTok post fallback which extracts public video/photo-carousel media and soundtrack from TikTok's own server-rendered metadata; it does not use a third-party download service.

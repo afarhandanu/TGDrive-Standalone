@@ -1,5 +1,6 @@
 """TikTok-only fallback; never route other websites through this extractor."""
 import urllib.parse
+import re
 import urllib.request
 from pathlib import Path
 
@@ -41,6 +42,9 @@ def download(url, root, max_items, cookies, callback, quality='best',
     path = urllib.parse.urlparse(canonical).path
     username = next((p[1:] for p in path.split('/') if p.startswith('@')), 'unknown')
     username = ''.join(c for c in username if c.isalnum() or c in '._-')[:80] or 'unknown'
+    match = re.search(r'/(?:video|photo)/(\d+)', path)
+    post_id = match.group(1) if match else 'unknown'
+    category = 'carousel' if '/photo/' in path else 'videos'
     limit = int(max_items)
     if limit < 0:
         raise ValueError('Maksimum item tidak boleh negatif')
@@ -56,7 +60,7 @@ def download(url, root, max_items, cookies, callback, quality='best',
             config.set(('extractor',), 'post-range', f'1-{limit}')
         if cookies and Path(cookies).is_file():
             config.set(('extractor',), 'cookies', cookies)
-        config.set(('extractor', 'tiktok'), 'directory', ['tiktok', username, 'videos'])
+        config.set(('extractor', 'tiktok'), 'directory', ['tiktok', username, category, post_id])
         # gallery-dl does not expose TikTok's native watermarked video variant.
         # In watermarked mode it is used only to recover photo posts and audio.
         config.set(('extractor', 'tiktok'), 'videos', watermark != 'with')

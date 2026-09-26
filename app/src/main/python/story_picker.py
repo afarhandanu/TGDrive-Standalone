@@ -81,7 +81,7 @@ def download_story(story_url, directory, cookies_file, callback, include_thumbna
     cookie_path = Path(cookies_file)
     if not cookie_path.is_file():
         raise ValueError('Sesi Instagram diperlukan untuk mengunduh Story terpilih')
-    folder = Path(directory) / 'instagram' / username / 'stories'
+    folder = Path(directory) / 'instagram' / username / 'stories' / wanted_id
     config.clear()
     try:
         config.set(('extractor',), 'cookies', str(cookie_path))

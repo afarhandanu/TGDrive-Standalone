@@ -90,6 +90,9 @@ class FallbackTests(unittest.TestCase):
         self.assertIn('Chrome/140.0.0.0', second['http_headers']['User-Agent'])
         self.assertEqual(first['http_headers']['Referer'], 'https://www.tiktok.com/')
         self.assertEqual(first['extractor_retries'], 2)
+        template = first['outtmpl'].replace('\\', '/')
+        self.assertIn('/tiktok/%(uploader,uploader_id,channel,creator|unknown).80s/videos/', template)
+        self.assertIn('/%(id|unknown).100s/', template)
 
     def test_fallback_error_reports_all_extractors(self):
         embed = types.SimpleNamespace(download=lambda *args: (_ for _ in ()).throw(RuntimeError('embed blocked')))
@@ -198,6 +201,8 @@ class FallbackTests(unittest.TestCase):
         self.assertIs(settings[(('extractor', 'tiktok', 'posts'), 'ytdl')], False)
         self.assertIn('OPR/118.0.0.0', settings[(('extractor',), 'user-agent')])
         self.assertEqual(settings[(('extractor',), 'headers')]['Referer'], 'https://www.tiktok.com/')
+        self.assertEqual(settings[(('extractor', 'tiktok'), 'directory')],
+                         ['tiktok', 'creator', 'videos', '123'])
 
     def test_photo_carousel_combine_emits_slideshow_job(self):
         media_dir = self.root / 'tiktok' / 'creator' / 'videos'
@@ -221,6 +226,15 @@ class FallbackTests(unittest.TestCase):
         items = downloader._tiktok_items(list(media_dir.iterdir()), self.root, 'separate')
         self.assertEqual({item['name'] for item in items}, {'post_1.jpg', 'post_2.jpg', 'post.mp3'})
         self.assertFalse(any('slideshow_images' in item for item in items))
+
+    def test_android_tempfile_uses_writable_cache_sibling(self):
+        temp_root = downloader._configure_temp(self.root)
+        self.assertEqual(temp_root, self.root.resolve().parent / '.python-tmp')
+        self.assertTrue(temp_root.is_dir())
+        with tempfile.NamedTemporaryFile() as handle:
+            self.assertEqual(Path(handle.name).parent, temp_root)
+            handle.write(b'ok')
+            handle.flush()
 
     def test_tiktok_format_selector_switches_watermark(self):
         no_mark = downloader._format_selector('tiktok', 'best', 'without')

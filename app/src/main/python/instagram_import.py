@@ -38,7 +38,8 @@ def import_file(source_path, directory, category, maximum, callback, date_from='
         kind = item.primary_category.lower()
         section = 'reels' if kind == 'reels' else 'stories' if kind == 'stories' else \
             'tagged' if kind in ('mentions', 'tagged') else 'posts'
-        target_dir = root / 'instagram' / _safe(item.username) / section
+        item_id = _safe(item.shortcode) if item.shortcode else f'item_{i + 1}'
+        target_dir = root / 'instagram' / _safe(item.username) / section / item_id
         target_dir.mkdir(parents=True, exist_ok=True)
         for asset in item.assets:
             kind = parser._media_source_kind(asset.url)
@@ -85,7 +86,9 @@ def import_file(source_path, directory, category, maximum, callback, date_from='
         callback.onProgress(int((i + 1) * 100 / max(len(selected), 1)), f'{i + 1}/{len(selected)}')
     if not output: raise ValueError('Tidak ada media untuk kategori ini')
     if output_mode == 'zip':
-        archive = root / 'instagram' / 'Instagram-import.zip'
+        bundle_id = _safe(source.stem) or 'instagram_export'
+        archive = root / 'instagram' / _safe(parsed.username) / 'imports' / bundle_id / 'Instagram-import.zip'
+        archive.parent.mkdir(parents=True, exist_ok=True)
         # ZIP_STORED avoids recompressing videos and matches the bot's bundle output.
         with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_STORED, allowZip64=True) as zip_out:
             for file in output:

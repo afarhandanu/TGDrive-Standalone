@@ -1,6 +1,8 @@
 """Opt-in profile/carousel extractor; the normal yt-dlp download path stays intact."""
 import json
 import re
+import os
+import tempfile
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -10,6 +12,8 @@ from gallery_dl import config, job
 def download(url, directory, maximum, cookies, callback, date_after='', date_before='', content='all',
              quality='best', subtitles=False, thumbnail=False, metadata=False):
     root = Path(directory)
+    root.mkdir(parents=True, exist_ok=True)
+    _configure_temp(root)
     host = (urlparse(url).hostname or '').lower().removeprefix('www.')
     pieces = [p for p in urlparse(url).path.split('/') if p]
     limit = int(maximum)
@@ -22,7 +26,7 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
     elif host in ('x.com', 'twitter.com'):
         platform, category = 'twitter', 'posts'
         creator = '{user[name]}'
-        filename = '{num:>02} - {tweet_id}.{extension}'
+        filename = '{tweet_id}__{num:>02} - {tweet_id}.{extension}'
     elif host.endswith('facebook.com') or host == 'fb.watch':
         platform, category = 'facebook', 'posts'
         creator = _safe(pieces[0] if pieces else 'facebook')
@@ -78,14 +82,16 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
         callback.onProgress(0, 'Mengambil profil / album')
         status = job.DownloadJob(url).run()
         files = [p for p in root.rglob('*') if p.is_file() and p.name != 'cookies.txt'
-                 and not p.name.endswith(('.part', '.ytdl'))]
+                 and not p.name.endswith(('.part', '.ytdl')) and '.tmp' not in p.relative_to(root).parts]
         if status not in (None, 0) and not files:
             raise RuntimeError('gallery-dl gagal membaca profil / album; periksa URL atau sesi akun')
         if not files:
             raise RuntimeError('Tidak ada media pada profil / album atau rentang tanggal ini')
         if status not in (None, 0):
             raise RuntimeError('Sebagian item profil gagal diekstrak; coba lagi dengan jumlah lebih kecil')
-        if platform in ('instagram', 'facebook'):
+        # Put every post/tweet/album under its own ID directory so Local and
+        # Drive always receive site/username/category/id/media.
+        if platform in ('instagram', 'twitter', 'facebook'):
             files = [_group_post(p, root) for p in files]
         callback.onProgress(100, f'{len(files)} file ditemukan')
         return json.dumps([{'path': str(p), 'name': p.name} for p in files], ensure_ascii=False)
@@ -93,11 +99,27 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
         config.clear()
 
 
+def _configure_temp(root):
+    temp_root = Path(root).resolve().parent / '.python-tmp'
+    temp_root.mkdir(parents=True, exist_ok=True)
+    value = str(temp_root.resolve())
+    os.environ['TMPDIR'] = value
+    os.environ['TEMP'] = value
+    os.environ['TMP'] = value
+    tempfile.tempdir = value
+    return temp_root
+
+
 def _group_post(path, root):
-    # Keep gallery-dl's filename marker and put each post's carousel in its own folder.
+    # Keep gallery-dl's filename marker and put every item under an ID folder.
+    # Some extractors occasionally expose no shortcode/ID; in that case use a
+    # stable numeric token from the filename, then a sanitized filename stem.
     prefix = path.name.split('__', 1)[0]
     if not prefix or prefix.lower() in ('none', 'unknown') or not re.fullmatch(r'[\w.-]{1,100}', prefix):
-        return path
+        numeric = re.search(r'(?<!\d)(\d{6,})(?!\d)', path.name)
+        prefix = numeric.group(1) if numeric else _safe(path.stem)
+    if not prefix:
+        prefix = 'unknown'
     target = path.parent / prefix / path.name
     target.parent.mkdir(parents=True, exist_ok=True)
     if target != path:

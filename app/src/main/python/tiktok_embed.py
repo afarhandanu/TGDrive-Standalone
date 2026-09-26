@@ -340,13 +340,14 @@ def download(url, root, cookies, callback, watermark='without'):
         raise RuntimeError('embed TikTok gagal: ' + ' | '.join(page_errors[-3:]))
 
     username = _safe_username(item, canonical)
-    dest = root / 'tiktok' / username / 'videos'
-    dest.mkdir(parents=True, exist_ok=True)
-    callback.onProgress(2, 'Mencoba pemutar resmi TikTok')
-
     images = _image_urls(item)
     audio = _audio_urls(item)
     videos = _video_urls(item, watermark)
+    category = 'carousel' if images else 'videos'
+    # Keep the same canonical hierarchy used by yt-dlp and Drive publishing.
+    dest = root / 'tiktok' / username / category / post_id
+    dest.mkdir(parents=True, exist_ok=True)
+    callback.onProgress(2, 'Mencoba pemutar resmi TikTok')
     files = []
 
     # Photo posts: keep every slide plus soundtrack so the caller can either

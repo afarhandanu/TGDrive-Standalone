@@ -1,5 +1,11 @@
 # Catatan versi
 
+## 1.3.13-alpha (21)
+
+- Memperbaiki direktori file sementara Android/Chaquopy agar yt-dlp tidak lagi menulis file pemeriksaan format ke `/` yang bersifat read-only.
+- Menyeragamkan struktur media situs untuk penyimpanan Lokal dan Google Drive menjadi `situs/username/kategori/id-item/media`.
+- Menambahkan folder ID item pada unduhan yt-dlp, Instagram Stories/import, TikTok embed/fallback, X, Instagram, dan Facebook.
+
 ## 1.3.12-alpha (20)
 - Menghapus workaround TikTok `app_info` kosong yang tidak valid. TikTok kini mencoba yt-dlp dengan dua identitas browser untuk regresi halaman web September 2026, lalu beralih ke metadata player/embed publik TikTok sebelum gallery-dl.
 - Menambahkan fallback post TikTok di perangkat yang mengambil video/foto carousel publik beserta soundtrack dari metadata server-rendered milik TikTok sendiri; tidak memakai layanan downloader pihak ketiga.

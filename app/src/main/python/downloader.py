@@ -5,6 +5,7 @@ import urllib.request
 import urllib.parse
 import mimetypes
 import re
+import tempfile
 from pathlib import Path
 
 import yt_dlp
@@ -25,12 +26,15 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
              tiktok_photo_mode='combine', tiktok_watermark='without'):
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
+    _configure_temp(root)
     site, category = _location(url)
     # yt-dlp may create sidecar files for captions, thumbnails and metadata.
     best = _format_selector(site, quality, tiktok_watermark)
     options = {
-        'outtmpl': str(root / site / '%(uploader_id,uploader|unknown).80s' /
-                       category / '%(title).160s [%(id)s].%(ext)s'),
+        # One canonical hierarchy for every website and for both Local + Drive:
+        # site / username / content-type / item-id / media files.
+        'outtmpl': str(root / site / '%(uploader,uploader_id,channel,creator|unknown).80s' /
+                       category / '%(id|unknown).100s' / '%(title).160s [%(id)s].%(ext)s'),
         'format': best,
         'noplaylist': False,
         'playlistend': int(max_items) if int(max_items) > 0 else None,
@@ -106,13 +110,13 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
                         ) from alternate_error
         elif site != 'instagram':
             if isinstance(exc, yt_dlp.utils.UnsupportedError):
-                _download_direct(url, root / site / 'unknown' / category, callback)
+                _download_direct(url, root / site / 'unknown' / category / _url_media_id(url), callback)
             else:
                 raise
     # TikTok photo posts can look successful to yt-dlp while yielding only the
     # soundtrack. In that case, fetch the actual photos with gallery-dl as well.
     if site == 'tiktok':
-        current_media = [p for p in root.rglob('*') if p.is_file() and _media_kind(p) in ('image', 'video')]
+        current_media = [p for p in _output_files(root) if _media_kind(p) in ('image', 'video')]
         if not current_media:
             embed_error = None
             try:
@@ -120,7 +124,7 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
                 tiktok_embed.download(url, root, cookies, callback, tiktok_watermark)
             except Exception as exc:
                 embed_error = exc
-            current_media = [p for p in root.rglob('*') if p.is_file() and _media_kind(p) in ('image', 'video')]
+            current_media = [p for p in _output_files(root) if _media_kind(p) in ('image', 'video')]
             if not current_media:
                 try:
                     import tiktok_fallback
@@ -138,19 +142,20 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     parsed_path = urllib.parse.urlparse(url).path.lower()
     if site == 'instagram' and (video_error or parsed_path.startswith('/p/')):
         import gallery_download
-        existing = {str(p) for p in root.rglob('*') if p.is_file()}
+        existing = {str(p) for p in _output_files(root)}
         try:
             gallery_download.download(url, str(root), max_items, cookies, callback, content='photos',
                                       quality=quality, subtitles=subtitles, thumbnail=thumbnail, metadata=metadata)
             if video_error and not any(p.suffix.lower() in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.heic')
-                                       for p in root.rglob('*') if p.is_file()):
+                                       for p in _output_files(root)):
                 raise RuntimeError('Ekstraktor Instagram tidak menemukan file gambar')
         except Exception as exc:
             if video_error or not existing:
                 raise RuntimeError(f'Foto Instagram gagal: {exc}') from exc
-    downloaded = [p for p in root.rglob('*') if p.is_file() and p.name != 'cookies.txt'
-                  and not p.name.endswith(('.part', '.ytdl'))]
+    downloaded = _output_files(root)
     paths = [_resolve_username(p, root, url) for p in downloaded]
+    if site == 'tiktok':
+        paths = _normalize_tiktok_layout(paths, root)
     if not paths:
         raise RuntimeError('Ekstraktor tidak menghasilkan foto atau video. Periksa link atau sesi login.')
     if site == 'tiktok':
@@ -160,6 +165,49 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     else:
         items = [{'path': str(p), 'name': p.name} for p in paths]
     return json.dumps(items, ensure_ascii=False)
+
+
+def _configure_temp(root):
+    """Force Python/yt-dlp temporary files into Android's writable job cache.
+
+    Chaquopy may otherwise let tempfile probe ``/`` and cache it as the temp
+    directory. Android mounts that location read-only, which makes yt-dlp's
+    format check fail with ``OSError: [Errno 30] ... '/tmp....tmp'``.
+    """
+    temp_root = Path(root).resolve().parent / '.python-tmp'
+    temp_root.mkdir(parents=True, exist_ok=True)
+    value = str(temp_root.resolve())
+    os.environ['TMPDIR'] = value
+    os.environ['TEMP'] = value
+    os.environ['TMP'] = value
+    tempfile.tempdir = value
+    return temp_root
+
+
+def _output_files(root):
+    root = Path(root)
+    files = []
+    for path in root.rglob('*'):
+        if not path.is_file() or path.name == 'cookies.txt' or path.name.endswith(('.part', '.ytdl')):
+            continue
+        try:
+            parts = path.relative_to(root).parts
+        except ValueError:
+            continue
+        if '.tmp' in parts:
+            continue
+        files.append(path)
+    return files
+
+
+def _url_media_id(url):
+    """Best-effort stable ID for a direct file URL when no extractor metadata exists."""
+    parsed = urllib.parse.urlparse(url)
+    path = urllib.parse.unquote(parsed.path).rstrip('/')
+    candidate = path.rsplit('/', 1)[-1] if path else ''
+    stem = Path(candidate).stem if candidate else ''
+    clean = re.sub(r'[^A-Za-z0-9._-]', '_', stem).strip('._')[:100]
+    return clean or 'unknown'
 
 
 def _format_selector(site, quality, watermark):
@@ -195,6 +243,41 @@ def _media_kind(path):
 
 def _natural_key(value):
     return [int(part) if part.isdigit() else part.lower() for part in re.split(r'(\d+)', value)]
+
+
+def _normalize_tiktok_layout(paths, root):
+    """Move photo-only TikTok posts to the carousel category while preserving IDs."""
+    root = Path(root)
+    groups = {}
+    passthrough = []
+    for path in paths:
+        path = Path(path)
+        try:
+            parts = path.relative_to(root).parts
+        except ValueError:
+            passthrough.append(path)
+            continue
+        if len(parts) < 5 or parts[0] != 'tiktok':
+            passthrough.append(path)
+            continue
+        key = (parts[1], parts[3])  # username, post ID
+        groups.setdefault(key, []).append(path)
+    output = list(passthrough)
+    for (username, post_id), files in groups.items():
+        kinds = {_media_kind(path) for path in files}
+        category = 'carousel' if 'image' in kinds and 'video' not in kinds else None
+        for path in files:
+            rel = path.relative_to(root).parts
+            if category and rel[2] != category:
+                target = root / 'tiktok' / username / category / post_id / path.name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if target != path:
+                    if target.exists():
+                        target.unlink()
+                    path.replace(target)
+                path = target
+            output.append(path)
+    return output
 
 
 def _tiktok_items(paths, root, photo_mode):
@@ -237,7 +320,7 @@ def _location(url):
     elif host in ('x.com', 'twitter.com') or host.endswith('.x.com'):
         site, category = 'x', 'posts'
     elif host.endswith('tiktok.com'):
-        site, category = 'tiktok', 'videos'
+        site, category = 'tiktok', 'carousel' if '/photo/' in path else 'videos'
     elif host.endswith('youtube.com') or host == 'youtu.be':
         site, category = 'youtube', 'shorts' if '/shorts/' in path else 'videos'
     else:
