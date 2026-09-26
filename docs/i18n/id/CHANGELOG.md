@@ -1,5 +1,11 @@
 # Catatan versi
 
+## 1.3.14-alpha (22)
+
+- Memperbaiki unduhan TikTok dengan watermark di Android: pemeriksaan format awal yt-dlp yang membuat `NamedTemporaryFile` pada root filesystem read-only dinonaktifkan.
+- Mengarahkan temporary path yt-dlp ke cache aplikasi yang dapat ditulis (`.python-tmp`) dan mempertahankan fallback TikTok embed/gallery secara langsung jika error temporary-file root read-only masih terjadi.
+- Menerapkan pengaturan temp/check yt-dlp yang aman untuk Android pada backend ytdl milik gallery-dl. Struktur folder, perilaku tanpa watermark, dan workflow GitHub Actions yang sudah ada tetap tidak diubah.
+
 ## 1.3.13-alpha (21)
 
 - Memperbaiki direktori file sementara Android/Chaquopy agar yt-dlp tidak lagi menulis file pemeriksaan format ke `/` yang bersifat read-only.

@@ -43,6 +43,7 @@ yt_dlp = types.ModuleType('yt_dlp')
 yt_dlp.YoutubeDL = YoutubeDL
 yt_dlp.utils = types.SimpleNamespace(DownloadError=DownloadError, UnsupportedError=UnsupportedError)
 sys.modules['yt_dlp'] = yt_dlp
+sys.modules.pop('downloader', None)
 downloader = importlib.import_module('downloader')
 
 
@@ -90,6 +91,9 @@ class FallbackTests(unittest.TestCase):
         self.assertIn('Chrome/140.0.0.0', second['http_headers']['User-Agent'])
         self.assertEqual(first['http_headers']['Referer'], 'https://www.tiktok.com/')
         self.assertEqual(first['extractor_retries'], 2)
+        self.assertIs(first['check_formats'], False)
+        self.assertEqual(Path(first['paths']['temp']), self.root.resolve().parent / '.python-tmp')
+        self.assertIs(first['cachedir'], False)
         template = first['outtmpl'].replace('\\', '/')
         self.assertIn('/tiktok/%(uploader,uploader_id,channel,creator|unknown).80s/videos/', template)
         self.assertIn('/%(id|unknown).100s/', template)
@@ -242,6 +246,35 @@ class FallbackTests(unittest.TestCase):
         self.assertIn('format_id!^=download_addr', no_mark)
         self.assertIn('format_id^=download_addr', with_mark)
         self.assertNotEqual(no_mark, with_mark)
+
+    def test_readonly_root_temp_error_falls_back_to_embed(self):
+        class TempFailYDL:
+            def __init__(self, options):
+                self.options = options
+                self.asserted = False
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                pass
+
+            def download(self, urls):
+                raise OSError(30, 'Read-only file system', '/tmptfw46dsx.tmp')
+
+        def embed_download(url, root, cookies, callback, watermark):
+            self.assertEqual(watermark, 'with')
+            media = root / 'tiktok' / 'creator' / 'videos' / '123' / 'clip.mp4'
+            media.parent.mkdir(parents=True, exist_ok=True)
+            media.write_bytes(b'video')
+
+        with patch.object(downloader.yt_dlp, 'YoutubeDL', TempFailYDL), \
+             patch.dict(sys.modules, {'tiktok_embed': types.SimpleNamespace(download=embed_download)}):
+            result = json.loads(downloader.download(
+                'https://www.tiktok.com/@creator/video/123', str(self.root), 'best', 0,
+                False, False, False, '', Callback(), 'combine', 'with'))
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['name'], 'clip.mp4')
 
     def test_gallery_fallback_does_not_return_unwatermarked_video_in_watermark_mode(self):
         settings = {}

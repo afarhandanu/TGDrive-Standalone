@@ -26,7 +26,7 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
              tiktok_photo_mode='combine', tiktok_watermark='without'):
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
-    _configure_temp(root)
+    temp_root = _configure_temp(root)
     site, category = _location(url)
     # yt-dlp may create sidecar files for captions, thumbnails and metadata.
     best = _format_selector(site, quality, tiktok_watermark)
@@ -36,6 +36,14 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
         'outtmpl': str(root / site / '%(uploader,uploader_id,channel,creator|unknown).80s' /
                        category / '%(id|unknown).100s' / '%(title).160s [%(id)s].%(ext)s'),
         'format': best,
+        # Android has no writable process-wide /tmp. Some extractor-provided
+        # formats (notably TikTok's watermarked download_addr) are marked as
+        # needing a preflight check, and yt-dlp performs that check through
+        # tempfile.NamedTemporaryFile. Disable that probe and keep yt-dlp's own
+        # temporary download files inside the app's writable cache.
+        'check_formats': False,
+        'paths': {'temp': str(temp_root)},
+        'cachedir': False,
         'noplaylist': False,
         'playlistend': int(max_items) if int(max_items) > 0 else None,
         'ignoreerrors': False,
@@ -69,7 +77,13 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     try:
         with yt_dlp.YoutubeDL(options) as dl:
             dl.download([url])
-    except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError) as exc:
+    except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError, OSError) as exc:
+        # A read-only-root tempfile failure is an Android runtime/environment
+        # problem, not a media error. TikTok has independent embed/gallery
+        # fallbacks, so allow those to run instead of terminating the job.
+        # Other OSErrors (disk full, permission errors, etc.) must stay visible.
+        if isinstance(exc, OSError) and not _is_readonly_temp_error(exc):
+            raise
         video_error = exc
         if site == 'tiktok' and isinstance(exc, yt_dlp.utils.DownloadError):
             # September 2026: TikTok intermittently rejects one browser signature
@@ -84,7 +98,9 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
                 with yt_dlp.YoutubeDL(retry_options) as dl:
                     dl.download([url])
                 video_error = None
-            except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError) as retry_exc:
+            except (yt_dlp.utils.UnsupportedError, yt_dlp.utils.DownloadError, OSError) as retry_exc:
+                if isinstance(retry_exc, OSError) and not _is_readonly_temp_error(retry_exc):
+                    raise
                 retry_error = retry_exc
 
             if video_error is not None:
@@ -108,6 +124,29 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
                             f'yt-dlp: {exc}; retry-UA: {retry_error}; '
                             f'embed: {embed_error}; gallery-dl: {alternate_error}'
                         ) from alternate_error
+        elif site == 'tiktok' and _is_readonly_temp_error(exc):
+            # Do not repeat the same yt-dlp preflight path. The embed extractor
+            # downloads TikTok's native play/download URL directly and therefore
+            # doesn't need tempfile.NamedTemporaryFile.
+            embed_error = None
+            try:
+                import tiktok_embed
+                callback.onProgress(0, 'Mencoba jalur TikTok tanpa pemeriksaan format')
+                tiktok_embed.download(url, root, cookies, callback, tiktok_watermark)
+                video_error = None
+            except Exception as embed_exc:
+                embed_error = embed_exc
+            if video_error is not None:
+                try:
+                    import tiktok_fallback
+                    tiktok_fallback.download(url, root, max_items, cookies, callback,
+                                             quality, subtitles, thumbnail, metadata, tiktok_watermark)
+                    video_error = None
+                except Exception as alternate_error:
+                    raise RuntimeError(
+                        'TikTok gagal setelah error temporary-file Android. '
+                        f'yt-dlp: {exc}; embed: {embed_error}; gallery-dl: {alternate_error}'
+                    ) from alternate_error
         elif site != 'instagram':
             if isinstance(exc, yt_dlp.utils.UnsupportedError):
                 _download_direct(url, root / site / 'unknown' / category / _url_media_id(url), callback)
@@ -168,11 +207,12 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
 
 
 def _configure_temp(root):
-    """Force Python/yt-dlp temporary files into Android's writable job cache.
+    """Force Python/yt-dlp temporary files into Android's writable app cache.
 
     Chaquopy may otherwise let tempfile probe ``/`` and cache it as the temp
-    directory. Android mounts that location read-only, which makes yt-dlp's
-    format check fail with ``OSError: [Errno 30] ... '/tmp....tmp'``.
+    directory. Keep this path outside the per-job folder because ``tempfile``
+    caches it process-wide and another job can start after the first job cache
+    has been deleted.
     """
     temp_root = Path(root).resolve().parent / '.python-tmp'
     temp_root.mkdir(parents=True, exist_ok=True)
@@ -180,8 +220,20 @@ def _configure_temp(root):
     os.environ['TMPDIR'] = value
     os.environ['TEMP'] = value
     os.environ['TMP'] = value
+    # tempfile caches its selected directory, so environment variables alone
+    # are insufficient once another module has already called gettempdir().
     tempfile.tempdir = value
     return temp_root
+
+
+def _is_readonly_temp_error(exc):
+    if not isinstance(exc, OSError):
+        return False
+    # errno 30 = EROFS. Limit the fallback to the exact Android root-temp shape
+    # seen from yt-dlp's _check_formats so unrelated filesystem failures remain
+    # actionable.
+    path = str(getattr(exc, 'filename', '') or '')
+    return getattr(exc, 'errno', None) == 30 and (not path or path.startswith('/tmp'))
 
 
 def _output_files(root):

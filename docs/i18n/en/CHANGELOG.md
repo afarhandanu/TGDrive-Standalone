@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.14-alpha (22)
+
+- Fixed TikTok watermarked downloads on Android: disable yt-dlp's format preflight probe that creates `NamedTemporaryFile` under the read-only root filesystem.
+- Pin yt-dlp temporary paths to the app's writable cache (`.python-tmp`) and preserve direct TikTok embed/gallery fallback if a read-only-root tempfile error is still raised.
+- Apply the same Android-safe yt-dlp temp/check settings to gallery-dl's ytdl backend. Existing folder hierarchy, no-watermark behavior, and GitHub Actions workflow remain unchanged.
+
 ## 1.3.13-alpha (21)
 
 - Fixed Android/Chaquopy temporary-file handling so yt-dlp never writes format-check temp files to the read-only `/` filesystem.

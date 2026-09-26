@@ -13,7 +13,7 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
              quality='best', subtitles=False, thumbnail=False, metadata=False):
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
-    _configure_temp(root)
+    temp_root = _configure_temp(root)
     host = (urlparse(url).hostname or '').lower().removeprefix('www.')
     pieces = [p for p in urlparse(url).path.split('/') if p]
     limit = int(maximum)
@@ -76,6 +76,7 @@ def download(url, directory, maximum, cookies, callback, date_after='', date_bef
                         f'best[height<={int(quality)}][ext=mp4]/best[height<={int(quality)}]/best')
         config.set(('downloader', 'ytdl'), 'raw-options', {
             'quiet': True, 'no_warnings': True, 'format': video_format,
+            'check_formats': False, 'paths': {'temp': str(temp_root)}, 'cachedir': False,
             'writesubtitles': bool(subtitles), 'writeautomaticsub': bool(subtitles),
             'writethumbnail': bool(thumbnail), 'writeinfojson': bool(metadata),
         })
