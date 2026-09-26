@@ -70,5 +70,42 @@ class StorageLayoutTests(unittest.TestCase):
         self.assertEqual(downloader._url_media_id('https://cdn.example.com/'), 'unknown')
 
 
+    def test_watermark_label_is_added_only_to_supported_video_media(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            folder = root / 'tiktok' / 'alice' / 'videos' / '123'
+            folder.mkdir(parents=True)
+            video = folder / 'caption [123].mp4'
+            info = folder / 'caption [123].info.json'
+            image = folder / 'caption [123].jpg'
+            video.write_bytes(b'video')
+            info.write_text('{}')
+            image.write_bytes(b'image')
+            result = downloader._label_watermark_filenames([video, info, image], 'tiktok', 'with')
+            names = {p.name for p in result}
+            self.assertIn('caption [123]_with_watermark.mp4', names)
+            self.assertIn('caption [123].info.json', names)
+            self.assertIn('caption [123].jpg', names)
+
+    def test_without_watermark_label_and_non_supported_sites_remain_narrow(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            tiktok = root / 'clip.mp4'
+            youtube = root / 'other.mp4'
+            tiktok.write_bytes(b'video')
+            youtube.write_bytes(b'video')
+            result = downloader._label_watermark_filenames([tiktok], 'tiktok', 'without')
+            self.assertEqual(result[0].name, 'clip_without_watermark.mp4')
+            result2 = downloader._label_watermark_filenames([youtube], 'youtube', 'with')
+            self.assertEqual(result2[0].name, 'other.mp4')
+
+    def test_watermark_label_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'clip_with_watermark.mp4'
+            path.write_bytes(b'video')
+            result = downloader._label_watermark_filenames([path], 'tiktok', 'with')
+            self.assertEqual(result[0].name, 'clip_with_watermark.mp4')
+
+
 if __name__ == '__main__':
     unittest.main()

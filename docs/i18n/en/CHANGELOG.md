@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.15-alpha (23)
+
+- Append `_with_watermark` or `_without_watermark` to downloaded video filenames on sites where the app exposes a watermark choice (currently TikTok).
+- Apply the label only to the final video media name after extractor/fallback processing, so Local and Google Drive use the same filename while folder hierarchy, sidecars, photo/carousel files, and existing download behavior remain unchanged.
+- GitHub Actions workflow is unchanged.
+
 ## 1.3.14-alpha (22)
 
 - Fixed TikTok watermarked downloads on Android: disable yt-dlp's format preflight probe that creates `NamedTemporaryFile` under the read-only root filesystem.

@@ -74,7 +74,7 @@ class FallbackTests(unittest.TestCase):
         with patch.dict(sys.modules, {'tiktok_embed': embed, 'tiktok_fallback': types.SimpleNamespace(download=download)}):
             result = json.loads(self.invoke('https://vt.tiktok.com/ZSb85NbpU/'))
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['name'], 'clip.mp4')
+        self.assertEqual(result[0]['name'], 'clip_without_watermark.mp4')
 
     def test_tiktok_rotates_browser_user_agent_before_fallback(self):
         def embed_download(url, root, *args):
@@ -274,7 +274,7 @@ class FallbackTests(unittest.TestCase):
                 'https://www.tiktok.com/@creator/video/123', str(self.root), 'best', 0,
                 False, False, False, '', Callback(), 'combine', 'with'))
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['name'], 'clip.mp4')
+        self.assertEqual(result[0]['name'], 'clip_with_watermark.mp4')
 
     def test_gallery_fallback_does_not_return_unwatermarked_video_in_watermark_mode(self):
         settings = {}

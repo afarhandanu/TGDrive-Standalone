@@ -195,6 +195,11 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     paths = [_resolve_username(p, root, url) for p in downloaded]
     if site == 'tiktok':
         paths = _normalize_tiktok_layout(paths, root)
+    # Only rename the actual video media. Sidecars (JSON/thumbnails/audio) and
+    # photo/carousel files keep their existing names. This is intentionally
+    # applied after every extractor/fallback path has finished so Local and
+    # Drive always receive the same final filename.
+    paths = _label_watermark_filenames(paths, site, tiktok_watermark)
     if not paths:
         raise RuntimeError('Ekstraktor tidak menghasilkan foto atau video. Periksa link atau sesi login.')
     if site == 'tiktok':
@@ -329,6 +334,55 @@ def _normalize_tiktok_layout(paths, root):
                     path.replace(target)
                 path = target
             output.append(path)
+    return output
+
+
+_WATERMARK_CAPABLE_SITES = {'tiktok'}
+_WATERMARK_LABELS = {
+    'with': '_with_watermark',
+    'without': '_without_watermark',
+}
+
+
+def _label_watermark_filenames(paths, site, watermark):
+    """Append the selected watermark state to video filenames where supported.
+
+    Keep the operation narrow and idempotent: only video media from a site with
+    a real watermark choice is renamed. Existing folder layout, metadata names,
+    thumbnails, audio, and photo/carousel source files are untouched.
+    """
+    paths = [Path(p) for p in paths]
+    if site not in _WATERMARK_CAPABLE_SITES:
+        return paths
+    suffix = _WATERMARK_LABELS.get(watermark)
+    if not suffix:
+        return paths
+
+    known_suffixes = tuple(_WATERMARK_LABELS.values())
+    output = []
+    for path in paths:
+        if not path.is_file() or _media_kind(path) != 'video':
+            output.append(path)
+            continue
+        if path.stem.endswith(known_suffixes):
+            output.append(path)
+            continue
+        target = path.with_name(f'{path.stem}{suffix}{path.suffix}')
+        if target != path:
+            # The working directory is per-job, so a collision normally cannot
+            # happen. Avoid silently replacing a file if an extractor ever emits
+            # both names in one job.
+            if target.exists():
+                index = 2
+                while True:
+                    candidate = path.with_name(f'{path.stem}{suffix}_{index}{path.suffix}')
+                    if not candidate.exists():
+                        target = candidate
+                        break
+                    index += 1
+            path.rename(target)
+            path = target
+        output.append(path)
     return output
 
 

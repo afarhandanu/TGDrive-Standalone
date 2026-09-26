@@ -1,5 +1,11 @@
 # Catatan versi
 
+## 1.3.15-alpha (23)
+
+- Menambahkan akhiran `_with_watermark` atau `_without_watermark` pada nama file video untuk situs yang menyediakan pilihan watermark di aplikasi (saat ini TikTok).
+- Label diterapkan hanya pada nama media video final setelah seluruh jalur ekstraktor/fallback selesai, sehingga Local dan Google Drive memakai nama yang sama; struktur folder, sidecar, foto/carousel, dan perilaku unduhan yang sudah berjalan tidak diubah.
+- Workflow GitHub Actions tidak diubah.
+
 ## 1.3.14-alpha (22)
 
 - Memperbaiki unduhan TikTok dengan watermark di Android: pemeriksaan format awal yt-dlp yang membuat `NamedTemporaryFile` pada root filesystem read-only dinonaktifkan.
