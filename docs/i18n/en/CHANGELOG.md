@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.10-alpha (18)
+
+- Add TikTok photo/carousel output controls: combine all downloaded images with the soundtrack into one MP4, or keep the original images and audio as separate files.
+- Add TikTok video watermark selection. The no-watermark path avoids TikTok watermarked formats; the watermark path requests TikTok's native watermarked format when the extractor exposes it.
+- Extend the on-device FFmpeg tool to accept one or more images plus one audio file in addition to video + audio. Selected media is staged and queued from Files without jumping back to Download.
+- Add dedicated media-combine, separate-media, watermark-on, and watermark-off vector icons, plus bilingual UI/status text and regression coverage for the TikTok modes.
+
 ## 1.3.9-alpha (17)
 
 - Replace tiny navigation symbols with six distinct vector icons. Increase icon, label, and touch target sizes without changing the existing menus.

@@ -1,5 +1,12 @@
 # Catatan versi
 
+## 1.3.10-alpha (18)
+
+- Menambahkan pilihan hasil post foto/carousel TikTok: gabungkan seluruh gambar hasil unduhan dengan audio menjadi satu MP4, atau simpan gambar dan audio asli secara terpisah.
+- Menambahkan pilihan watermark video TikTok. Jalur tanpa watermark menghindari format TikTok ber-watermark; jalur dengan watermark meminta format watermark bawaan TikTok jika format tersebut tersedia dari ekstraktor.
+- Memperluas alat FFmpeg di perangkat agar menerima satu atau lebih gambar + satu audio selain video + audio. Media terpilih langsung disiapkan dan dimasukkan ke antrean dari Berkas tanpa berpindah kembali ke Unduh.
+- Menambahkan ikon vektor khusus untuk gabung media, media terpisah, watermark aktif/nonaktif, beserta teks antarmuka/status dwibahasa dan pengujian regresi untuk mode TikTok.
+
 ## 1.3.9-alpha (17)
 
 - Mengganti simbol navigasi kecil dengan enam ikon vektor. Memperbesar ikon, teks, dan area sentuh tanpa mengubah menu yang ada.

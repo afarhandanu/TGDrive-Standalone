@@ -17,7 +17,7 @@ Media extraction, torrent downloads, merging, and uploads run on your phone. You
 | --- | --- | --- |
 | Videos, photos, audio, and supported playlists | Save locally, to Google Drive, or both | Keep your preferred quality, destination, and filters |
 | Instagram Stories with thumbnails and multi-selection | Browse, search, rename, star, and move Drive files | Pause the queue, cancel, and retry failed jobs |
-| Instagram JSON/ZIP imports with category and date filters | Merge a video and audio file with FFmpeg | Review results and share diagnostic logs |
+| Instagram JSON/ZIP imports with category and date filters | Merge video + audio or image carousel + audio with FFmpeg | Review results and share diagnostic logs |
 | Magnet links and `.torrent` files | Migrate old download folders with verified copies | Back up history and saved website addresses |
 
 See the [full feature list](docs/i18n/en/FEATURES.md) and [release notes](CHANGELOG.md).
@@ -65,7 +65,7 @@ The Android package remains `com.tgdrive.mobile` for update compatibility. Keep 
 - Website sessions stay on the device. A private temporary cookie file is supplied to the extractor and removed when the job ends. Exported backups exclude login cookies and Google access tokens.
 - Source websites and Google Drive receive the requests needed for downloads and uploads. This is not an offline downloader.
 - Site support depends on the bundled extractors, the source website, and your account’s access. Login does not guarantee that every URL is supported.
-- TikTok posts get a gallery-dl retry when yt-dlp fails, including short share links. TikTok may block both; the retry can use a different quality or omit optional JSON metadata. Read Activity → View error log for both diagnostics.
+- TikTok posts get a gallery-dl retry when yt-dlp fails, including short share links. Photo/carousel posts can be combined with their soundtrack into one MP4 or kept separate, and video downloads can request no watermark or the native TikTok watermark when available. TikTok may block both extractors; the retry can use a different quality or omit optional JSON metadata. Read Activity → View error log for both diagnostics.
 - Stories and preview URLs can expire. Refresh the Story list when a selected item is no longer available.
 - This is an **alpha** release. Keep originals when first trying folder migration and inspect the results on your device.
 

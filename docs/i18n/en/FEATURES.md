@@ -12,12 +12,12 @@
 - Sign in to Instagram, X, or other HTTPS websites. Saved sites get buttons to reopen them.
 - Import cookies.txt, and use profile/album mode and date filters where supported.
 - Website support depends on the extractor and account access. Some content requires login.
-- TikTok posts use a second extractor if yt-dlp fails; TikTok may still block both methods. The fallback may select a different quality or omit optional JSON metadata.
+- TikTok posts use a second extractor if yt-dlp fails; TikTok may still block both methods. Photo/carousel posts can be combined with their soundtrack into one MP4 or kept as separate images + audio. Video downloads can request no watermark or TikTok's native watermark when that format is available. The fallback may select a different quality or omit optional JSON metadata.
 
 ## Files and imports
 - Import Instagram JSON/ZIP with categories, date ranges, and folder or ZIP output.
 - Download magnet links, torrent URLs, and local .torrent files.
-- Merge a video and audio file using FFmpeg on arm64 devices.
+- Merge a video + audio file, or one/more images + audio into a slideshow MP4, using FFmpeg on arm64 devices. Manual merge selection stays in Files while the job is staged and queued.
 
 ## Google Drive
 - Upload to a chosen folder with optional same-name skipping and checksum verification.

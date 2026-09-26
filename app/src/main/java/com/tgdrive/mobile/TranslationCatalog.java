@@ -431,6 +431,37 @@ final class TranslationCatalog {
         IDS.put("Tautan pendek TikTok mengarah ke situs lain", R.string.text_85116c0a00e942bc);
         IDS.put("TikTok tidak menyediakan media melalui ekstraktor cadangan; periksa log error", R.string.text_6594d6ff13efb3f8);
         IDS.put("TikTok gagal melalui dua ekstraktor. yt-dlp: {0}; gallery-dl: {1}", R.string.text_fd4bb9597be37a2e);
+        IDS.put("Atur hasil post foto/carousel dan pilihan watermark untuk video TikTok.", R.string.text_cea42715b8b98818);
+        IDS.put("Foto / carousel · Gabungkan jadi video", R.string.text_24f80239a3315cb1);
+        IDS.put("Gabungkan jadi video", R.string.text_44f2abb090f03016);
+        IDS.put("Simpan terpisah", R.string.text_27bf33d32914c37b);
+        IDS.put("Foto / carousel · ", R.string.text_d657c3c8c28c1b3b);
+        IDS.put("Mode gabung membuat satu MP4 dari semua gambar dan audio. Mode terpisah menyimpan gambar dan audio seperti sumber.", R.string.text_e9447ca3f2a18816);
+        IDS.put("Video TikTok · Tanpa watermark", R.string.text_bb93540eb56a1f75);
+        IDS.put("Tanpa watermark", R.string.text_b03a0e3ed1f46911);
+        IDS.put("Dengan watermark", R.string.text_46d74479e37649ab);
+        IDS.put("Video TikTok · ", R.string.text_be2c0e05236ef132);
+        IDS.put("Pilihan watermark berlaku pada post video jika TikTok menyediakan format tersebut; slideshow foto tidak diberi watermark buatan.", R.string.text_e3ea122d9cc1f2ed);
+        IDS.put("Gabungkan media + audio (FFmpeg)", R.string.text_3278cd3ff4583d00);
+        IDS.put("Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio. Setelah dipilih, proses FFmpeg langsung masuk antrean tanpa kembali ke beranda.", R.string.text_e706b84858f00cf9);
+        IDS.put("Pilih minimal dua file: media dan audio", R.string.text_83b8842f1f785a00);
+        IDS.put("Media dipilih; menyiapkan FFmpeg…", R.string.text_9464a2aea5e198a9);
+        IDS.put("Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio", R.string.text_a124c02c0074d62b);
+        IDS.put("Audio untuk slideshow tidak tersedia", R.string.text_95736f029c4e7d39);
+        IDS.put("Membuat slideshow gambar + audio dengan FFmpeg", R.string.text_bb1d49c5745b277c);
+        IDS.put("Membuat slideshow TikTok + audio dengan FFmpeg", R.string.text_6b7944573a932801);
+        IDS.put("Audio slideshow TikTok tidak tersedia", R.string.text_e3788cdb0a9da440);
+        IDS.put("Gambar slideshow keluar dari direktori kerja", R.string.text_4157f37ed07c4f6f);
+        IDS.put("Audio slideshow keluar dari direktori kerja", R.string.text_8887ad7dacae6af5);
+        IDS.put("Gambar untuk slideshow tidak tersedia", R.string.text_81a6dae328fd9c9b);
+        IDS.put("Salah satu gambar slideshow tidak dapat dibaca", R.string.text_d4fe7356c26e2401);
+        IDS.put("Folder keluaran slideshow tidak tersedia", R.string.text_baf6644cdf0a2983);
+        IDS.put("FFmpeg gagal membuat slideshow: {0}", R.string.text_7c5014cb38170073);
+        IDS.put("FFmpeg gagal membuat slideshow", R.string.text_7cc51022e01e4fa9);
+        IDS.put("TikTok tidak menghasilkan gambar/video: {0}", R.string.text_e61cd10d026e43f6);
+        IDS.put("TikTok hanya mengembalikan audio tanpa gambar/video. Coba ulangi atau ganti opsi watermark.", R.string.text_7e9619cfe1362a06);
+        IDS.put("Lokasi slideshow TikTok tidak valid", R.string.text_bb8a4ad7ae2d7525);
+        IDS.put("Local FFmpeg slideshow", R.string.text_b11295ff38dfed97);
     }
     private TranslationCatalog() { }
 }

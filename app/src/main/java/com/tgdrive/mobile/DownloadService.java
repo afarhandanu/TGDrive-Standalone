@@ -51,8 +51,10 @@ public class DownloadService extends Service {
         String importPath = intent.getStringExtra("import_path");
         String localPath = intent.getStringExtra("local_path");
         String muxAudioPath = intent.getStringExtra("mux_audio_path");
+        ArrayList<String> muxImagePaths = intent.getStringArrayListExtra("mux_image_paths");
         String torrentPath = intent.getStringExtra("torrent_path");
         if ((url == null || url.trim().isEmpty()) && importPath == null && localPath == null && torrentPath == null
+                && (muxImagePaths == null || muxImagePaths.isEmpty())
                 && (storyUrls == null || storyUrls.isEmpty())) return START_NOT_STICKY;
         String target = intent.getStringExtra("target");
         String token = intent.getStringExtra("drive_token");
@@ -72,6 +74,10 @@ public class DownloadService extends Service {
         String dateFrom = intent.getStringExtra("date_from");
         String dateTo = intent.getStringExtra("date_to");
         String importOutput = intent.getStringExtra("import_output");
+        String requestedPhotoMode = intent.getStringExtra("tiktok_photo_mode");
+        String requestedWatermark = intent.getStringExtra("tiktok_watermark");
+        final String tiktokPhotoMode = "separate".equals(requestedPhotoMode) ? "separate" : "combine";
+        final String tiktokWatermark = "with".equals(requestedWatermark) ? "with" : "without";
         ArrayList<Long> storyIds = new ArrayList<>();
         if (storyUrls != null && !storyUrls.isEmpty()) {
             ArrayList<String> validStoryUrls = new ArrayList<>();
@@ -82,14 +88,17 @@ public class DownloadService extends Service {
                 storyIds.add(storyId);
                 History.enqueue(this, storyId, storyUrl, target, quality, 1, folder, subtitles, thumbnail,
                     metadata, anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent,
-                    dateFrom, dateTo, verifyDrive);
+                    dateFrom, dateTo, verifyDrive, tiktokPhotoMode, tiktokWatermark);
             }
             if (storyIds.isEmpty()) return START_NOT_STICKY;
             storyUrls = validStoryUrls;
         } else History.enqueue(this, id,
-            importPath != null ? "Instagram JSON/ZIP import" : localPath != null ? "Local file" : torrentPath != null ? "Torrent file" : url,
+            importPath != null ? "Instagram JSON/ZIP import" :
+                (muxImagePaths != null && !muxImagePaths.isEmpty()) ? "Local FFmpeg slideshow" :
+                localPath != null ? "Local file" : torrentPath != null ? "Torrent file" : url,
             target, quality, count, folder, subtitles, thumbnail, metadata, anonymous, skipDrive,
-            albumMode, profileContent == null ? "all" : profileContent, dateFrom, dateTo, verifyDrive);
+            albumMode, profileContent == null ? "all" : profileContent, dateFrom, dateTo, verifyDrive,
+            tiktokPhotoMode, tiktokWatermark);
         startForeground(3001, notification("The Great Drive", "Menyiapkan antrean…", 0));
         PENDING.incrementAndGet();
         final ArrayList<String> selectedStories = storyUrls;
@@ -102,15 +111,17 @@ public class DownloadService extends Service {
                         if (canceled) { event(storyId, "CANCELLED", "Antrean Story dibatalkan", 0); continue; }
                         synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
                         if (canceled) { event(storyId, "CANCELLED", "Antrean Story dibatalkan", 0); continue; }
-                        runJob(storyId, selectedStories.get(i), null, null, null, null, null, target,
+                        runJob(storyId, selectedStories.get(i), null, null, null, null, null, null, target,
                             token, folder, quality, 1, subtitles, thumbnail, metadata, "", "", "folder",
-                            anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, true);
+                            anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, true,
+                            tiktokPhotoMode, tiktokWatermark);
                     }
                 } else {
                     synchronized (PAUSE_LOCK) { while (paused) PAUSE_LOCK.wait(); }
-                    runJob(id, url, importPath, localPath, muxAudioPath, torrentPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
+                    runJob(id, url, importPath, localPath, muxAudioPath, muxImagePaths, torrentPath, category, target, token, folder, quality, count, subtitles, thumbnail, metadata,
                         dateFrom == null ? "" : dateFrom, dateTo == null ? "" : dateTo, importOutput == null ? "folder" : importOutput,
-                        anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, false);
+                        anonymous, skipDrive, albumMode, profileContent == null ? "all" : profileContent, verifyDrive, false,
+                        tiktokPhotoMode, tiktokWatermark);
                 }
             } catch (InterruptedException e) {
                 if (storyIds.isEmpty()) event(id, "INTERRUPTED", "Antrean terhenti; tugas dapat diulang", 0);
@@ -132,10 +143,11 @@ public class DownloadService extends Service {
         }
         return null;
     }
-    private void runJob(long id, String url, String importPath, String localPath, String muxAudioPath, String torrentPath, String category, String target, String token, String folder, String quality, int count,
+    private void runJob(long id, String url, String importPath, String localPath, String muxAudioPath, ArrayList<String> muxImagePaths, String torrentPath, String category, String target, String token, String folder, String quality, int count,
                         boolean subtitles, boolean thumbnail, boolean metadata, String dateFrom, String dateTo,
                         String importOutput, boolean anonymous, boolean skipDrive, boolean albumMode,
-                        String profileContent, boolean verifyDrive, boolean selectedStory) {
+                        String profileContent, boolean verifyDrive, boolean selectedStory,
+                        String tiktokPhotoMode, String tiktokWatermark) {
         canceled = false;
         File jobDir = new File(getCacheDir(), "job-" + id);
         jobDir.mkdirs();
@@ -148,6 +160,26 @@ public class DownloadService extends Service {
             String raw;
             if (torrentPath != null || (url != null && (url.startsWith("magnet:?") || url.toLowerCase(java.util.Locale.ROOT).matches("^https://[^?#]+\\.torrent(?:\\?.*)?$")))) {
                 raw = TorrentEngine.download(url, torrentPath, jobDir, callback, () -> canceled).toString();
+            } else if (muxImagePaths != null && !muxImagePaths.isEmpty()) {
+                if (muxAudioPath == null) throw new IllegalArgumentException("Audio untuk slideshow tidak tersedia");
+                File localDir = new File(jobDir, "local/files");
+                if (!localDir.mkdirs() && !localDir.isDirectory()) throw new IllegalStateException("Gagal membuat folder file lokal");
+                ArrayList<File> images = new ArrayList<>();
+                int imageIndex = 1;
+                for (String imagePath : muxImagePaths) {
+                    File source = new File(imagePath);
+                    String clean = source.getName().replaceFirst("^selected_[0-9]+_", "");
+                    File copy = new File(localDir, String.format(java.util.Locale.ROOT, "%02d_%s", imageIndex++, clean));
+                    Files.copy(source.toPath(), copy.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    images.add(copy);
+                }
+                File sourceAudio = new File(muxAudioPath);
+                File audio = new File(jobDir, "slideshow_audio_" + id + extensionOrDefault(sourceAudio.getName(), ".m4a"));
+                Files.copy(sourceAudio.toPath(), audio.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                File targetFile = new File(localDir, "slideshow_" + id + ".mp4");
+                event(id, "RUNNING", "Membuat slideshow gambar + audio dengan FFmpeg", 98);
+                MediaMux.slideshow(images, audio, targetFile);
+                raw = new JSONArray().put(new JSONObject().put("path", targetFile.getAbsolutePath()).put("name", targetFile.getName())).toString();
             } else if (localPath != null) {
                 File local = new File(localPath);
                 File localDir = new File(jobDir, "local/files");
@@ -156,7 +188,7 @@ public class DownloadService extends Service {
                 Files.copy(local.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 if (muxAudioPath != null) {
                     File sourceAudio = new File(muxAudioPath);
-                    File audio = new File(jobDir, "mux_audio_" + id + ".m4a");
+                    File audio = new File(jobDir, "mux_audio_" + id + extensionOrDefault(sourceAudio.getName(), ".m4a"));
                     Files.copy(sourceAudio.toPath(), audio.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     event(id, "RUNNING", "Menggabungkan video + audio dengan FFmpeg", 98);
                     MediaMux.merge(targetFile, audio);
@@ -176,17 +208,34 @@ public class DownloadService extends Service {
                         dateFrom, dateTo, profileContent, quality, subtitles, thumbnail, metadata).toString();
                 else raw = Python.getInstance().getModule("downloader")
                     .callAttr("download", url, jobDir.getAbsolutePath(), quality, count, subtitles, thumbnail, metadata,
-                        cookieFile.exists() ? cookieFile.getAbsolutePath() : "", callback).toString();
+                        cookieFile.exists() ? cookieFile.getAbsolutePath() : "", callback,
+                        tiktokPhotoMode, tiktokWatermark).toString();
             }
             JSONArray files = new JSONArray(raw);
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < files.length(); i++) {
                 if (canceled) throw new InterruptedException("Dibatalkan");
-                File media = new File(files.getJSONObject(i).getString("path"));
+                JSONObject fileInfo = files.getJSONObject(i);
+                File media = new File(fileInfo.getString("path"));
                 if (!media.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
                     throw new SecurityException("Hasil unduhan keluar dari direktori kerja");
-                String audioPath = files.getJSONObject(i).optString("audio_path", "");
-                if (!audioPath.isEmpty()) {
+                JSONArray slideshowPaths = fileInfo.optJSONArray("slideshow_images");
+                String audioPath = fileInfo.optString("audio_path", "");
+                if (slideshowPaths != null && slideshowPaths.length() > 0) {
+                    if (audioPath.isEmpty()) throw new IllegalStateException("Audio slideshow TikTok tidak tersedia");
+                    ArrayList<File> images = new ArrayList<>();
+                    for (int j = 0; j < slideshowPaths.length(); j++) {
+                        File image = new File(slideshowPaths.getString(j));
+                        if (!image.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
+                            throw new SecurityException("Gambar slideshow keluar dari direktori kerja");
+                        images.add(image);
+                    }
+                    File audio = new File(audioPath);
+                    if (!audio.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
+                        throw new SecurityException("Audio slideshow keluar dari direktori kerja");
+                    event(id, "RUNNING", "Membuat slideshow TikTok + audio dengan FFmpeg", 98);
+                    MediaMux.slideshow(images, audio, media);
+                } else if (!audioPath.isEmpty()) {
                     File audio = new File(audioPath);
                     if (!audio.getCanonicalPath().startsWith(jobDir.getCanonicalPath() + File.separator))
                         throw new SecurityException("Audio keluar dari direktori kerja");
@@ -221,9 +270,17 @@ public class DownloadService extends Service {
             cookieFile.delete();
             if (localPath != null) new File(localPath).delete();
             if (muxAudioPath != null) new File(muxAudioPath).delete();
+            if (muxImagePaths != null) for (String path : muxImagePaths) if (path != null) new File(path).delete();
             if (importPath != null) new File(importPath).delete();
             if (torrentPath != null) new File(torrentPath).delete();
         }
+    }
+    private String extensionOrDefault(String name, String fallback) {
+        if (name == null) return fallback;
+        int dot = name.lastIndexOf('.');
+        if (dot < 0 || dot == name.length() - 1) return fallback;
+        String ext = name.substring(dot);
+        return ext.matches("\\.[A-Za-z0-9]{1,8}") ? ext : fallback;
     }
     private void writeCookies(String url, File path) throws Exception {
         String host = WebSessions.host(url);

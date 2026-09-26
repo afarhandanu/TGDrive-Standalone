@@ -69,6 +69,7 @@ public class MainActivity extends LocalizedActivity {
     private CheckBox subtitles, thumbnail, metadata, skipCompleted, anonymous, skipDrive, albumMode, verifyDrive;
     private TextView destinationLabel, qualityLabel, driveStatus, siteStatus;
     private TextView profileContentLabel, importCategoryLabel, importOutputLabel;
+    private TextView tiktokPhotoModeLabel, tiktokWatermarkLabel;
     private TextView pendingFileNotice;
     private LinearLayout historyList;
     private LinearLayout savedSites;
@@ -78,12 +79,15 @@ public class MainActivity extends LocalizedActivity {
     private TextView[] tabLabels;
     private int currentTab;
     private String destination = "gallery", quality = "best";
+    private String tiktokPhotoMode = "combine", tiktokWatermark = "without";
     private String pendingUrl;
     private String pendingImportPath;
     private String pendingTorrentPath;
     private boolean muxSelection;
     private final ArrayList<Uri> selectedFiles = new ArrayList<>();
     private final ArrayList<String> pendingLocalPaths = new ArrayList<>();
+    private final ArrayList<String> pendingMuxImages = new ArrayList<>();
+    private String pendingMuxVideoPath, pendingMuxAudioPath;
     private String importCategory = "all", importOutput = "folder", profileContent = "all";
     private ArrayList<String> pendingUrls = new ArrayList<>();
     private final ArrayList<String> selectedStoryUrls = new ArrayList<>();
@@ -249,6 +253,33 @@ public class MainActivity extends LocalizedActivity {
         dateTo = new EditText(this); dateTo.setHint(t("Sampai tanggal")); dateTo.setSingleLine(true);
         dateTo.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
         optionCard.addView(dateTo);
+
+        LinearLayout tiktokCard = panel(options);
+        tiktokCard.addView(label("TIKTOK", 12, muted, true));
+        tiktokCard.addView(label(t("Atur hasil post foto/carousel dan pilihan watermark untuk video TikTok."), 13, muted, false));
+        tiktokPhotoModeLabel = label(t("Foto / carousel · Gabungkan jadi video"), 14, ink, true);
+        tiktokCard.addView(tiktokPhotoModeLabel);
+        rowWithIcons(tiktokCard,
+            new String[]{t("Gabungkan jadi video"), t("Simpan terpisah")},
+            new String[]{"combine", "separate"},
+            new int[]{R.drawable.ic_media_combine, R.drawable.ic_media_separate}, value -> {
+                tiktokPhotoMode = value;
+                tiktokPhotoModeLabel.setText(t("Foto / carousel · ") +
+                    ("combine".equals(value) ? t("Gabungkan jadi video") : t("Simpan terpisah")));
+            });
+        tiktokCard.addView(label(t("Mode gabung membuat satu MP4 dari semua gambar dan audio. Mode terpisah menyimpan gambar dan audio seperti sumber."), 12, muted, false));
+        tiktokWatermarkLabel = label(t("Video TikTok · Tanpa watermark"), 14, ink, true);
+        tiktokCard.addView(tiktokWatermarkLabel);
+        rowWithIcons(tiktokCard,
+            new String[]{t("Tanpa watermark"), t("Dengan watermark")},
+            new String[]{"without", "with"},
+            new int[]{R.drawable.ic_watermark_off, R.drawable.ic_watermark_on}, value -> {
+                tiktokWatermark = value;
+                tiktokWatermarkLabel.setText(t("Video TikTok · ") +
+                    ("with".equals(value) ? t("Dengan watermark") : t("Tanpa watermark")));
+            });
+        tiktokCard.addView(label(t("Pilihan watermark berlaku pada post video jika TikTok menyediakan format tersebut; slideshow foto tidak diberi watermark buatan."), 12, muted, false));
+
         LinearLayout loginCard = panel(accounts);
         loginCard.addView(label(t("LOGIN SITUS"), 12, muted, true));
         Button instagram = button(t("Masuk Instagram"), Color.rgb(225, 62, 118));
@@ -338,11 +369,15 @@ public class MainActivity extends LocalizedActivity {
         pickTorrent.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), TORRENT_FILE));
         localCard.addView(pickTorrent);
-        Button muxFiles = button(t("Gabungkan video + audio (FFmpeg)"), navy);
+        Button muxFiles = button(t("Gabungkan media + audio (FFmpeg)"), navy);
+        muxFiles.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_media_combine, 0, 0, 0);
+        muxFiles.setCompoundDrawablePadding(dp(10));
+        if (Build.VERSION.SDK_INT >= 23) muxFiles.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(Color.WHITE));
         muxFiles.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
             .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE)
             .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), MUX_FILES));
         localCard.addView(muxFiles);
+        localCard.addView(label(t("Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio. Setelah dipilih, proses FFmpeg langsung masuk antrean tanpa kembali ke beranda."), 12, muted, false));
         LinearLayout migrationCard = panel(filesPage);
         migrationCard.addView(label(t("PINDAHKAN FOLDER LAMA"), 12, muted, true));
         migrationCard.addView(label(t("TGDrive → The Great Drive. Pilih simpan file lama atau hapus setelah salinan terverifikasi."), 14, muted, false));
@@ -638,6 +673,7 @@ public class MainActivity extends LocalizedActivity {
                 .put("verify_drive", verifyDrive.isChecked()).put("album_mode", albumMode.isChecked())
                 .put("profile_content", profileContent).put("import_category", importCategory)
                 .put("import_output", importOutput)
+                .put("tiktok_photo_mode", tiktokPhotoMode).put("tiktok_watermark", tiktokWatermark)
                 .put("date_from", dateFrom.getText().toString()).put("date_to", dateTo.getText().toString());
             getSharedPreferences("download_settings", MODE_PRIVATE).edit().putString("current", data.toString()).apply();
         } catch (Exception ignored) { }
@@ -658,12 +694,20 @@ public class MainActivity extends LocalizedActivity {
             verifyDrive.setChecked(data.optBoolean("verify_drive")); albumMode.setChecked(data.optBoolean("album_mode"));
             profileContent = data.optString("profile_content", "all");
             importCategory = data.optString("import_category", "all"); importOutput = data.optString("import_output", "folder");
+            tiktokPhotoMode = data.optString("tiktok_photo_mode", "combine");
+            if (!tiktokPhotoMode.equals("combine") && !tiktokPhotoMode.equals("separate")) tiktokPhotoMode = "combine";
+            tiktokWatermark = data.optString("tiktok_watermark", "without");
+            if (!tiktokWatermark.equals("with") && !tiktokWatermark.equals("without")) tiktokWatermark = "without";
             dateFrom.setText(data.optString("date_from", "")); dateTo.setText(data.optString("date_to", ""));
             destinationLabel.setText(t("Tujuan · ") + destinationName(destination));
             qualityLabel.setText(t("Kualitas · ") + qualityName(quality));
             profileContentLabel.setText(t("Profil Facebook · ") + (profileContent.equals("photos") ? t("Foto") : profileContent.equals("videos") ? "Video" : t("Semua")));
             importCategoryLabel.setText(t("IMPORT INSTAGRAM JSON / ZIP · ") + categoryName(importCategory));
             importOutputLabel.setText(t("Hasil import · ") + (importOutput.equals("zip") ? t("Satu ZIP") : "Folder"));
+            tiktokPhotoModeLabel.setText(t("Foto / carousel · ") +
+                (tiktokPhotoMode.equals("combine") ? t("Gabungkan jadi video") : t("Simpan terpisah")));
+            tiktokWatermarkLabel.setText(t("Video TikTok · ") +
+                (tiktokWatermark.equals("with") ? t("Dengan watermark") : t("Tanpa watermark")));
         } catch (Exception ignored) { toast(t("Pengaturan tersimpan tidak bisa dibaca")); }
         finally { restoringSettings = false; }
     }
@@ -889,11 +933,11 @@ public class MainActivity extends LocalizedActivity {
             if (data.getClipData() != null) for (int i = 0; i < data.getClipData().getItemCount(); i++)
                 selectedFiles.add(data.getClipData().getItemAt(i).getUri());
             else if (data.getData() != null) selectedFiles.add(data.getData());
-            if (selectedFiles.size() != 2) { selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
-                toast(t("Pilih tepat dua file: satu video dan satu audio")); return; }
-            url.setHint(t("2 file untuk digabung · pilih tujuan lalu mulai"));
+            if (selectedFiles.size() < 2) { selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
+                toast(t("Pilih minimal dua file: media dan audio")); return; }
             updatePendingFileNotice();
-            openTab(0);
+            toast(t("Media dipilih; menyiapkan FFmpeg…"));
+            copyLocal();
             return;
         }
         if ((request == EXPORT_BACKUP || request == IMPORT_BACKUP) && result == RESULT_OK && data != null && data.getData() != null) {
@@ -1019,6 +1063,7 @@ public class MainActivity extends LocalizedActivity {
     }
     private void copyLocal() {
         ArrayList<Uri> items = new ArrayList<>(selectedFiles);
+        final boolean mergeRequest = muxSelection;
         new Thread(() -> {
             try {
                 ArrayList<String> staged = new ArrayList<>();
@@ -1027,7 +1072,7 @@ public class MainActivity extends LocalizedActivity {
                     try (Cursor cursor = getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
                         if (cursor != null && cursor.moveToFirst()) name = cursor.getString(0);
                     }
-                    name = name.replaceAll("[^a-zA-Z0-9._-]", "_");
+                    name = name == null ? "" : name.replaceAll("[^a-zA-Z0-9._-]", "_");
                     if (name.trim().isEmpty()) name = "file_" + staged.size();
                     File local = new File(getCacheDir(), "selected_" + System.nanoTime() + "_" + name);
                     try (InputStream in = getContentResolver().openInputStream(uri);
@@ -1039,27 +1084,46 @@ public class MainActivity extends LocalizedActivity {
                     staged.add(local.getAbsolutePath());
                 }
                 runOnUiThread(() -> {
-                    pendingLocalPaths.clear(); pendingLocalPaths.addAll(staged);
-                    if (muxSelection) {
-                        staged.sort((first, second) -> {
-                            boolean firstVideo = first.toLowerCase(java.util.Locale.ROOT).endsWith(".mp4");
-                            boolean secondVideo = second.toLowerCase(java.util.Locale.ROOT).endsWith(".mp4");
-                            return Boolean.compare(secondVideo, firstVideo);
-                        });
-                        if (!staged.get(0).toLowerCase(java.util.Locale.ROOT).endsWith(".mp4") ||
-                            !staged.get(1).toLowerCase(java.util.Locale.ROOT).matches(".*\\.(m4a|aac|mp3|wav|ogg|opus)$")) {
-                            for (String path : staged) new File(path).delete();
-                            pendingLocalPaths.clear(); selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
-                            toast(t("Pilih satu video MP4 dan satu audio (M4A/MP3/WAV)")); return;
+                    pendingLocalPaths.clear();
+                    pendingMuxImages.clear(); pendingMuxVideoPath = null; pendingMuxAudioPath = null;
+                    if (mergeRequest) {
+                        ArrayList<String> videos = new ArrayList<>(), audio = new ArrayList<>(), images = new ArrayList<>();
+                        for (String path : staged) {
+                            if (isVideoFile(path)) videos.add(path);
+                            else if (isAudioFile(path)) audio.add(path);
+                            else if (isImageFile(path)) images.add(path);
                         }
-                        pendingLocalPaths.clear(); pendingLocalPaths.addAll(staged);
+                        images.sort(String.CASE_INSENSITIVE_ORDER);
+                        boolean videoAudio = videos.size() == 1 && audio.size() == 1 && images.isEmpty();
+                        boolean imageAudio = videos.isEmpty() && audio.size() == 1 && !images.isEmpty();
+                        if (!videoAudio && !imageAudio) {
+                            for (String path : staged) new File(path).delete();
+                            selectedFiles.clear(); muxSelection = false; updatePendingFileNotice();
+                            toast(t("Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio")); return;
+                        }
+                        pendingMuxAudioPath = audio.get(0);
+                        if (videoAudio) pendingMuxVideoPath = videos.get(0);
+                        else pendingMuxImages.addAll(images);
+                        muxSelection = true;
+                    } else {
+                        pendingLocalPaths.addAll(staged);
+                        muxSelection = false;
                     }
-                    pendingImportPath = null; pendingUrls.clear(); selectedFiles.clear(); driveAction = "download";
+                    pendingImportPath = null; pendingTorrentPath = null; pendingUrls.clear(); selectedFiles.clear(); driveAction = "download";
                     updatePendingFileNotice();
                     if (destination.equals("gallery")) enqueue(null); else authorizeDrive(driveEmail == null);
                 });
             } catch (Exception e) { runOnUiThread(() -> toast(t("File: ") + message(e.getMessage()))); }
         }).start();
+    }
+    private boolean isVideoFile(String path) {
+        return path != null && path.toLowerCase(java.util.Locale.ROOT).matches(".*\\.(mp4|m4v|mov|webm|mkv)$");
+    }
+    private boolean isAudioFile(String path) {
+        return path != null && path.toLowerCase(java.util.Locale.ROOT).matches(".*\\.(m4a|aac|mp3|wav|ogg|opus|flac)$");
+    }
+    private boolean isImageFile(String path) {
+        return path != null && path.toLowerCase(java.util.Locale.ROOT).matches(".*\\.(jpg|jpeg|png|webp|bmp|gif|heic|heif|avif)$");
     }
     private void enqueue(String token) {
         int count = 1;
@@ -1069,10 +1133,12 @@ public class MainActivity extends LocalizedActivity {
         catch (NumberFormatException bad) { toast(t("Maksimum item harus angka positif atau kosong untuk tanpa batas")); return; }
         saveSettings();
         try {
-            int jobs = pendingLocalPaths.isEmpty() ? (pendingImportPath == null && pendingTorrentPath == null ? pendingUrls.size() : 1) : muxSelection ? 1 : pendingLocalPaths.size();
+            int jobs = muxSelection ? 1 : pendingLocalPaths.isEmpty() ?
+                (pendingImportPath == null && pendingTorrentPath == null ? pendingUrls.size() : 1) : pendingLocalPaths.size();
             int submitted = 0;
             for (int i = 0; i < jobs; i++) {
-                String link = pendingLocalPaths.isEmpty() && pendingImportPath == null && pendingTorrentPath == null ? pendingUrls.get(i) : "";
+                String link = muxSelection ? "" :
+                    (pendingLocalPaths.isEmpty() && pendingImportPath == null && pendingTorrentPath == null ? pendingUrls.get(i) : "");
                 if (!link.isEmpty() && skipCompleted.isChecked() && History.alreadyCompleted(this, link)) continue;
                 Intent job = new Intent(this, DownloadService.class).putExtra("url", link)
                     .putExtra("target", destination).putExtra("quality", quality).putExtra("count", count)
@@ -1089,8 +1155,14 @@ public class MainActivity extends LocalizedActivity {
                     .putExtra("date_from", dateFrom.getText().toString().trim())
                     .putExtra("date_to", dateTo.getText().toString().trim())
                     .putExtra("import_output", importOutput)
-                    .putExtra("local_path", pendingLocalPaths.isEmpty() ? null : pendingLocalPaths.get(i));
-                if (muxSelection) job.putExtra("mux_audio_path", pendingLocalPaths.get(1));
+                    .putExtra("tiktok_photo_mode", tiktokPhotoMode)
+                    .putExtra("tiktok_watermark", tiktokWatermark)
+                    .putExtra("local_path", muxSelection ? pendingMuxVideoPath :
+                        (pendingLocalPaths.isEmpty() ? null : pendingLocalPaths.get(i)));
+                if (muxSelection) {
+                    job.putExtra("mux_audio_path", pendingMuxAudioPath);
+                    if (!pendingMuxImages.isEmpty()) job.putStringArrayListExtra("mux_image_paths", new ArrayList<>(pendingMuxImages));
+                }
                 startForegroundService(job);
                 submitted++;
             }
@@ -1098,6 +1170,7 @@ public class MainActivity extends LocalizedActivity {
             pendingImportPath = null;
             pendingTorrentPath = null;
             pendingLocalPaths.clear();
+            pendingMuxImages.clear(); pendingMuxVideoPath = null; pendingMuxAudioPath = null;
             muxSelection = false;
         }
         catch (Exception e) { toast(t("Gagal memulai unduhan: ") + message(e.getMessage())); }
@@ -1116,7 +1189,9 @@ public class MainActivity extends LocalizedActivity {
                 .putExtra("album_mode", albumMode.isChecked()).putExtra("profile_content", profileContent)
                 .putExtra("folder_id", folder.getText().toString().trim()).putExtra("drive_token", token)
                 .putExtra("date_from", dateFrom.getText().toString().trim())
-                .putExtra("date_to", dateTo.getText().toString().trim());
+                .putExtra("date_to", dateTo.getText().toString().trim())
+                .putExtra("tiktok_photo_mode", tiktokPhotoMode)
+                .putExtra("tiktok_watermark", tiktokWatermark);
             // The user chose these exact Story IDs; do not apply skip-completed to this selection.
             startForegroundService(job);
             selectedStoryUrls.clear();
@@ -1174,6 +1249,12 @@ public class MainActivity extends LocalizedActivity {
         profileContent = previous.optString("profile_content", "all");
         dateFrom.setText(previous.optString("date_from"));
         dateTo.setText(previous.optString("date_to"));
+        tiktokPhotoMode = previous.optString("tiktok_photo_mode", tiktokPhotoMode);
+        tiktokWatermark = previous.optString("tiktok_watermark", tiktokWatermark);
+        tiktokPhotoModeLabel.setText(t("Foto / carousel · ") +
+            (tiktokPhotoMode.equals("combine") ? t("Gabungkan jadi video") : t("Simpan terpisah")));
+        tiktokWatermarkLabel.setText(t("Video TikTok · ") +
+            (tiktokWatermark.equals("with") ? t("Dengan watermark") : t("Tanpa watermark")));
         destinationLabel.setText(t("Tujuan · ") + destinationName(destination));
         qualityLabel.setText(t("Kualitas · ") + qualityName(quality));
         start();
@@ -1265,6 +1346,20 @@ public class MainActivity extends LocalizedActivity {
             b.setOnClickListener(v -> select.pick(value));
         }
         parent.addView(group);
+    }
+    private void rowWithIcons(LinearLayout parent, String[] names, String[] values, int[] icons, Select select) {
+        LinearLayout line = new LinearLayout(this); line.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0; i < names.length; i++) {
+            final String value = values[i];
+            Button b = button(names[i], Color.rgb(225, 230, 249));
+            b.setTextColor(Color.rgb(40, 51, 108)); b.setTextSize(12);
+            b.setCompoundDrawablesWithIntrinsicBounds(icons[i], 0, 0, 0); b.setCompoundDrawablePadding(dp(7));
+            if (Build.VERSION.SDK_INT >= 23) b.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(Color.rgb(40, 51, 108)));
+            LinearLayout.LayoutParams chip = new LinearLayout.LayoutParams(0, dp(54), 1);
+            chip.rightMargin = dp(4); chip.topMargin = dp(5); line.addView(b, chip);
+            b.setOnClickListener(v -> select.pick(value));
+        }
+        parent.addView(line);
     }
     private Button button(String text, int color) {
         Button b = new Button(this); b.setText(text); b.setAllCaps(false); b.setTextColor(Color.WHITE);

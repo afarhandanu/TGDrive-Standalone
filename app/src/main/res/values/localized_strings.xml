@@ -426,4 +426,35 @@
     <string name="text_85116c0a00e942bc" formatted="false">"Tautan pendek TikTok mengarah ke situs lain"</string>
     <string name="text_6594d6ff13efb3f8" formatted="false">"TikTok tidak menyediakan media melalui ekstraktor cadangan; periksa log error"</string>
     <string name="text_fd4bb9597be37a2e" formatted="false">"TikTok gagal melalui dua ekstraktor. yt-dlp: {0}; gallery-dl: {1}"</string>
+    <string name="text_cea42715b8b98818" formatted="false">"Atur hasil post foto/carousel dan pilihan watermark untuk video TikTok."</string>
+    <string name="text_24f80239a3315cb1" formatted="false">"Foto / carousel · Gabungkan jadi video"</string>
+    <string name="text_44f2abb090f03016" formatted="false">"Gabungkan jadi video"</string>
+    <string name="text_27bf33d32914c37b" formatted="false">"Simpan terpisah"</string>
+    <string name="text_d657c3c8c28c1b3b" formatted="false">"Foto / carousel · "</string>
+    <string name="text_e9447ca3f2a18816" formatted="false">"Mode gabung membuat satu MP4 dari semua gambar dan audio. Mode terpisah menyimpan gambar dan audio seperti sumber."</string>
+    <string name="text_bb93540eb56a1f75" formatted="false">"Video TikTok · Tanpa watermark"</string>
+    <string name="text_b03a0e3ed1f46911" formatted="false">"Tanpa watermark"</string>
+    <string name="text_46d74479e37649ab" formatted="false">"Dengan watermark"</string>
+    <string name="text_be2c0e05236ef132" formatted="false">"Video TikTok · "</string>
+    <string name="text_e3ea122d9cc1f2ed" formatted="false">"Pilihan watermark berlaku pada post video jika TikTok menyediakan format tersebut; slideshow foto tidak diberi watermark buatan."</string>
+    <string name="text_3278cd3ff4583d00" formatted="false">"Gabungkan media + audio (FFmpeg)"</string>
+    <string name="text_e706b84858f00cf9" formatted="false">"Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio. Setelah dipilih, proses FFmpeg langsung masuk antrean tanpa kembali ke beranda."</string>
+    <string name="text_83b8842f1f785a00" formatted="false">"Pilih minimal dua file: media dan audio"</string>
+    <string name="text_9464a2aea5e198a9" formatted="false">"Media dipilih; menyiapkan FFmpeg…"</string>
+    <string name="text_a124c02c0074d62b" formatted="false">"Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio"</string>
+    <string name="text_95736f029c4e7d39" formatted="false">"Audio untuk slideshow tidak tersedia"</string>
+    <string name="text_bb1d49c5745b277c" formatted="false">"Membuat slideshow gambar + audio dengan FFmpeg"</string>
+    <string name="text_6b7944573a932801" formatted="false">"Membuat slideshow TikTok + audio dengan FFmpeg"</string>
+    <string name="text_e3788cdb0a9da440" formatted="false">"Audio slideshow TikTok tidak tersedia"</string>
+    <string name="text_4157f37ed07c4f6f" formatted="false">"Gambar slideshow keluar dari direktori kerja"</string>
+    <string name="text_8887ad7dacae6af5" formatted="false">"Audio slideshow keluar dari direktori kerja"</string>
+    <string name="text_81a6dae328fd9c9b" formatted="false">"Gambar untuk slideshow tidak tersedia"</string>
+    <string name="text_d4fe7356c26e2401" formatted="false">"Salah satu gambar slideshow tidak dapat dibaca"</string>
+    <string name="text_baf6644cdf0a2983" formatted="false">"Folder keluaran slideshow tidak tersedia"</string>
+    <string name="text_7c5014cb38170073" formatted="false">"FFmpeg gagal membuat slideshow: {0}"</string>
+    <string name="text_7cc51022e01e4fa9" formatted="false">"FFmpeg gagal membuat slideshow"</string>
+    <string name="text_e61cd10d026e43f6" formatted="false">"TikTok tidak menghasilkan gambar/video: {0}"</string>
+    <string name="text_7e9619cfe1362a06" formatted="false">"TikTok hanya mengembalikan audio tanpa gambar/video. Coba ulangi atau ganti opsi watermark."</string>
+    <string name="text_bb8a4ad7ae2d7525" formatted="false">"Lokasi slideshow TikTok tidak valid"</string>
+    <string name="text_b11295ff38dfed97" formatted="false">"Slideshow FFmpeg lokal"</string>
 </resources>

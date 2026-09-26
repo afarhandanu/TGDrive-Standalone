@@ -29,7 +29,7 @@ def _canonical_url(url):
 
 
 def download(url, root, max_items, cookies, callback, quality='best',
-             subtitles=False, thumbnail=False, metadata=False):
+             subtitles=False, thumbnail=False, metadata=False, watermark='without'):
     root = Path(root)
     canonical = _canonical_url(url)
     path = urllib.parse.urlparse(canonical).path
@@ -49,8 +49,11 @@ def download(url, root, max_items, cookies, callback, quality='best',
         if cookies and Path(cookies).is_file():
             config.set(('extractor',), 'cookies', cookies)
         config.set(('extractor', 'tiktok'), 'directory', ['tiktok', username, 'videos'])
-        config.set(('extractor', 'tiktok'), 'videos', True)
-        config.set(('extractor', 'tiktok'), 'photos', quality != 'video')
+        # gallery-dl does not expose TikTok's native watermarked video variant.
+        # In watermarked mode it is used only to recover photo posts and audio.
+        config.set(('extractor', 'tiktok'), 'videos', watermark != 'with')
+        config.set(('extractor', 'tiktok'), 'photos', quality != 'video' or watermark == 'with')
+        config.set(('extractor', 'tiktok'), 'audio', True)
         config.set(('extractor', 'tiktok', 'posts'), 'ytdl', False)
         config.set(('extractor', 'tiktok'), 'covers', bool(thumbnail))
         config.set(('extractor', 'tiktok'), 'subtitles', bool(subtitles))
@@ -59,7 +62,10 @@ def download(url, root, max_items, cookies, callback, quality='best',
         result = job.DownloadJob(canonical).run()
         files = [p for p in (root / 'tiktok').rglob('*') if p.is_file()
                  and not p.name.endswith(('.part', '.ytdl'))]
-        if result not in (None, 0) or not files:
+        media = [p for p in files if p.suffix.lower() in {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif',
+                                                          '.mp3', '.m4a', '.aac', '.ogg', '.opus', '.wav',
+                                                          '.mp4', '.m4v', '.mov', '.webm', '.mkv'}]
+        if result not in (None, 0) or not media:
             raise RuntimeError('TikTok tidak menyediakan media melalui ekstraktor cadangan; periksa log error')
         callback.onProgress(100, f'{len(files)} file ditemukan')
         return files

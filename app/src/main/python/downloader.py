@@ -10,19 +10,13 @@ from pathlib import Path
 import yt_dlp
 
 
-def download(url, directory, quality, max_items, subtitles, thumbnail, metadata, cookies, callback):
+def download(url, directory, quality, max_items, subtitles, thumbnail, metadata, cookies, callback,
+             tiktok_photo_mode='combine', tiktok_watermark='without'):
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
     site, category = _location(url)
     # yt-dlp may create sidecar files for captions, thumbnails and metadata.
-    if quality == 'best':
-        best = 'best[ext=mp4]/best'
-    elif quality == 'audio':
-        best = 'bestaudio[ext=m4a]/bestaudio/best'
-    elif quality == 'video':
-        best = 'bestvideo[ext=mp4]/bestvideo'
-    else:
-        best = f'best[height<={int(quality)}][ext=mp4]/best[height<={int(quality)}]/best'
+    best = _format_selector(site, quality, tiktok_watermark)
     options = {
         'outtmpl': str(root / site / '%(uploader_id,uploader|unknown).80s' /
                        category / '%(title).160s [%(id)s].%(ext)s'),
@@ -54,11 +48,11 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
         video_error = exc
         if site == 'tiktok' and isinstance(exc, yt_dlp.utils.DownloadError):
             # TikTok can return an anti-automation webpage to yt-dlp even for
-            # public posts. gallery-dl extracts TikTok media independently.
+            # public posts. gallery-dl extracts TikTok photos/audio independently.
             try:
                 import tiktok_fallback
                 tiktok_fallback.download(url, root, max_items, cookies, callback,
-                                         quality, subtitles, thumbnail, metadata)
+                                         quality, subtitles, thumbnail, metadata, tiktok_watermark)
             except Exception as alternate_error:
                 raise RuntimeError(
                     f'TikTok gagal melalui dua ekstraktor. yt-dlp: {exc}; gallery-dl: {alternate_error}'
@@ -68,6 +62,19 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
                 _download_direct(url, root / site / 'unknown' / category, callback)
             else:
                 raise
+    # TikTok photo posts can look successful to yt-dlp while yielding only the
+    # soundtrack. In that case, fetch the actual photos with gallery-dl as well.
+    if site == 'tiktok':
+        current_media = [p for p in root.rglob('*') if p.is_file() and _media_kind(p) in ('image', 'video')]
+        if not current_media:
+            try:
+                import tiktok_fallback
+                tiktok_fallback.download(url, root, max_items, cookies, callback,
+                                         quality, subtitles, thumbnail, metadata, tiktok_watermark)
+            except Exception as alternate_error:
+                if video_error is None:
+                    raise RuntimeError(f'TikTok tidak menghasilkan gambar/video: {alternate_error}') from alternate_error
+
     # A post can be a photo, video, or mixed carousel. Keep the existing video
     # extractor, then fetch images with gallery-dl without replacing video files.
     parsed_path = urllib.parse.urlparse(url).path.lower()
@@ -88,7 +95,78 @@ def download(url, directory, quality, max_items, subtitles, thumbnail, metadata,
     paths = [_resolve_username(p, root, url) for p in downloaded]
     if not paths:
         raise RuntimeError('Ekstraktor tidak menghasilkan foto atau video. Periksa link atau sesi login.')
-    return json.dumps([{'path': str(p), 'name': p.name} for p in paths], ensure_ascii=False)
+    if site == 'tiktok':
+        if not any(_media_kind(p) in ('image', 'video') for p in paths):
+            raise RuntimeError('TikTok hanya mengembalikan audio tanpa gambar/video. Coba ulangi atau ganti opsi watermark.')
+        items = _tiktok_items(paths, root, tiktok_photo_mode)
+    else:
+        items = [{'path': str(p), 'name': p.name} for p in paths]
+    return json.dumps(items, ensure_ascii=False)
+
+
+def _format_selector(site, quality, watermark):
+    if quality == 'audio':
+        return 'bestaudio[ext=m4a]/bestaudio/best'
+    if site == 'tiktok' and watermark == 'with':
+        height = '' if quality in ('best', 'video') else f'[height<={int(quality)}]'
+        return f'best[format_id^=download_addr]{height}/best[format_id=download]{height}'
+    if site == 'tiktok' and watermark != 'with':
+        height = '' if quality in ('best', 'video') else f'[height<={int(quality)}]'
+        if quality == 'video':
+            return 'bestvideo[format_id!^=download_addr][format_id!=download][ext=mp4]/bestvideo[format_id!^=download_addr][format_id!=download]'
+        return (f'best[format_id!^=download_addr][format_id!=download]{height}[ext=mp4]/'
+                f'best[format_id!^=download_addr][format_id!=download]{height}/'
+                f'best[format_id!^=download_addr][format_id!=download]')
+    if quality == 'best':
+        return 'best[ext=mp4]/best'
+    if quality == 'video':
+        return 'bestvideo[ext=mp4]/bestvideo'
+    return f'best[height<={int(quality)}][ext=mp4]/best[height<={int(quality)}]/best'
+
+
+def _media_kind(path):
+    ext = path.suffix.lower()
+    if ext in {'.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.heic', '.heif', '.avif'}:
+        return 'image'
+    if ext in {'.mp3', '.m4a', '.aac', '.wav', '.ogg', '.opus', '.flac'}:
+        return 'audio'
+    if ext in {'.mp4', '.m4v', '.mov', '.webm', '.mkv'}:
+        return 'video'
+    return 'other'
+
+
+def _natural_key(value):
+    return [int(part) if part.isdigit() else part.lower() for part in re.split(r'(\d+)', value)]
+
+
+def _tiktok_items(paths, root, photo_mode):
+    paths = list(dict.fromkeys(Path(p) for p in paths if Path(p).is_file()))
+    images = sorted((p for p in paths if _media_kind(p) == 'image' and 'cover' not in p.name.lower()),
+                    key=lambda p: _natural_key(p.name))
+    audios = [p for p in paths if _media_kind(p) == 'audio']
+    videos = [p for p in paths if _media_kind(p) == 'video']
+    if photo_mode == 'combine' and images and audios and not videos:
+        audio = max(audios, key=lambda p: p.stat().st_size)
+        output = _slideshow_output(images, root)
+        keep = [p for p in paths if _media_kind(p) == 'other']
+        return ([{'path': str(output), 'name': output.name,
+                  'slideshow_images': [str(p) for p in images], 'audio_path': str(audio)}] +
+                [{'path': str(p), 'name': p.name} for p in keep])
+    return [{'path': str(p), 'name': p.name} for p in paths]
+
+
+def _slideshow_output(images, root):
+    first = images[0]
+    stem = re.sub(r'(?i)(?:[-_. ]?(?:photo|image)?[-_. ]?\d+)$', '', first.stem).strip(' ._-')
+    if not stem:
+        stem = 'TikTok_slideshow'
+    output = first.parent / f'{stem}.slideshow.mp4'
+    # Do not overwrite an extractor-created file if a future backend uses this name.
+    if output.exists():
+        output = first.parent / f'{stem}.slideshow_merged.mp4'
+    if not output.resolve().is_relative_to(Path(root).resolve()):
+        raise RuntimeError('Lokasi slideshow TikTok tidak valid')
+    return output
 
 
 def _location(url):

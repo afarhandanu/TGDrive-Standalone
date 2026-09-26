@@ -9,7 +9,7 @@ public final class History {
     public static synchronized void enqueue(Context context, long id, String url, String target,
             String quality, int count, String folder, boolean subtitles, boolean thumbnail, boolean metadata,
             boolean anonymous, boolean skipDrive, boolean albumMode, String profileContent,
-            String dateFrom, String dateTo, boolean verifyDrive) {
+            String dateFrom, String dateTo, boolean verifyDrive, String tiktokPhotoMode, String tiktokWatermark) {
         record(context, id, "QUEUED", url, 0);
         try {
             var prefs = context.getSharedPreferences("jobs", Context.MODE_PRIVATE);
@@ -19,7 +19,8 @@ public final class History {
                 .put("folder", folder).put("subtitles", subtitles).put("thumbnail", thumbnail)
                 .put("metadata", metadata).put("anonymous", anonymous).put("skip_drive", skipDrive)
                 .put("album_mode", albumMode).put("profile_content", profileContent)
-                .put("date_from", dateFrom).put("date_to", dateTo).put("verify_drive", verifyDrive);
+                .put("date_from", dateFrom).put("date_to", dateTo).put("verify_drive", verifyDrive)
+                .put("tiktok_photo_mode", tiktokPhotoMode).put("tiktok_watermark", tiktokWatermark);
             prefs.edit().putString("history", history.toString()).apply();
         } catch (Exception ignored) { }
     }
@@ -32,7 +33,7 @@ public final class History {
             for (int i = 0; i < prior.length(); i++) {
                 JSONObject old = prior.optJSONObject(i);
                 if (old != null && old.optLong("id") == id) {
-                    for (String field : new String[]{"url", "target", "quality", "count", "folder", "subtitles", "thumbnail", "metadata", "anonymous", "skip_drive", "album_mode", "profile_content", "date_from", "date_to", "verify_drive"})
+                    for (String field : new String[]{"url", "target", "quality", "count", "folder", "subtitles", "thumbnail", "metadata", "anonymous", "skip_drive", "album_mode", "profile_content", "date_from", "date_to", "verify_drive", "tiktok_photo_mode", "tiktok_watermark"})
                         if (old.has(field)) item.put(field, old.get(field));
                     break;
                 }

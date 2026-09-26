@@ -1706,5 +1706,129 @@
   "TikTok gagal melalui dua ekstraktor. yt-dlp: {0}; gallery-dl: {1}": {
     "id": "TikTok gagal melalui dua ekstraktor. yt-dlp: {0}; gallery-dl: {1}",
     "en": "TikTok failed with both extractors. yt-dlp: {0}; gallery-dl: {1}"
+  },
+  "Atur hasil post foto/carousel dan pilihan watermark untuk video TikTok.": {
+    "id": "Atur hasil post foto/carousel dan pilihan watermark untuk video TikTok.",
+    "en": "Configure TikTok photo/carousel output and video watermark preference."
+  },
+  "Foto / carousel · Gabungkan jadi video": {
+    "id": "Foto / carousel · Gabungkan jadi video",
+    "en": "Photo / carousel · Combine into video"
+  },
+  "Gabungkan jadi video": {
+    "id": "Gabungkan jadi video",
+    "en": "Combine into video"
+  },
+  "Simpan terpisah": {
+    "id": "Simpan terpisah",
+    "en": "Keep separate"
+  },
+  "Foto / carousel · ": {
+    "id": "Foto / carousel · ",
+    "en": "Photo / carousel · "
+  },
+  "Mode gabung membuat satu MP4 dari semua gambar dan audio. Mode terpisah menyimpan gambar dan audio seperti sumber.": {
+    "id": "Mode gabung membuat satu MP4 dari semua gambar dan audio. Mode terpisah menyimpan gambar dan audio seperti sumber.",
+    "en": "Combine mode creates one MP4 from all images and the audio track. Separate mode keeps images and audio as source files."
+  },
+  "Video TikTok · Tanpa watermark": {
+    "id": "Video TikTok · Tanpa watermark",
+    "en": "TikTok video · No watermark"
+  },
+  "Tanpa watermark": {
+    "id": "Tanpa watermark",
+    "en": "No watermark"
+  },
+  "Dengan watermark": {
+    "id": "Dengan watermark",
+    "en": "With watermark"
+  },
+  "Video TikTok · ": {
+    "id": "Video TikTok · ",
+    "en": "TikTok video · "
+  },
+  "Pilihan watermark berlaku pada post video jika TikTok menyediakan format tersebut; slideshow foto tidak diberi watermark buatan.": {
+    "id": "Pilihan watermark berlaku pada post video jika TikTok menyediakan format tersebut; slideshow foto tidak diberi watermark buatan.",
+    "en": "The watermark choice applies to video posts when TikTok provides that format; photo slideshows are not given an artificial watermark."
+  },
+  "Gabungkan media + audio (FFmpeg)": {
+    "id": "Gabungkan media + audio (FFmpeg)",
+    "en": "Merge media + audio (FFmpeg)"
+  },
+  "Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio. Setelah dipilih, proses FFmpeg langsung masuk antrean tanpa kembali ke beranda.": {
+    "id": "Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio. Setelah dipilih, proses FFmpeg langsung masuk antrean tanpa kembali ke beranda.",
+    "en": "Choose 1 video + 1 audio file, or one/more images + 1 audio file. After selection, the FFmpeg job is queued directly without returning to Home."
+  },
+  "Pilih minimal dua file: media dan audio": {
+    "id": "Pilih minimal dua file: media dan audio",
+    "en": "Choose at least two files: media and audio"
+  },
+  "Media dipilih; menyiapkan FFmpeg…": {
+    "id": "Media dipilih; menyiapkan FFmpeg…",
+    "en": "Media selected; preparing FFmpeg…"
+  },
+  "Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio": {
+    "id": "Pilih 1 video + 1 audio, atau satu/lebih gambar + 1 audio",
+    "en": "Choose 1 video + 1 audio file, or one/more images + 1 audio file"
+  },
+  "Audio untuk slideshow tidak tersedia": {
+    "id": "Audio untuk slideshow tidak tersedia",
+    "en": "Audio for the slideshow is unavailable"
+  },
+  "Membuat slideshow gambar + audio dengan FFmpeg": {
+    "id": "Membuat slideshow gambar + audio dengan FFmpeg",
+    "en": "Creating image + audio slideshow with FFmpeg"
+  },
+  "Membuat slideshow TikTok + audio dengan FFmpeg": {
+    "id": "Membuat slideshow TikTok + audio dengan FFmpeg",
+    "en": "Creating TikTok slideshow + audio with FFmpeg"
+  },
+  "Audio slideshow TikTok tidak tersedia": {
+    "id": "Audio slideshow TikTok tidak tersedia",
+    "en": "TikTok slideshow audio is unavailable"
+  },
+  "Gambar slideshow keluar dari direktori kerja": {
+    "id": "Gambar slideshow keluar dari direktori kerja",
+    "en": "Slideshow image is outside the working directory"
+  },
+  "Audio slideshow keluar dari direktori kerja": {
+    "id": "Audio slideshow keluar dari direktori kerja",
+    "en": "Slideshow audio is outside the working directory"
+  },
+  "Gambar untuk slideshow tidak tersedia": {
+    "id": "Gambar untuk slideshow tidak tersedia",
+    "en": "Images for the slideshow are unavailable"
+  },
+  "Salah satu gambar slideshow tidak dapat dibaca": {
+    "id": "Salah satu gambar slideshow tidak dapat dibaca",
+    "en": "One of the slideshow images cannot be read"
+  },
+  "Folder keluaran slideshow tidak tersedia": {
+    "id": "Folder keluaran slideshow tidak tersedia",
+    "en": "Slideshow output folder is unavailable"
+  },
+  "FFmpeg gagal membuat slideshow: {0}": {
+    "id": "FFmpeg gagal membuat slideshow: {0}",
+    "en": "FFmpeg could not create the slideshow: {0}"
+  },
+  "FFmpeg gagal membuat slideshow": {
+    "id": "FFmpeg gagal membuat slideshow",
+    "en": "FFmpeg could not create the slideshow"
+  },
+  "TikTok tidak menghasilkan gambar/video: {0}": {
+    "id": "TikTok tidak menghasilkan gambar/video: {0}",
+    "en": "TikTok did not return an image/video: {0}"
+  },
+  "TikTok hanya mengembalikan audio tanpa gambar/video. Coba ulangi atau ganti opsi watermark.": {
+    "id": "TikTok hanya mengembalikan audio tanpa gambar/video. Coba ulangi atau ganti opsi watermark.",
+    "en": "TikTok returned audio only, without an image/video. Retry or change the watermark option."
+  },
+  "Lokasi slideshow TikTok tidak valid": {
+    "id": "Lokasi slideshow TikTok tidak valid",
+    "en": "TikTok slideshow output location is invalid"
+  },
+  "Local FFmpeg slideshow": {
+    "id": "Slideshow FFmpeg lokal",
+    "en": "Local FFmpeg slideshow"
   }
 }

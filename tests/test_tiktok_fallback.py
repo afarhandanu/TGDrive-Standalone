@@ -132,6 +132,62 @@ class FallbackTests(unittest.TestCase):
         self.assertIs(settings[(('extractor', 'tiktok'), 'videos')], True)
         self.assertIs(settings[(('extractor', 'tiktok', 'posts'), 'ytdl')], False)
 
+    def test_photo_carousel_combine_emits_slideshow_job(self):
+        media_dir = self.root / 'tiktok' / 'creator' / 'videos'
+        media_dir.mkdir(parents=True)
+        for name in ('post_1.jpg', 'post_2.jpg', 'post_10.jpg'):
+            (media_dir / name).write_bytes(b'image')
+        (media_dir / 'post.mp3').write_bytes(b'audio' * 10)
+        items = downloader._tiktok_items(list(media_dir.iterdir()), self.root, 'combine')
+        self.assertEqual(len(items), 1)
+        self.assertTrue(items[0]['name'].endswith('.slideshow.mp4'))
+        self.assertEqual([Path(x).name for x in items[0]['slideshow_images']],
+                         ['post_1.jpg', 'post_2.jpg', 'post_10.jpg'])
+        self.assertEqual(Path(items[0]['audio_path']).name, 'post.mp3')
+
+    def test_photo_carousel_separate_keeps_images_and_audio(self):
+        media_dir = self.root / 'tiktok' / 'creator' / 'videos'
+        media_dir.mkdir(parents=True)
+        (media_dir / 'post_1.jpg').write_bytes(b'image')
+        (media_dir / 'post_2.jpg').write_bytes(b'image')
+        (media_dir / 'post.mp3').write_bytes(b'audio')
+        items = downloader._tiktok_items(list(media_dir.iterdir()), self.root, 'separate')
+        self.assertEqual({item['name'] for item in items}, {'post_1.jpg', 'post_2.jpg', 'post.mp3'})
+        self.assertFalse(any('slideshow_images' in item for item in items))
+
+    def test_tiktok_format_selector_switches_watermark(self):
+        no_mark = downloader._format_selector('tiktok', 'best', 'without')
+        with_mark = downloader._format_selector('tiktok', 'best', 'with')
+        self.assertIn('format_id!^=download_addr', no_mark)
+        self.assertIn('format_id^=download_addr', with_mark)
+        self.assertNotEqual(no_mark, with_mark)
+
+    def test_gallery_fallback_does_not_return_unwatermarked_video_in_watermark_mode(self):
+        settings = {}
+        fake_config = types.SimpleNamespace(clear=lambda: None,
+                                            set=lambda key, name, value: settings.__setitem__((key, name), value))
+
+        class Job:
+            def __init__(self, url):
+                self.url = url
+
+            def run(self):
+                media = self_root / 'tiktok' / 'creator' / 'videos' / '123.jpg'
+                media.parent.mkdir(parents=True, exist_ok=True)
+                media.write_bytes(b'image')
+                return 0
+
+        self_root = self.root
+        fake_gallery = types.ModuleType('gallery_dl')
+        fake_gallery.config = fake_config
+        fake_gallery.job = types.SimpleNamespace(DownloadJob=Job)
+        with patch.dict(sys.modules, {'gallery_dl': fake_gallery}):
+            fallback = importlib.reload(importlib.import_module('tiktok_fallback'))
+            fallback.download('https://www.tiktok.com/@creator/video/123', self.root,
+                              0, '', Callback(), watermark='with')
+        self.assertIs(settings[(('extractor', 'tiktok'), 'videos')], False)
+        self.assertIs(settings[(('extractor', 'tiktok'), 'photos')], True)
+
 
 if __name__ == '__main__':
     unittest.main()

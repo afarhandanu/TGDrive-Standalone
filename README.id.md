@@ -17,7 +17,7 @@ Ekstraksi media, unduhan torrent, penggabungan berkas, dan unggahan berjalan di 
 | --- | --- | --- |
 | Video, foto, audio, dan daftar putar yang didukung | Simpan ke Lokal, Google Drive, atau keduanya | Simpan pilihan kualitas, tujuan, dan filter |
 | Story Instagram dengan gambar mini dan pilihan beberapa item | Jelajahi, cari, ubah nama, beri bintang, dan pindahkan berkas Drive | Jeda antrean, batalkan, dan ulangi tugas gagal |
-| Impor Instagram JSON/ZIP dengan kategori dan filter tanggal | Gabungkan video dan audio dengan FFmpeg | Baca hasil dan bagikan log diagnostik |
+| Impor Instagram JSON/ZIP dengan kategori dan filter tanggal | Gabungkan video + audio atau carousel gambar + audio dengan FFmpeg | Baca hasil dan bagikan log diagnostik |
 | Tautan magnet dan berkas `.torrent` | Pindahkan folder lama melalui salinan terverifikasi | Cadangkan riwayat dan alamat situs tersimpan |
 
 Baca [daftar fitur lengkap](docs/i18n/id/FEATURES.md) dan [catatan versi](docs/i18n/id/CHANGELOG.md).
@@ -65,7 +65,7 @@ Paket Android tetap `com.tgdrive.mobile` agar kompatibel dengan pembaruan. Perta
 - Sesi situs tetap berada di perangkat. Berkas cookie sementara yang privat diberikan kepada ekstraktor, lalu dihapus saat tugas berakhir. Cadangan tidak memuat cookie login atau token akses Google.
 - Situs sumber dan Google Drive menerima permintaan yang diperlukan untuk mengunduh dan mengunggah. Unduhan memerlukan koneksi internet.
 - Dukungan situs bergantung pada ekstraktor, situs sumber, dan akses akunmu. Login tidak menjamin semua tautan didukung.
-- Unggahan TikTok akan dicoba lagi dengan gallery-dl jika yt-dlp gagal, termasuk tautan pendek. TikTok tetap dapat menolak keduanya; kualitas dan metadata JSON opsional pada percobaan kedua dapat berbeda. Buka Aktivitas → Lihat log error untuk membaca kesalahan keduanya.
+- Unggahan TikTok akan dicoba lagi dengan gallery-dl jika yt-dlp gagal, termasuk tautan pendek. Post foto/carousel dapat digabung dengan audionya menjadi satu MP4 atau disimpan terpisah, dan video dapat meminta tanpa watermark atau watermark bawaan TikTok jika tersedia. TikTok tetap dapat menolak kedua ekstraktor; kualitas dan metadata JSON opsional pada percobaan kedua dapat berbeda. Buka Aktivitas → Lihat log error untuk membaca kesalahan keduanya.
 - Story dan tautan pratinjau bisa kedaluwarsa. Muat ulang daftar Story jika item pilihan tidak tersedia lagi.
 - Ini adalah rilis **alfa**. Saat pertama mencoba pemindahan folder, simpan sumber dan periksa hasilnya di perangkat.
 

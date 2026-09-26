@@ -12,12 +12,12 @@
 - Masuk ke Instagram, X, atau situs HTTPS lain. Situs tersimpan mendapat tombol untuk dibuka kembali.
 - Impor cookies.txt, serta gunakan mode profil/album dan filter tanggal pada jalur yang mendukung.
 - Dukungan situs bergantung pada ekstraktor dan akses akun. Sebagian konten memerlukan login.
-- Unggahan TikTok memakai ekstraktor kedua jika yt-dlp gagal; TikTok tetap dapat menolak kedua cara. Ekstraktor cadangan bisa memakai kualitas berbeda atau tidak menyertakan metadata JSON pilihan.
+- Unggahan TikTok memakai ekstraktor kedua jika yt-dlp gagal; TikTok tetap dapat menolak kedua cara. Post foto/carousel dapat digabung dengan audionya menjadi satu MP4 atau disimpan sebagai gambar + audio terpisah. Unduhan video dapat meminta tanpa watermark atau watermark bawaan TikTok jika format tersebut tersedia. Ekstraktor cadangan bisa memakai kualitas berbeda atau tidak menyertakan metadata JSON pilihan.
 
 ## Berkas dan impor
 - Impor Instagram JSON/ZIP dengan kategori, rentang tanggal, serta hasil folder atau ZIP.
 - Unduh tautan magnet, URL torrent, dan berkas .torrent lokal.
-- Gabungkan video dan audio dengan FFmpeg pada perangkat arm64.
+- Gabungkan video + audio, atau satu/lebih gambar + audio menjadi MP4 slideshow, dengan FFmpeg pada perangkat arm64. Pemilihan media manual tetap berada di Berkas saat tugas disiapkan dan dimasukkan ke antrean.
 
 ## Google Drive
 - Unggah ke folder pilihan dengan opsi lewati nama sama dan verifikasi checksum.
